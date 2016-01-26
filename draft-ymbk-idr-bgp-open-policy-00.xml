@@ -59,10 +59,11 @@
      of BGP topology relationships; e.g. passing a route learned from one
      peer to another peer or a transit provider, passing a route learned
      from one transit provider to another transit provider or a peer.
+     Today approaches rely on markering routes according to some configuration
+     options without any check of this configuration.
      This document enhances BGP Open to establish agreement of the (peer,
-     customer, transit) relationship of the two BGP peers.  Propagated
-     routes are then marked with that relationship, and if the markings
-     are propagated, allowing detection of route leaks. </t>
+     customer, transit) relationship of the two BGP peers to guarantee appropriate
+     configuration on both sides.</t>
    </abstract>
 
    <note title="Requirements Language">
@@ -151,7 +152,8 @@
    <section anchor="considerations" title="Additional Considerations">
      <t>Role can be used not only for route leak mitigation. As it reflects the relationship
      between neighbors, it can be used further to solve another tasks. As an example,
-     role may affect on route priority.</t>
+     role may affect on route priority or used to distinguish borders of network if
+     network consists of multiple AS</t>
      <t>Although such a solution may be good, its proposal is not the task of this document.
       Meanwhile, decision for such a usage may be accept only with local policy approval. </t>
    </section>
@@ -184,12 +186,10 @@
    </section>
 
    <section anchor="Security" title="Security Considerations">
-     <t>This document proposes a mechanism for avoiding route leaks, that are
-     result of misconfiguration. That includes preventing route leaks creation inside AS (company)
-     and route leak detection, if route was leaked by third party.</t>
-
-     <t> However, detection of routes with malformed Local Announce attribute should
-     be considered in future works. </t>
+     <t>This document proposes a mechanism for role synchronization between neighbors.
+     Role option could be used for appropriate tagging routes to avoid route leaks, that are
+     result of misconfiguration. There are also opportunity to create mechanism for predefined route
+     preference values and define new 'border' of network using roles.</t>
 
      <t>Finally, Role is disclosed only to its neighbor, so it will not reveal any
      sensitive information to other parties. </t>
