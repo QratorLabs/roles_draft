@@ -83,9 +83,10 @@
      usually the result of misconfigured or absent BGP route filtering. </t>
 
      <t> <xref target="I-D.ietf-idr-route-leak-detection-mitigation"/> describes a method of
-     marking and detecting leaks which relies on operator maintained
-     markings.  Unfortunately, in most cases, a leaking router will likely
-     also be misconfigured to mark incorrectly. </t>
+     marking and detecting leaks which relies on white listing prefixes from customer cone.
+     Unfortunately, majority of incidents are created by leaking routes from customer cone.
+     Automatic route tagging is planned as part of BGPSec deployment according to configuration option and will likely
+     also be misconfigured. </t>
 
      <t>This document specifies a new BGP Capability Code (see
      <xref target="RFC5492"> RFC 5492 </xref> section 4) through which the two BGP
@@ -94,7 +95,7 @@
      option be exchanged for the BGP Open to succeed. </t>
 
      <t> Also this document specifies a way to mark routes according to roles and a way 
-	 to create double-boundary filters for detection and preventing route leaks via new 
+	 to create double-boundary filters for detection and preventing propagation of route leaks via new
      BGP Path Attribute. </t>
    </section>
 
