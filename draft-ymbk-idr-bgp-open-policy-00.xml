@@ -93,9 +93,9 @@
      peers.  Either side may optionally be configured to require that this
      option be exchanged for the BGP Open to succeed. </t>
 
-     <t> Once the BGP peers have agreed on their respective roles, routes will
-     be marked as described in <xref target="I-D.ietf-idr-route-leak-detection-mitigation"/>,
-     and leaks may be detected with reasonable assurance. </t>
+     <t> Also this document specifies a way to mark routes according to roles and a way 
+	 to create double-boundary filters for detection and preventing route leaks via new 
+     BGP Path Attribute. </t>
    </section>
 
    <section anchor="bgp_role" title="BGP Role">
@@ -111,7 +111,7 @@
        </list> Since Role reflects only relation state between two neighbors, it
        can be used not only for route leak mitigation.</t>
    </section>
-
+   
    <section anchor="correctness" title="Role correctness">
      <t> In <xref target="bgp_role"/> was mentioned that BGP Role is a reflection
      of relation between two BGP speakers. But presence of Role doesn't automatically
@@ -148,6 +148,32 @@
     </section>
    </section>
 
+   <section anchor="attribute" title="BGP Local Announce attribute">
+     <t>The Local Announce attribute is a new optional, transitive BGP Path
+     attribute with the Type Code &lt;TBD3&gt;. This attribute has zero length as
+     it used as a flag.</t>
+     
+     <section anchor="usage" title="Attribute usage">
+     <t> There are four rules for usage of this attribute:<list style="numbers">
+     <t> The Local Announce attribute SHOULD be added to all incoming routes if speaker's
+     Role is Provider or Peer; </t>
+     <t> Routes with this attribute SHOULD NOT be announced if speaker's Role is
+     Provider or Peer; </t>
+     <t> The Local Announce attribute SHOULD be added to all outgoing routes if speaker's
+     Role is Customer or Peer; </t>
+     <t> If speaker's Role is Customer, all incoming routes with the Local Announce
+     attribute SHOULD have low Local Preference Attribute or MAY be filtered.</t>
+     </list> First two rules prevent from creation a route leak within given AS.
+     Last two rules prevent from route leak distribution by one of AS, that haven't
+     support this solution yet. That is also the main reason, why the Local Announce
+     attribute is transitive. </t>
+     <t> So, the Local Announce attribute will be added, if at least one of speakers
+     correct set its role. In addition, the Local Announce attribute
+     will be checked, if also at least one of speakers set its role correct. In other
+     words, such logic offers double-checking on borders to prevent route leaks. </t>
+     </section>
+   </section>
+   
    <section anchor="considerations" title="Additional Considerations">
      <t>Role can be used not only for route leak mitigation. As it reflects the relationship
      between neighbors, it can be used further to solve another tasks. As an example,
@@ -158,7 +184,7 @@
 
 
    <section anchor="IANA" title="IANA Considerations">
-     <t>This memo also defines a new Capability Codes option, named "Role announce", assigned value
+     <t>This memo defines a new Capability Codes option, named "Role announce", assigned value
      &lt;TBD1&gt; [to be removed upon publication:
      http://www.iana.org/assignments/capability-codes/capability-codes.xhtml]
      <xref target="RFC5492"/>. The length of this capability is 1. This capability
@@ -176,11 +202,17 @@
      <c> 4   </c> <c> Internal  </c>
      </texttable>
 
-     <t>Finally, this document defines new Notification option, named
+     <t>Also this document defines new Notification option, named
      "Role Mismatch", assigned value &lt;TBD2&gt; from OPEN message Error subcodes
      [to be removed upon publication:
      http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-6]
      <xref target="RFC4271"/>.</t>
+	 
+	 <t>Finally, this memo defines a new optional, non-transitive BGP Path Attributes option,
+     named "Local announce", assigned value &lt;TBD3&gt; [To be removed upon
+     publication:
+     http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-2]
+     <xref target="RFC4271"/>. Length of this attribute is 0.</t>
    </section>
 
    <section anchor="Security" title="Security Considerations">
