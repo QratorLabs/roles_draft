@@ -22,7 +22,7 @@
 <rfc category="std" docName="draft-ymbk-idr-bgp-open-policy-00" ipr="trust200902">
  <front>
 
-   <title abbrev="BGP Role"> BGP Open Marking Customer/Peer </title>
+   <title abbrev="Route Leak Detection and Filtering"> Route Leak Detection and Filtering using Roles in Update and Open messages </title>
 
    <author fullname="Alexander Azimov" initials="A"
            surname="Azimov">
@@ -148,7 +148,7 @@
        </list>
      </t>
      <t>
-       If speaker received Role capability, it SHOULD check value of
+       If speaker receives Role capability, it SHOULD check value of
        received capability with its own Role. The correct pair are (first is its own Role,
        second is received Role):
        <list style="symbols">
@@ -197,7 +197,7 @@
              hasn't sent role capability in Open message and neighbor's Role is Customer or Peer;
            </t>
            <t>
-             If neighbor's Role is Customer or Peer, all incoming routes with the AVM
+             If neighbor's Role is Customer or Peer, all incoming routes with the set AVM
              attribute SHOULD have low Local Preference Attribute or MAY be filtered.
            </t>
          </list>
@@ -206,7 +206,7 @@
        </t>
        <t>
          So, the AVM attribute will be added, if at least one of speakers
-         correct set its role. In addition, the Local Announce attribute
+         correct set its role. In addition, the AVM attribute
          will be checked, if also at least one of speakers set its role correct. In other
          words, such logic offers double-checking on borders to prevent route leaks.
        </t>
@@ -253,7 +253,7 @@
 	 
 	 <t>
        Finally, this memo defines a new optional, non-transitive BGP Path Attributes option,
-       named "Local announce", assigned value &lt;TBD3&gt; [To be removed upon
+       named "Announce Vector Marker", assigned value &lt;TBD3&gt; [To be removed upon
        publication:
        http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-2]
        <xref target="RFC4271"/>. Length of this attribute is 0.
@@ -268,7 +268,7 @@
      </t>
 
      <t>
-       However, detection of routes with malformed Local Announce attribute should
+       However, detection of routes with malformed AVM attribute should
        be considered in future works.
      </t>
 
