@@ -209,20 +209,22 @@
    </section>
 
    <section anchor="Security" title="Security Considerations">
-     <t>This document proposes a mechanism for role synchronization
-     between neighbors.  Role option could be used for appropriate
-     tagging routes to avoid route leaks, that are result of
-     misconfiguration. There are also opportunity to create mechanism
-     for predefined route preference values and define new 'border' of
-     network using roles.</t>
+     <t>The BGP Role capability can be used for tagging of routes to
+     avoid route leaks.</t>
 
-    <t>Deliberate sending of a known conflicting BGP Role under strict
-    mode could be used to sabotage a BGP connection.  This is easily
-    detectable.</t>
+     <t>Deliberate sending of a known conflicting BGP Role under strict
+     mode could be used to sabotage a BGP connection.  This is easily
+     detectable.</t>
 
-     <t>Finally, BGP Role is disclosed only to an immediate BGP
-     neighbor, so it will not reveal any sensitive information to other
+     <t>BGP Role is disclosed only to an immediate BGP neighbor, so it
+     will not itself reveal any sensitive information to third
      parties.</t>
+
+     <t>On the other hand, ensuring that the BGP business relationship
+     is strongly asserted and tested lends more credence to the leakage
+     of business relationships in
+     <xref target="I-D.ietf-idr-route-leak-detection-mitigation"/>.</t>
+
    </section>
  </middle>
 
