@@ -94,10 +94,23 @@
 
      <t>
        <xref target="I-D.ietf-idr-route-leak-detection-mitigation"/> describes a method of
-       marking and detecting leaks which relies on white listing prefixes from customer cone.
-       Unfortunately, majority of incidents are created by leaking routes from customer cone.
-       Automatic route tagging, which is planned as part of BGPSec deployment, relies on operator maintained
-       markings configuration option and will likely also be misconfigured.
+       marking routes to detect route leaks. Proposed mechanism gives opportunity to detect route leaks made by third party but
+       provide no support to avoid route leak creation. The leak avoidance still relies on communities which are optional and often
+       missed due to mistakes or misunderstanding of BGP configuration process.
+     </t>
+
+     <t>
+       In the meantime it is suggested to use white list filtering which relies on customer cone.
+       Unfortunately, majority of incidents are created by leaking routes from customer cone: lot of medium size transit
+       operators use global prefix list for its customer cone, without paying attention to the source of the
+       learned prefix. So if they learn route from its provider or peer - they will announce it in all directions,
+       including other providers or peers. This misconfiguration limits affected prefixes and possible route leaks
+       to customer cone of such transit operator, but such route leaks will obviously bypass customer cone filtering on its
+       upstream providers.
+     </t>
+     <t>
+       In addition, automatic route tagging, relies on operator maintained markings configuration
+       option and will likely also be misconfigured.
      </t>
 
      <t>This document specifies a new BGP Capability Code,
