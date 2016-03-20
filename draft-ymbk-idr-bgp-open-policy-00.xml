@@ -56,17 +56,19 @@
 
    <abstract>
      <t>
-       Route Leaks are propagation of BGP prefixes which violate assumptions
-       of BGP topology relationships; e.g. passing a route learned from one
-       peer to another peer or to a transit provider, passing a route learned
-       from one transit provider to another transit provider or to a peer.
-       Today, approaches to leak prevention rely on marking routes
-       according to some configuration options without any check of this
-       configuration or enforcement that the two BGP speakers agree on the
-       relationship.   This document enhances BGP Open to establish agreement
-       of the (peer, customer, provider, internal) relationship of the two BGP speakers
-       to enforce appropriate configuration on both sides. Propagated routes
-       are then marked with flag according to agreed relationship allowing
+       Route Leaks are propagation of BGP prefixes which violate
+       assumptions of BGP topology relationships; e.g. passing a route
+       learned from one peer to another peer or to a transit provider,
+       passing a route learned from one transit provider to another
+       transit provider or to a peer.  Today, approaches to leak
+       prevention rely on marking routes according to some configuration
+       options without any check of the configuration corresponds to
+       that of the BGP neighbor, or enforcement that the two BGP
+       speakers agree on the relationship.  This document enhances BGP
+       Open to establish agreement of the (peer, customer, provider,
+       internal) relationship of two BGP neighboring speakers to enforce
+       appropriate configuration on both sides. Propagated routes are
+       then marked with a flag according to agreed relationship allowing
        detection and mitigation of route leaks.
      </t>
    </abstract>
@@ -85,32 +87,43 @@
  <middle>
    <section title="Introduction" anchor="intro">
      <t>
-       For the purposes of this document BGP route leaks are when BGP route
-       was learned from transit provider or peer and is announced to another
-       provider or peer.  See <xref target="I-D.ietf-grow-route-leak-problem-definition"/>.
-       These are usually the result of misconfigured or absent BGP route filtering or
-       lack of coordination between two BGP speakers.
+       For the purposes of this document BGP route leaks are when a BGP
+       route was learned from transit provider or peer and is announced
+       to another provider or peer.  See
+       <xref target="I-D.ietf-grow-route-leak-problem-definition"/>.
+       These are usually the result of misconfigured or absent BGP route
+       filtering or lack of coordination between two BGP speakers.
      </t>
 
      <t>
-       <xref target="I-D.ietf-idr-route-leak-detection-mitigation"/> describes a method of
-       marking routes to detect route leaks. Proposed mechanism gives opportunity to detect route leaks made by third party but
-       provide no support to avoid route leak creation. The leak avoidance still relies on communities which are optional and often
-       missed due to mistakes or misunderstanding of BGP configuration process.
+       <xref target="I-D.ietf-idr-route-leak-detection-mitigation"/>
+       describes a method of marking and detecting leaks which relies on
+       operator maintained markings.  Unfortunately, in most cases, a
+       leaking router will likely also be misconfigured to mark
+       incorrectly.  The proposed mechanism provides an opportunity to
+       detect route leaks made by third parties but provides no support
+       to avoid route leak creation. The leak avoidance still relies on
+       communities which are optional and often missed due to mistakes
+       or misunderstanding of the BGP configuration process.
      </t>
 
      <t>
-       In the meantime it is suggested to use white list filtering which relies on customer cone.
-       Unfortunately, majority of incidents are created by leaking routes from customer cone: lot of medium size transit
-       operators use global prefix list for its customer cone, without paying attention to the source of the
-       learned prefix. So if they learn route from its provider or peer - they will announce it in all directions,
-       including other providers or peers. This misconfiguration limits affected prefixes and possible route leaks
-       to customer cone of such transit operator, but such route leaks will obviously bypass customer cone filtering on its
-       upstream providers.
+       THIS IS GIBBERISH AND I CAN NOT DECIPHER IT
+       Meanwhile it has been suggested to use white list filtering which
+       relies on customer cone.  Unfortunately, majority of incidents
+       are created by leaking routes from customer cone: lot of medium
+       size transit operators use global prefix list for its customer
+       cone, without paying attention to the source of the learned
+       prefix. So if they learn route from its provider or peer - they
+       will announce it in all directions, including other providers or
+       peers. This misconfiguration limits affected prefixes and
+       possible route leaks to customer cone of such transit operator,
+       but such route leaks will obviously bypass customer cone
+       filtering on its upstream providers.
      </t>
      <t>
-       In addition, automatic route tagging, relies on operator maintained markings configuration
-       option and will likely also be misconfigured.
+       Also, route tagging which relies on operator maintained policy
+       configuration is too easily and too often misconfigured.
      </t>
 
      <t>This document specifies a new BGP Capability Code,
@@ -121,23 +134,24 @@
      Open to succeed. </t>
 
      <t>
-       Also this document specifies a way to mark routes according to roles and a way
-       to create double-boundary filters for detection and preventing propagation of route leaks via new
-       BGP Path Attribute.
+       Also this document specifies a way to mark routes according to
+       BGP Roles and a way to create double-boundary filters for
+       detection and preventing propagation of route leaks via a new BGP
+       Path Attribute.
      </t>
    </section>
 
    <section anchor="bgp_role" title="BGP Role">
      <t>BGP Role is new mandatory configuration option. It reflects the
-     verbal real-world agreement between two BGP speakers about their
-     business relationship.</t>
+     real-world agreement between two BGP speakers about their business
+     relationship.</t>
 
      <t>For now, possible Role values are: <list style="symbols">
          <t>Provider - speaker is a transit provider to neighbor;</t>
          <t>Customer - speaker is customer of neighbor;</t>
          <t>Peer     - speaker and neighbor are peers;</t>
          <t>Internal - speaker is part of an internal AS of an
-         organization which has multiple ASs, confederation, ...</t>
+         organization which has multiple ASs, is a confederation, ...</t>
        </list> </t>
      <t>Since BGP Role reflects the relationship between two BGP
      speakers, it can also be used for more than route leak
@@ -165,10 +179,11 @@
 
    <section anchor="correctness" title="Role correctness">
      <t><xref target="bgp_role"/> described how BGP Role is a reflection
-     of the relationship between two BGP speakers. But the presence of
-     BGP Role doesn't automatically guarantee role correctness.</t>
+     of the relationship between two BGP speakers. But the mere presence
+     of BGP Role doesn't automatically guarantee role agreement between
+     two BGP peers.</t>
 
-     <t>To enforce correctness using the BGP Role check, there is a set
+     <t>To enforce correctness, use the BGP Role check with a set
      of constrains on how speakers' BGP Roles MUST corresponded.  Of
      course, each speaker MUST announce and accept the BGP Role
      capability in the BGP OPEN message exchange.</t>
@@ -187,51 +202,57 @@
      <section title="Strict mode" anchor="strict">
      <t>A new BGP configuration option "strict mode" is defined with
      values of true or false. If set to true, then the speaker MUST
-     reject connection with peers which do not announce BGP Role
-     capability in their OPEN message. If a speaker rejects a
+     refust to establish a BGP session with peers which do not announce
+     BGP Role capability in their OPEN message. If a speaker rejects a
      connection, it MUST send a Connection Rejected Notification
      <xref target="RFC4486"/> (Notification with error code 6, subcode
-     5).  But by default strict mode SHOULD be set with false for
-     backward compatibility with BGP speakers, that do not yet support
-     this mechanism.</t>
+     5).  By default strict mode SHOULD be set to false for backward
+     compatibility with BGP speakers, that do not yet support this
+     mechanism.</t>
     </section>
    </section>
 
    <section anchor="attribute" title="BGP Announce Vector Marker attribute">
      <t>
-       The Announce Vector Marker (AVM) attribute is a new optional, transitive BGP Path
-       attribute with the Type Code &lt;TBD3&gt;. This attribute has zero length as
-       it used as a flag.
+       The Announce Vector Marker (AVM) attribute is a new optional,
+       transitive BGP Path attribute with the Type Code
+       &lt;TBD3&gt;. This attribute has zero length as it used only as a
+       flag.
      </t>
      
      <section anchor="usage" title="Attribute usage">
        <t> There are four rules for usage of AVM attribute:
          <list style="numbers">
            <t>
-             The AVM attribute SHOULD be added to all incoming routes if speaker's
-             Role is Provider or Peer;
+             The AVM attribute SHOULD be added to all incoming routes if
+             receiver's Role is Provider or Peer;
            </t>
            <t>
-             Routes with set AVM attribute SHOULD NOT be announced if speaker's Role is
-             Provider or Peer;
+             Routes with the AVM attribute set MUST NOT be announced to
+             other than customers if the speaker's Role is Provider or
+             Peer;
            </t>
            <t>
-             The AVM attribute SHOULD be added to all outgoing routes if speaker
-             hasn't sent role capability in Open message and speaker's Role is Customer or Peer;
+             The AVM attribute SHOULD be added to all outgoing routes if
+             the speaker has not sent the Role capability in the OPEN
+             message and speaker's Role is Customer or Peer;
            </t>
            <t>
-             If speaker's Role is Customer or Peer, all incoming routes with the set AVM
-             attribute SHOULD have low Local Preference Attribute or MAY be filtered.
+             If the receiver's Role is Customer or Peer, all incoming
+             routes with the AVM attribute set SHOULD have low Local
+             Preference Attribute or MAY be filtered.
            </t>
          </list>
-         First two rules avoid creation of route leak inside given AS.
-         Last two rules provide detection of route leak made by some AS in AS Path.
+         The first two rules avoid creation of route leak inside an AS.
+         The last two rules provide detection of route leaks made by
+         some other AS in the AS_Path.
        </t>
        <t>
-         So, the AVM attribute will be added, if at least one of speakers
-         correctly set its role. In addition, the AVM attribute
-         will be checked, if also at least one of speakers set its role correct. In other
-         words, such logic offers double-checking on borders to prevent route leaks.
+         The AVM attribute will be added, if at least one of speakers
+         correctly set its role. In addition, the AVM attribute will be
+         checked if at least one of speakers set its role correctly. In
+         other words, this double-checks at borders to prevent route
+         leaks.
        </t>
      </section>
    </section>
@@ -241,7 +262,7 @@
      <t>As BGP Role reflects the relationship between neighbors, it can
      also have other uses.  As an example, BGP Role might affect route
      priority, or be used to distinguish borders of network if a network
-     consists of multiple AS</t>
+     consists of multiple AS.</t>
      <t>Though such uses may be worthwhile, they are not the goal of
       this document.  Note that such uses would require local policy
       control. </t>
@@ -255,16 +276,17 @@
      <xref target="RFC5492"/>. The length of this capability is 1. </t>
 
      <t>The BGP Role capability includes a Value field, for which IANA
-     is asked to create and maintain a new sub-registry called "BGP Role
-     Value". Initial values of this registry are to be populated with
-     the Values in <xref target="values"/>. Future assignments are to be
-     made upon Standard action procedure <xref target="RFC5226"/>.
+     is requested to create and maintain a new sub-registry called "BGP
+     Role Value". Initial values of this registry are to be populated
+     with the Values in <xref target="values"/>. Future assignments are
+     to be made upon Standard action procedure <xref target="RFC5226"/>.
      Assignments consist of Value and corresponding Role name.</t>
      <t>
-       Also this document defines new Notification option, named "Role Mismatch", assigned
-       value &lt;TBD2&gt; from OPEN message Error subcodes [to be removed upon publication:
+       Also this document defines new Notification option, named "Role
+       Mismatch", assigned value &lt;TBD2&gt; from OPEN message Error
+       subcodes [to be removed upon publication:
        http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-6]
-     <xref target="RFC4271"/>.</t>
+       <xref target="RFC4271"/>.</t>
 	 
 	 <t>
        Finally, this memo defines a new optional, transitive BGP Path Attributes option,
