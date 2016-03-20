@@ -228,9 +228,8 @@
              receiver's Role is Provider or Peer;
            </t>
            <t>
-             Routes with the AVM attribute set MUST NOT be announced to
-             other than customers if the speaker's Role is Provider or
-             Peer;
+             Routes with the AVM attribute set MUST NOT be announced if
+             the speaker's Role is Provider or Peer;
            </t>
            <t>
              The AVM attribute SHOULD be added to all outgoing routes if
