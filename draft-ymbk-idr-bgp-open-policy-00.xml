@@ -108,17 +108,18 @@
      </t>
 
      <t>
-       Meanwhile it has been suggested to use white list filtering which
-       relies on customer cone as import filtering in order to detect route leaks.  Unfortunately, majority of incidents
-       are created by leaking routes inside customer cone: lot of medium
-       size transit operators use global prefix list as only source for export filtering
-       without community usage and don't paying attention to the source of learned
-       route. So, if they learn customer's routes from its provider or peer - they
+       It has been suggested to use white list filtering, relying on
+       knowing the prefixes in the customer cone as import filtering, in
+       order to detect route leaks.  Unfortunately, a large number of
+       incidents is created by leaking routes defined in customer cone;
+       a lot of medium size transit operators use a single prefix list
+       as only the ACL for export filtering, without community tagging
+       and and paying attention to the source of a learned route. So, if
+       they learn a customer's route from their provider or peer - they
        will announce it in all directions, including other providers or
-       peers. This misconfiguration limits affected prefixes and
-       possible route leaks to customer cone of such transit operator,
-       but such route leaks will obviously bypass customer cone import
-       filtering made by upper level upstream providers.
+       peers.  This misconfiguration affects a limited number of
+       prefixes; but such route leaks will obviously bypass customer
+       cone import filtering made by upper level upstream providers.
      </t>
      <t>
        Also, route tagging which relies on operator maintained policy
@@ -205,7 +206,7 @@
      <section title="Strict mode" anchor="strict">
      <t>A new BGP configuration option "strict mode" is defined with
      values of true or false. If set to true, then the speaker MUST
-     refust to establish a BGP session with peers which do not announce
+     refuse to establish a BGP session with peers which do not announce
      BGP Role capability in their OPEN message. If a speaker rejects a
      connection, it MUST send a Connection Rejected Notification
      <xref target="RFC4486"/> (Notification with error code 6, subcode
@@ -230,8 +231,8 @@
              the receiver's Role is Customer or Peer;
            </t>
            <t>
-             Routes with the OTC attribute set MUST NOT be announced to neighbor if
-             the sender's Role is Customer or Peer;
+             Routes with the OTC attribute set MUST NOT be announced to
+	     a neighbor which is a Provider or a Peer;
            </t>
            <t>
              The OTC attribute SHOULD be added to all outgoing routes if
@@ -239,7 +240,7 @@
              message and sender's Role is Provider or Peer;
            </t>
            <t>
-             If the receiver's Role is Provider or Peer, all incoming
+             If the receiver's Role is Customer or Peer, all incoming
              routes with the OTC attribute set SHOULD have lower Local
              Preference than routes learned from Customers, or they MAY
              be filtered.
@@ -303,7 +304,7 @@
    <section anchor="Security" title="Security Considerations">
      <t> This document proposes a mechanism for avoiding route leaks,
        that are the result of BGP policy misconfiguration. That includes
-       preventing route leaks creation inside an AS (company), and route
+       preventing route leaks created inside an AS (company), and route
        leak detection, if a route was leaked by third party.</t>
      <t> Deliberate sending of a known conflicting BGP Role could be
        used to sabotage a BGP connection.  This is easily detectable.</t>
@@ -316,7 +317,7 @@
        which reveals a bit about a BGP speaker's business relationship.
        It will give a strong hint that some link isn't customer to
        provider, but will not help to distinguish if it is provider to
-       customer or peer to peer.  If OTV is BGPsec signed, it can not be
+       customer or peer to peer.  If OTC is BGPsec signed, it can not be
        removed for business confidentiality.</t>
 
    </section>
