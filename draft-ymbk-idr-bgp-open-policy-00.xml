@@ -240,10 +240,9 @@
              message and sender's Role is Provider or Peer;
            </t>
            <t>
-             If the receiver's Role is Customer or Peer, all incoming
-             routes with the OTC attribute set SHOULD have lower Local
-             Preference than routes learned from Customers, or they MAY
-             be filtered.
+             If the receiver's Role is Provider or Peer, incoming routes
+             with the OTC attribute set SHOULD be given a lower local
+             preference, or they MAY be dropped.
            </t>
          </list>
          The first two rules avoid creation of route leaks by an AS.
