@@ -108,18 +108,17 @@
      </t>
 
      <t>
-       THIS IS GIBBERISH AND I CAN NOT DECIPHER IT
        Meanwhile it has been suggested to use white list filtering which
-       relies on customer cone.  Unfortunately, majority of incidents
-       are created by leaking routes from customer cone: lot of medium
-       size transit operators use global prefix list for its customer
-       cone, without paying attention to the source of the learned
-       prefix. So if they learn route from its provider or peer - they
+       relies on customer cone as import filtering in order to detect route leaks.  Unfortunately, majority of incidents
+       are created by leaking routes inside customer cone: lot of medium
+       size transit operators use global prefix list as only source for export filtering
+       without community usage and don't paying attention to the source of learned
+       route. So, if they learn customer's routes from its provider or peer - they
        will announce it in all directions, including other providers or
        peers. This misconfiguration limits affected prefixes and
        possible route leaks to customer cone of such transit operator,
-       but such route leaks will obviously bypass customer cone
-       filtering on its upstream providers.
+       but such route leaks will obviously bypass customer cone import
+       filtering made by upper level upstream providers.
      </t>
      <t>
        Also, route tagging which relies on operator maintained policy
@@ -227,16 +226,16 @@
              the receiver's Role is Customer or Peer;
            </t>
            <t>
-             Routes with the OTC attribute set MUST NOT be announced to
-	     a neighbor which is a Provider or a Peer;
+             Routes with the OTC attribute set MUST NOT be announced to neighbor if
+             the sender's Role is Customer or Peer;
            </t>
            <t>
              The OTC attribute SHOULD be added to all outgoing routes if
-             the speaker has not sent the Role capability in the OPEN
-             message and speaker's Role is Provider or Peer;
+             the neighbor has not sent the Role capability in the OPEN
+             message and sender's Role is Provider or Peer;
            </t>
            <t>
-             If the receiver's Role is Customer or Peer, all incoming
+             If the receiver's Role is Provider or Peer, all incoming
              routes with the OTC attribute set SHOULD have lower Local
              Preference than routes learned from Customers, or they MAY
              be filtered.
@@ -300,7 +299,7 @@
    <section anchor="Security" title="Security Considerations">
      <t> This document proposes a mechanism for avoiding route leaks,
        that are the result of BGP policy misconfiguration. That includes
-       preventing route leaks created inside an AS (company), and route
+       preventing route leaks creation inside an AS (company), and route
        leak detection, if a route was leaked by third party.</t>
      <t> Deliberate sending of a known conflicting BGP Role could be
        used to sabotage a BGP connection.  This is easily detectable.</t>
