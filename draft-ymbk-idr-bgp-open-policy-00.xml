@@ -146,7 +146,7 @@
      real-world agreement between two BGP speakers about their business
      relationship.</t>
 
-     <t>For now, possible Role values are: <list style="symbols">
+     <t>Allowed Role values are: <list style="symbols">
          <t>Provider - speaker is a transit provider to neighbor;</t>
          <t>Customer - speaker is customer of neighbor;</t>
          <t>Peer     - speaker and neighbor are peers;</t>
@@ -154,7 +154,7 @@
          organization which has multiple ASs, is a confederation, ...</t>
        </list> </t>
      <t>Since BGP Role reflects the relationship between two BGP
-     speakers, it can also be used for more than route leak
+     speakers, it could also be used for more than route leak
      mitigation.</t>
    </section>
 
@@ -212,46 +212,46 @@
     </section>
    </section>
 
-   <section anchor="attribute" title="BGP Announce Vector Marker attribute">
+   <section anchor="attribute" title="BGP Only To Customer attribute">
      <t>
-       The Announce Vector Marker (AVM) attribute is a new optional,
-       transitive BGP Path attribute with the Type Code
-       &lt;TBD3&gt;. This attribute has zero length as it used only as a
-       flag.
+       The Only To Customer (OTC) attribute is a new optional,
+       transitive BGP Path attribute with the Type Code &lt;TBD3&gt;.
+       This attribute has zero length as it used only as a flag.
      </t>
      
      <section anchor="usage" title="Attribute usage">
-       <t> There are four rules for usage of AVM attribute:
+       <t> There are four rules for setting the OTC attribute:
          <list style="numbers">
            <t>
-             The AVM attribute SHOULD be added to all incoming routes if
-             receiver's Role is Provider or Peer;
+             The OTC attribute SHOULD be added to all incoming routes if
+             the receiver's Role is Customer or Peer;
            </t>
            <t>
-             Routes with the AVM attribute set MUST NOT be announced if
-             the speaker's Role is Provider or Peer;
+             Routes with the OTC attribute set MUST NOT be announced to
+	     a neighbor which is a Provider or a Peer;
            </t>
            <t>
-             The AVM attribute SHOULD be added to all outgoing routes if
+             The OTC attribute SHOULD be added to all outgoing routes if
              the speaker has not sent the Role capability in the OPEN
-             message and speaker's Role is Customer or Peer;
+             message and speaker's Role is Provider or Peer;
            </t>
            <t>
              If the receiver's Role is Customer or Peer, all incoming
-             routes with the AVM attribute set SHOULD have low Local
-             Preference Attribute or MAY be filtered.
+             routes with the OTC attribute set SHOULD have lower Local
+             Preference than routes learned from Customers, or they MAY
+             be filtered.
            </t>
          </list>
-         The first two rules avoid creation of route leak inside an AS.
-         The last two rules provide detection of route leaks made by
-         some other AS in the AS_Path.
+         The first two rules avoid creation of route leaks by an AS.
+         The last two rules provide the data to allow detection of route
+         leaks made by some other AS in the AS Path.
        </t>
        <t>
-         The AVM attribute will be added, if at least one of speakers
-         correctly set its role. In addition, the AVM attribute will be
-         checked if at least one of speakers set its role correctly. In
-         other words, this double-checks at borders to prevent route
-         leaks.
+         The OTC attribute will be added automatically if at least one
+         of the speakers correctly sets its role.  Additionally, the OTC
+         attribute will be checked if at least one of the speakers set
+         its role correctly.  In other words, this double-checks at
+         borders to prevent route leaks.
        </t>
      </section>
    </section>
@@ -260,8 +260,8 @@
    <section anchor="considerations" title="Additional Considerations">
      <t>As BGP Role reflects the relationship between neighbors, it can
      also have other uses.  As an example, BGP Role might affect route
-     priority, or be used to distinguish borders of network if a network
-     consists of multiple AS.</t>
+     priority, or be used to distinguish borders of a network if a
+     network consists of multiple AS.</t>
      <t>Though such uses may be worthwhile, they are not the goal of
       this document.  Note that such uses would require local policy
       control. </t>
@@ -269,50 +269,55 @@
 
 
    <section anchor="IANA" title="IANA Considerations">
-     <t>This document defines a new Capability Codes option, named "BGP
-     Role", assigned value &lt;TBD1&gt; [to be removed upon publication:
+     <t>This document defines a new Capability Codes option [to be
+     removed upon publication:
      http://www.iana.org/assignments/capability-codes/capability-codes.xhtml]
-     <xref target="RFC5492"/>. The length of this capability is 1. </t>
+     <xref target="RFC5492"/>, named "BGP Role", assigned value
+     &lt;TBD1&gt; . The length of this capability is 1. </t>
 
      <t>The BGP Role capability includes a Value field, for which IANA
      is requested to create and maintain a new sub-registry called "BGP
-     Role Value". Initial values of this registry are to be populated
-     with the Values in <xref target="values"/>. Future assignments are
-     to be made upon Standard action procedure <xref target="RFC5226"/>.
-     Assignments consist of Value and corresponding Role name.</t>
+     Role Value".  Assignments consist of Value and corresponding Role
+     name.  Initially this registry is to be populated with the data in
+     <xref target="values"/>.  Future assignments may be made by a
+     standard action procedure <xref target="RFC5226"/>.</t>
      <t>
-       Also this document defines new Notification option, named "Role
-       Mismatch", assigned value &lt;TBD2&gt; from OPEN message Error
-       subcodes [to be removed upon publication:
+       This document defines new subcode, "Role Mismatch", assigned
+       value &lt;TBD2&gt; in the OPEN Message Error subcodes registry
+       [to be removed upon publication:
        http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-6]
        <xref target="RFC4271"/>.</t>
 	 
-	 <t>
-       Finally, this memo defines a new optional, transitive BGP Path Attributes option,
-       named "Announce Vector Marker", assigned value &lt;TBD3&gt; [To be removed upon
-       publication:
+     <t>
+       This document defines a new optional, transitive BGP Path
+       Attributes option, named "Only To Customer", assigned value
+       &lt;TBD3&gt; [To be removed upon publication:
        http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-2]
-       <xref target="RFC4271"/>. Length of this attribute is 0.
+       <xref target="RFC4271"/>. The length of this attribute is 0.
      </t>
    </section>
 
    <section anchor="Security" title="Security Considerations">
      <t>
-       This document proposes a mechanism for avoiding route leaks, that are
-       result of misconfiguration. That includes preventing route leaks creation inside AS (company)
-       and route leak detection, if route was leaked by third party.
+       This document proposes a mechanism for avoiding route leaks, that
+       are the result of BGP policy misconfiguration. That includes
+       preventing route leaks created inside an AS (company), and route
+       leak detection, if a route was leaked by third party.
      </t>
      <t>
-       Deliberate sending of a known conflicting BGP Role could be used to sabotage a BGP connection.
-       This is easily detectable.
+       Deliberate sending of a known conflicting BGP Role could be used
+       to sabotage a BGP connection.  This is easily detectable.
      </t>
      <t>
-       However, detection of routes with malformed AVM attribute should
-       be considered in future works.
+       Deliberate mis-marking of the OTC flag could be used to sabotage
+       a route's propagation.
      </t>
+     <t> BGP Role is disclosed only to an immediate BGP speaker, so it
+       will not itself reveal any sensitive information to third
+       parties. </t>
+     <t> On the other hand, OTC is a transitive BGP attribute which
+     reveals a BGP speaker's business relationship. </t>
 
-     <t> Finally, BGP Role is disclosed only to an immediate BGP speaker, so it
-     will not itself reveal any sensitive information to third parties. </t>
    </section>
  </middle>
 
