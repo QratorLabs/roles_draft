@@ -147,10 +147,10 @@
      relationship.</t>
 
      <t>Allowed Role values are: <list style="symbols">
-         <t>Provider - speaker is a transit provider to neighbor;</t>
-         <t>Customer - speaker is customer of neighbor;</t>
-         <t>Peer     - speaker and neighbor are peers;</t>
-         <t>Internal - speaker is part of an internal AS of an
+         <t>Provider - sender is a transit provider to neighbor;</t>
+         <t>Customer - sender is customer of neighbor;</t>
+         <t>Peer     - sender and neighbor are peers;</t>
+         <t>Internal - sender is part of an internal AS of an
          organization which has multiple ASs, is a confederation, ...</t>
        </list> </t>
      <t>Since BGP Role reflects the relationship between two BGP
@@ -188,16 +188,20 @@
      course, each speaker MUST announce and accept the BGP Role
      capability in the BGP OPEN message exchange.</t>
 
-     <t> If a speaker receives a BGP Role capability, it SHOULD check
-     value of received capability with its own BGP Role. The allowed
-     pairings are (first is its own Role, second is received
-     Role): <list style="symbols">
-     <t> (Peer, Peer);  </t>
-     <t> (Provider, Customer); </t>
-     <t> (Customer, Provider); </t>
-     <t> (Internal, Internal); </t>
-     </list> In all other cases speaker MUST send a Role Mismatch
-     Notification (code 2, sub-code &lt;TBD2&gt;).</t>
+     <t>If a speaker receives a BGP Role capability, it SHOULD check
+     value of the received capability with its own BGP Role. The allowed
+     pairings are (first a sender's Role, second the receiver's
+     Role):</t>
+     <texttable anchor="allowed" title="Allowed Role Capabilities" suppress-title="false">
+     <ttcol align="left"> Sender Role </ttcol>
+     <ttcol align="left"> Receiver Role </ttcol>
+     <c> Peer     </c> <c> Peer </c>
+     <c> Provider </c> <c> Customer </c>
+     <c> Customer </c> <c> Provider </c>
+     <c> Internal </c> <c> Internal </c>
+     </texttable>
+     <t> In all other cases speaker MUST send a Role Mismatch
+     Notification (code 2, sub-code &lt;TBD2&gt;). </t>
 
      <section title="Strict mode" anchor="strict">
      <t>A new BGP configuration option "strict mode" is defined with
@@ -310,9 +314,11 @@
        will not itself reveal any sensitive information to third
        parties. </t>
      <t> On the other hand, OTC is a transitive BGP AS_PATH attribute
-       which reveals a BGP speaker's business relationship.  If it is
-       BGPsec signed, it can not be removed for business
-       confidentiality.</t>
+       which reveals a bit about a BGP speaker's business relationship.
+       It will give a strong hint that some link isn't customer to
+       provider, but will not help to distinguish if it is provider to
+       customer or peer to peer.  If OTV is BGPsec signed, it can not be
+       removed for business confidentiality.</t>
 
    </section>
  </middle>
