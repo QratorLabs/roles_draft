@@ -6,8 +6,9 @@
 <!ENTITY RFC4486 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4486.xml">
 <!ENTITY RFC5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
 <!ENTITY RFC5492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5492.xml">
-<!ENTITY I-D.ietf-grow-route-leak-problem-definition SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-route-leak-problem-definition-03.xml">
-<!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-01.xml">
+<!ENTITY I-D.ietf-grow-route-leak-problem-definition SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-route-leak-problem-definition-06.xml">
+<!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-03.xml">
+<!ENTITY I-D.ietf-sidr-bgpsec-protocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-sidr-bgpsec-protocol-15.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -19,7 +20,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ymbk-idr-bgp-open-policy-00" ipr="trust200902">
+<rfc category="std" docName="draft-ymbk-idr-bgp-open-policy-01" ipr="trust200902">
  <front>
 
    <title abbrev="Route Leak Detection and Filtering"> Route Leak Detection and Filtering using Roles in Update and Open messages </title>
@@ -217,47 +218,75 @@
     </section>
    </section>
 
-   <section anchor="attribute" title="BGP Only To Customer attribute">
+   <section anchor="prevention_attribute" title="BGP Internal Only To Customer attribute">
      <t>
-       The Only To Customer (OTC) attribute is a new optional,
-       transitive BGP Path attribute with the Type Code &lt;TBD3&gt;.
+       The Internal Only To Customer (IOTC) attribute is a new optional,
+       non-transitive BGP Path attribute with the Type Code &lt;TBD3&gt;.
        This attribute has zero length as it used only as a flag.
      </t>
      
-     <section anchor="usage" title="Attribute usage">
-       <t> There are four rules for setting the OTC attribute:
+     <t> There are two rules for setting the IOTC attribute:
          <list style="numbers">
            <t>
-             The OTC attribute SHOULD be added to all incoming routes if
+             The IOTC attribute SHOULD be added to all incoming routes if
              the receiver's Role is Customer or Peer;
            </t>
            <t>
-             Routes with the OTC attribute set MUST NOT be announced to
+             Routes with the IOTC attribute set MUST NOT be announced to
 	     a neighbor which is a Provider or a Peer;
            </t>
-           <t>
-             The OTC attribute SHOULD be added to all outgoing routes if
-             the neighbor has not sent the Role capability in the OPEN
-             message and sender's Role is Provider or Peer;
-           </t>
-           <t>
-             If the receiver's Role is Provider or Peer, incoming routes
-             with the OTC attribute set SHOULD be given a lower local
-             preference, or they MAY be dropped.
-           </t>
          </list>
-         The first two rules avoid creation of route leaks by an AS.
-         The last two rules provide the data to allow detection of route
+         This two rules help to avoid creation of route leaks by an AS. The 
+		 attribute is non-transitive to prevent local information 
+		 spreading outside AS, if edge router doesn't support IOTC attribute
+         yet.
+       </t>
+   </section>
+   
+   <section anchor="detection_attribute" title="BGP External Only To Customer attribute">
+     <t>
+	       The External Only To Customer (EOTC) attribute is a new optional,
+	     transitive BGP Path attribute with the Type Code &lt;TBD4&gt;.
+	     This attribute has four bytes length and contain an ASN of AS, 
+	     that added attribute to the route.
+	   </t>
+	     <t> There are two rules for setting the EOTC attribute:
+         <list style="numbers">
+           <t>
+             The EOTC attribute SHOULD be added to all outgoing routes with
+			 value equal to own ASN if there is not such attribute in route 
+			 yet and sender's Role is Provider or Peer;
+           </t>
+           <t>
+             If the receiver's Role is Provider or Peer, there is an EOTC 
+			 attribute in route and EOTC value is not equal to ASN of 
+			 neighbor AS, then such incoming routes SHOULD be given a lower 
+			 local preference, or they MAY be dropped.
+           </t>
+
+         </list>
+         This two rules provide the data to allow detection of route
          leaks made by some other AS in the AS Path.
        </t>
-       <t>
-         The OTC attribute will be added automatically if at least one
-         of the speakers correctly sets its role.  Additionally, the OTC
-         attribute will be checked if at least one of the speakers set
-         its role correctly.  In other words, this double-checks at
-         borders to prevent route leaks.
-       </t>
-     </section>
+   </section>
+   
+   <section anchor="security" title="Compatibility with BGPsec">
+     <t>  
+       In BGPsec <xref target="I-D.ietf-sidr-bgpsec-protocol"></xref> enabled routers
+     information about EOTC attribute SHOULD be added in Flags field in BGPsec 
+     updates and SHOULD NOT be added as EOTC attribute itself. Flags field is 
+     part of Secure_Path Segment in BGPsec updates. It's one octet long and 
+     there are still some free bits to use. One bit can be designed to carry 
+     information about added EOTC attribute. EOTC value will be automatically 
+     carried in AS field of added Secure_Path Segment.
+       When route is translated from BGPsec enabled router to BGPsec unenabled, 
+     in addition to AS_PATH reconstruction SHOULD be performed EOTC attribute 
+     reconstruction. If corresponded bit was set in one of Secure_Path Segment,
+     EOTC attribute SHOULD be added with value of AS field of first 
+     Secure_Path Segment, in which this bit was set. 
+       With such protection route leak detection function of EOTC attribute 
+     can not be maliciously denied by any future AS.
+     </t>
    </section>
    
 
@@ -269,6 +298,29 @@
      <t>Though such uses may be worthwhile, they are not the goal of
       this document.  Note that such uses would require local policy
       control. </t>
+      <section anchor="attribute_amount" title="One or two attributes?">
+	    <t>
+      Last version of this draft used one attribute (OTC) to maintain both 
+	  prevention and detection functions. There were two main reasons for  
+	  moving to two attribute mechanism:
+	  <list style="symbols">
+	    <t>
+        For full BGPsec compatibility with OTC BGPsec enable router MUST 
+      support a situation, when its own AS number is contained in Secure_Path 
+      Segments. 
+      </t>
+      <t>
+        Without BGPsec anyone could add OTC, which could cause Denial of Service 
+      for this route, because it could be filtered during egress filtering by 
+      edge router.         
+      </t>
+	  </list>
+      First and main cons during the transition to two attribute mechanism was 
+    lack of fullness. Since IOTC and EOTC are added and filtered independetly, some network 
+    configuration, where solution above is partly deployed, will not not be able to 
+    prevent and detect route leaks, even it could be covered by OTC solution.
+      </t>
+	  </section>
    </section>
 
 
@@ -293,11 +345,18 @@
        <xref target="RFC4271"/>.</t>
 	 
      <t>
-       This document defines a new optional, transitive BGP Path
-       Attributes option, named "Only To Customer", assigned value
+       This document defines a new optional, non-transitive BGP Path
+       Attributes option, named "Internal Only To Customer", assigned value
        &lt;TBD3&gt; [To be removed upon publication:
        http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-2]
        <xref target="RFC4271"/>. The length of this attribute is 0.
+     </t>
+     <t>
+       This document defines a new optional, transitive BGP Path
+       Attributes option, named "External Only To Customer", assigned value
+       &lt;TBD4&gt; [To be removed upon publication:
+       http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-2]
+       <xref target="RFC4271"/>. The length of this attribute is 4.
      </t>
    </section>
 
@@ -308,16 +367,16 @@
        leak detection, if a route was leaked by third party.</t>
      <t> Deliberate sending of a known conflicting BGP Role could be
        used to sabotage a BGP connection.  This is easily detectable.</t>
-     <t> Deliberate mis-marking of the OTC flag could be used to
+     <t> Deliberate mis-marking of the EOTC flag could be used to
        sabotage a route's propagation.</t>
      <t> BGP Role is disclosed only to an immediate BGP speaker, so it
        will not itself reveal any sensitive information to third
        parties. </t>
-     <t> On the other hand, OTC is a transitive BGP AS_PATH attribute
+     <t> On the other hand, EOTC is a transitive BGP AS_PATH attribute
        which reveals a bit about a BGP speaker's business relationship.
        It will give a strong hint that some link isn't customer to
        provider, but will not help to distinguish if it is provider to
-       customer or peer to peer.  If OTC is BGPsec signed, it can not be
+       customer or peer to peer.  If EOTC is BGPsec signed, it can not be
        removed for business confidentiality.</t>
 
    </section>
@@ -335,6 +394,7 @@
      &RFC5226;
      &I-D.ietf-grow-route-leak-problem-definition;
      &I-D.ietf-idr-route-leak-detection-mitigation;
+     &I-D.ietf-sidr-bgpsec-protocol;
   </references>
  </back>
 </rfc>
