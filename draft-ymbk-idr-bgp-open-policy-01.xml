@@ -70,8 +70,8 @@
        Open to establish agreement of the (peer, customer, provider,
        internal) relationship of two BGP neighboring speakers to enforce
        appropriate configuration on both sides. Propagated routes are
-       then marked with a flag according to agreed relationship allowing
-       detection and mitigation of route leaks.
+       then marked with a eOTC and iOTC attributes according to agreed relationship allowing
+       prevetion and detection of route leaks.
      </t>
    </abstract>
 
@@ -104,7 +104,7 @@
        leaking router will likely also be misconfigured to mark
        incorrectly.  The proposed mechanism provides an opportunity to
        detect route leaks made by third parties but provides no support
-       to avoid route leak creation. The leak avoidance still relies on
+       to prevent route leak creation. The leak prevention still relies on
        communities which are optional and often missed due to mistakes
        or misunderstanding of the BGP configuration process.
      </t>
@@ -113,10 +113,9 @@
        It has been suggested to use white list filtering, relying on
        knowing the prefixes in the customer cone as import filtering, in
        order to detect route leaks.  Unfortunately, a large number of
-       incidents is created by leaking routes defined in customer cone;
-       a lot of medium size transit operators use a single prefix list
+       incidents is created medium size transit operators use a single prefix list
        as only the ACL for export filtering, without community tagging
-       and and paying attention to the source of a learned route. So, if
+       and paying attention to the source of a learned route. So, if
        they learn a customer's route from their provider or peer - they
        will announce it in all directions, including other providers or
        peers.  This misconfiguration affects a limited number of
@@ -138,8 +137,8 @@
      <t>
        Also this document specifies a way to mark routes according to
        BGP Roles and a way to create double-boundary filters for
-       detection and preventing propagation of route leaks via a new BGP
-       Path Attribute.
+       prevention and detection of route leaks via a two new BGP
+       Path Attributes.
      </t>
    </section>
 
@@ -220,7 +219,7 @@
 
    <section anchor="prevention_attribute" title="BGP Internal Only To Customer attribute">
      <t>
-       The Internal Only To Customer (IOTC) attribute is a new optional,
+       The Internal Only To Customer (iOTC) attribute is a new optional,
        non-transitive BGP Path attribute with the Type Code &lt;TBD3&gt;.
        This attribute has zero length as it used only as a flag.
      </t>
@@ -228,64 +227,55 @@
      <t> There are two rules for setting the IOTC attribute:
          <list style="numbers">
            <t>
-             The IOTC attribute SHOULD be added to all incoming routes if
+             The iOTC attribute SHOULD be added to all incoming routes if
              the receiver's Role is Customer or Peer;
            </t>
            <t>
-             Routes with the IOTC attribute set MUST NOT be announced to
-	     a neighbor which is a Provider or a Peer;
+             Routes with the iOTC attribute set MUST NOT be announced if
+             the sender's Role is Customer or Peer;
            </t>
          </list>
-         This two rules help to avoid creation of route leaks by an AS. The 
-		 attribute is non-transitive to prevent local information 
-		 spreading outside AS, if edge router doesn't support IOTC attribute
-         yet.
+         This two rules provide mechanism that prevent route leak creation by an AS.
        </t>
    </section>
    
    <section anchor="detection_attribute" title="BGP External Only To Customer attribute">
      <t>
-	       The External Only To Customer (EOTC) attribute is a new optional,
-	     transitive BGP Path attribute with the Type Code &lt;TBD4&gt;.
-	     This attribute has four bytes length and contain an ASN of AS, 
-	     that added attribute to the route.
-	   </t>
-	     <t> There are two rules for setting the EOTC attribute:
+       The External Only To Customer (eOTC) attribute is a new optional,
+       transitive BGP Path attribute with the Type Code &lt;TBD4&gt;.
+       This attribute has four bytes length and contain an AS number of AS,
+       that added attribute to the route.
+     </t>
+	     <t> There are two rules for setting the eOTC attribute:
          <list style="numbers">
            <t>
-             The EOTC attribute SHOULD be added to all outgoing routes with
-			 value equal to own ASN if there is not such attribute in route 
-			 yet and sender's Role is Provider or Peer;
+             If eOTC is not set and sender's Role is Provider or Peer
+             the eOTC attribute MUST be added with value equal to its ASN.
            </t>
            <t>
-             If the receiver's Role is Provider or Peer, there is an EOTC 
-			 attribute in route and EOTC value is not equal to ASN of 
-			 neighbor AS, then such incoming routes SHOULD be given a lower 
-			 local preference, or they MAY be dropped.
+             If eOTC is set, receiver's Role is Provider or Peer, and its value
+             is not equal to neighbor ASN then such incoming route is route leak
+             and MUST be given a lower local preference, or they MAY be dropped.
            </t>
 
          </list>
-         This two rules provide the data to allow detection of route
-         leaks made by some other AS in the AS Path.
+           This two rules provide mechanism for route leak detection that is made by
+           some party in ASPath.
        </t>
    </section>
    
    <section anchor="security" title="Compatibility with BGPsec">
      <t>  
        In BGPsec <xref target="I-D.ietf-sidr-bgpsec-protocol"></xref> enabled routers
-     information about EOTC attribute SHOULD be added in Flags field in BGPsec 
-     updates and SHOULD NOT be added as EOTC attribute itself. Flags field is 
-     part of Secure_Path Segment in BGPsec updates. It's one octet long and 
-     there are still some free bits to use. One bit can be designed to carry 
-     information about added EOTC attribute. EOTC value will be automatically 
+     information about eOTC attribute MUST be added in Flags field of Secure_Path Segment in BGPsec
+     updates and MUST NOT be added as eOTC attribute itself. Flags field is
+     part  in BGPsec updates. One bit from this field could be designed to carry
+     information about added eOTC attribute. eOTC value will be automatically
      carried in AS field of added Secure_Path Segment.
-       When route is translated from BGPsec enabled router to BGPsec unenabled, 
-     in addition to AS_PATH reconstruction SHOULD be performed EOTC attribute 
-     reconstruction. If corresponded bit was set in one of Secure_Path Segment,
-     EOTC attribute SHOULD be added with value of AS field of first 
-     Secure_Path Segment, in which this bit was set. 
-       With such protection route leak detection function of EOTC attribute 
-     can not be maliciously denied by any future AS.
+       When route is translated from BGPsec enabled router to BGPsec disabled,
+     in addition to AS_PATH reconstruction MUST be performed eOTC attribute
+     reconstruction. If corresponded bit was set in one of Secure_Path Segments,
+     eOTC attribute SHOULD be added with value of ASN in which segment it appears for the first time.
      </t>
    </section>
    
@@ -298,29 +288,6 @@
      <t>Though such uses may be worthwhile, they are not the goal of
       this document.  Note that such uses would require local policy
       control. </t>
-      <section anchor="attribute_amount" title="One or two attributes?">
-	    <t>
-      Last version of this draft used one attribute (OTC) to maintain both 
-	  prevention and detection functions. There were two main reasons for  
-	  moving to two attribute mechanism:
-	  <list style="symbols">
-	    <t>
-        For full BGPsec compatibility with OTC BGPsec enable router MUST 
-      support a situation, when its own AS number is contained in Secure_Path 
-      Segments. 
-      </t>
-      <t>
-        Without BGPsec anyone could add OTC, which could cause Denial of Service 
-      for this route, because it could be filtered during egress filtering by 
-      edge router.         
-      </t>
-	  </list>
-      First and main cons during the transition to two attribute mechanism was 
-    lack of fullness. Since IOTC and EOTC are added and filtered independetly, some network 
-    configuration, where solution above is partly deployed, will not not be able to 
-    prevent and detect route leaks, even it could be covered by OTC solution.
-      </t>
-	  </section>
    </section>
 
 
@@ -361,22 +328,22 @@
    </section>
 
    <section anchor="Security" title="Security Considerations">
-     <t> This document proposes a mechanism for avoiding route leaks,
+     <t> This document proposes a mechanism for prevention and detection of route leaks,
        that are the result of BGP policy misconfiguration. That includes
        preventing route leaks created inside an AS (company), and route
        leak detection, if a route was leaked by third party.</t>
      <t> Deliberate sending of a known conflicting BGP Role could be
        used to sabotage a BGP connection.  This is easily detectable.</t>
-     <t> Deliberate mis-marking of the EOTC flag could be used to
-       sabotage a route's propagation.</t>
+     <t> Deliberate mis-marking of the eOTC flag could be used to
+       could affect BGP decision process but could not sabotage a route's propagation.</t>
      <t> BGP Role is disclosed only to an immediate BGP speaker, so it
        will not itself reveal any sensitive information to third
        parties. </t>
-     <t> On the other hand, EOTC is a transitive BGP AS_PATH attribute
+     <t> On the other hand, eOTC is a transitive BGP AS_PATH attribute
        which reveals a bit about a BGP speaker's business relationship.
        It will give a strong hint that some link isn't customer to
        provider, but will not help to distinguish if it is provider to
-       customer or peer to peer.  If EOTC is BGPsec signed, it can not be
+       customer or peer to peer.  If eOTC is BGPsec signed, it can not be
        removed for business confidentiality.</t>
 
    </section>
