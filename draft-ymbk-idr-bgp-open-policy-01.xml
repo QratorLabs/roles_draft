@@ -153,6 +153,9 @@
          <t>Peer     - sender and neighbor are peers;</t>
          <t>Internal - sender is part of an internal AS of an
          organization which has multiple ASs, is a confederation, ...</t>
+         <t>Complex  - sender has non-standard or multiple type of business 
+         relationship in one session with it neighbor and thus wants to use 
+         manual per-prefix based policies. </t>         
        </list> </t>
      <t>Since BGP Role reflects the relationship between two BGP
      speakers, it could also be used for more than route leak
@@ -174,6 +177,7 @@
      <c> 2   </c> <c> Sender is Provider  </c>
      <c> 3   </c> <c> Sender is Customer  </c>
      <c> 4   </c> <c> Sender is Internal  </c>
+     <c> 255 </c> <c> Sender is Complex   </c>
      </texttable>
 
      </section>
@@ -196,10 +200,11 @@
      <texttable anchor="allowed" title="Allowed Role Capabilities" suppress-title="false">
      <ttcol align="left"> Sender Role </ttcol>
      <ttcol align="left"> Receiver Role </ttcol>
-     <c> Peer     </c> <c> Peer </c>
+     <c> Peer     </c> <c> Peer     </c>
      <c> Provider </c> <c> Customer </c>
      <c> Customer </c> <c> Provider </c>
      <c> Internal </c> <c> Internal </c>
+     <c> Complex  </c> <c> Complex  </c>
      </texttable>
      <t> In all other cases speaker MUST send a Role Mismatch
      Notification (code 2, sub-code &lt;TBD2&gt;). </t>
@@ -271,8 +276,8 @@
      updates and MUST NOT be added as eOTC attribute itself. Flags field is
      part  in BGPsec updates. One bit from this field could be designed to carry
      information about added eOTC attribute. eOTC value will be automatically
-     carried in AS field of added Secure_Path Segment.
-       When route is translated from BGPsec enabled router to BGPsec disabled,
+     carried in AS field of added Secure_Path Segment.</t>
+     <t>When route is translated from BGPsec enabled router to BGPsec disabled,
      in addition to AS_PATH reconstruction MUST be performed eOTC attribute
      reconstruction. If corresponded bit was set in one of Secure_Path Segments,
      eOTC attribute SHOULD be added with value of ASN in which segment it appears for the first time.
