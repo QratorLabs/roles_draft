@@ -143,7 +143,7 @@
    </section>
 
    <section anchor="bgp_role" title="BGP Role">
-     <t>BGP Role is new mandatory configuration option. It reflects the
+     <t>BGP Role is new mandatory configuration option which must be set per each address family. It reflects the
      real-world agreement between two BGP speakers about their business
      relationship.</t>
 
@@ -153,9 +153,8 @@
          <t>Peer     - sender and neighbor are peers;</t>
          <t>Internal - sender is part of an internal AS of an
          organization which has multiple ASs, is a confederation, ...</t>
-         <t>Complex  - sender has non-standard or multiple type of business 
-         relationship in one session with it neighbor and thus wants to use 
-         manual per-prefix based policies. </t>         
+         <t>Complex  - sender has non-standard and wants to use
+         manual per-prefix based role policies. </t>
        </list> </t>
      <t>Since BGP Role reflects the relationship between two BGP
      speakers, it could also be used for more than route leak
@@ -229,7 +228,7 @@
        This attribute has zero length as it used only as a flag.
      </t>
      
-     <t> There are two rules for setting the IOTC attribute:
+     <t> There are two rules for setting the iOTC attribute:
          <list style="numbers">
            <t>
              The iOTC attribute SHOULD be added to all incoming routes if
@@ -251,36 +250,38 @@
        This attribute has four bytes length and contain an AS number of AS,
        that added attribute to the route.
      </t>
-	     <t> There are two rules for setting the eOTC attribute:
-         <list style="numbers">
-           <t>
-             If eOTC is not set and sender's Role is Provider or Peer
-             the eOTC attribute MUST be added with value equal to its ASN.
-           </t>
-           <t>
-             If eOTC is set, receiver's Role is Provider or Peer, and its value
-             is not equal to neighbor ASN then such incoming route is route leak
-             and MUST be given a lower local preference, or they MAY be dropped.
-           </t>
+       <t> There are two rules for setting the eOTC attribute:
+       <list style="numbers">
+         <t>
+           If eOTC is not set and sender's Role is Provider or Peer
+           the eOTC attribute MUST be added with value equal to its ASN.
+         </t>
+         <t>
+           If eOTC is set, receiver's Role is Provider or Peer, and its value
+           is not equal to neighbor ASN then such incoming route is route leak
+           and MUST be given a lower local preference, or they MAY be dropped.
+         </t>
 
-         </list>
-           This two rules provide mechanism for route leak detection that is made by
-           some party in ASPath.
+       </list>
+       This two rules provide mechanism for route leak detection that is made by
+       some party in ASPath.
        </t>
    </section>
    
    <section anchor="security" title="Compatibility with BGPsec">
-     <t>  
+     <t>
        In BGPsec <xref target="I-D.ietf-sidr-bgpsec-protocol"></xref> enabled routers
-     information about eOTC attribute MUST be added in Flags field of Secure_Path Segment in BGPsec
-     updates and MUST NOT be added as eOTC attribute itself. Flags field is
-     part  in BGPsec updates. One bit from this field could be designed to carry
-     information about added eOTC attribute. eOTC value will be automatically
-     carried in AS field of added Secure_Path Segment.</t>
-     <t>When route is translated from BGPsec enabled router to BGPsec disabled,
-     in addition to AS_PATH reconstruction MUST be performed eOTC attribute
-     reconstruction. If corresponded bit was set in one of Secure_Path Segments,
-     eOTC attribute SHOULD be added with value of ASN in which segment it appears for the first time.
+       information about eOTC attribute MUST be added in Flags field of Secure_Path Segment in BGPsec
+       updates and MUST NOT be added as eOTC attribute itself. Flags field is
+       part  in BGPsec updates. One bit from this field could be designed to carry
+       information about added eOTC attribute. eOTC value will be automatically
+       carried in AS field of added Secure_Path Segment.
+     </t>
+     <t>
+       When route is translated from BGPsec enabled router to BGPsec disabled,
+       in addition to AS_PATH reconstruction MUST be performed eOTC attribute
+       reconstruction. If corresponded bit was set in one of Secure_Path Segments,
+       eOTC attribute SHOULD be added with value of ASN in which segment it appears for the first time.
      </t>
    </section>
    
