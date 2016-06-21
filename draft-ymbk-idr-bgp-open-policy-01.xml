@@ -4,6 +4,7 @@
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC4271 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4271.xml">
 <!ENTITY RFC4486 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4486.xml">
+<!ENTITY RFC4760 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4760.xml">
 <!ENTITY RFC5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
 <!ENTITY RFC5492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5492.xml">
 <!ENTITY I-D.ietf-grow-route-leak-problem-definition SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-route-leak-problem-definition-06.xml">
@@ -145,7 +146,8 @@
    <section anchor="bgp_role" title="BGP Role">
      <t>BGP Role is new mandatory configuration option which must be set per each address family. It reflects the
      real-world agreement between two BGP speakers about their business
-     relationship.</t>
+     relationship. It must be set separately for each address family that BGP 
+     speaker is willing to use in session.</t>
 
      <t>Allowed Role values are: <list style="symbols">
          <t>Provider - sender is a transit provider to neighbor;</t>
@@ -162,11 +164,27 @@
    </section>
 
    <section anchor="capability" title="Role capability">
+     <figure >
+       <artwork>
+  0                   1                   2                   3
+  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+  +-----------------------------+---------------+---------------+
+  |   AFI                       |   Reserved    |   BGP Role    |
+  +-----------------------------+---------------+---------------+
+       </artwork>
+     </figure>
+     
      <t> The TLV (type, length, value) of the BGP Role capability
      are: <list style="symbols">
      <t> Type   - &lt;TBD1&gt;;</t>
-     <t> Length - 1 (octet);</t>
-     <t> Value - integer corresponding to speaker' BGP Role.</t>
+     <t> Length - 4 (octet);</t>
+     <t> Value - set of next fields: <list style="symbols">
+       <t> AFI - 2 octet field that contain address family number in accordance with 
+       <xref target="RFC4760" />; </t>
+       <t> Reserved - 1 octet field that MUST be set to 0 and ignored by receiver; </t>
+       <t> BGP Role - 1 octet field that contain integer corresponding to speaker' 
+       BGP Role for specified in AFI field address family.</t>
+       </list></t>
      </list></t>
      <texttable anchor="values" title="Predefined BGP Role Values" suppress-title="false">
      <ttcol align="center"> Value </ttcol>
@@ -176,7 +194,7 @@
      <c> 2   </c> <c> Sender is Provider  </c>
      <c> 3   </c> <c> Sender is Customer  </c>
      <c> 4   </c> <c> Sender is Internal  </c>
-     <c> 255 </c> <c> Sender is Complex   </c>
+     <c> 5   </c> <c> Sender is Complex   </c>
      </texttable>
 
      </section>
@@ -188,13 +206,15 @@
      two BGP peers.</t>
 
      <t>To enforce correctness, use the BGP Role check with a set
-     of constrains on how speakers' BGP Roles MUST corresponded.  Of
-     course, each speaker MUST announce and accept the BGP Role
-     capability in the BGP OPEN message exchange.</t>
+     of constrains on how speakers' BGP Roles MUST corresponded for each AFI.  Of
+     course, each speaker SHOULD announce and accept the BGP Role
+     capability in the BGP OPEN message exchange for each AFI it would use in session.
+     </t>
+     
 
      <t>If a speaker receives a BGP Role capability, it SHOULD check
-     value of the received capability with its own BGP Role. The allowed
-     pairings are (first a sender's Role, second the receiver's
+     value of the received capability with its own BGP Role for corresponing AFI. 
+     The allowed pairings are (first a sender's Role, second the receiver's
      Role):</t>
      <texttable anchor="allowed" title="Allowed Role Capabilities" suppress-title="false">
      <ttcol align="left"> Sender Role </ttcol>
@@ -206,7 +226,9 @@
      <c> Complex  </c> <c> Complex  </c>
      </texttable>
      <t> In all other cases speaker MUST send a Role Mismatch
-     Notification (code 2, sub-code &lt;TBD2&gt;). </t>
+     Notification (code 2, sub-code &lt;TBD2&gt;, message AFI). If mismatch 
+     occurs in multiple AFI, any non empty subset of them can be selected to 
+     present in Notification message.</t>
 
      <section title="Strict mode" anchor="strict">
      <t>A new BGP configuration option "strict mode" is defined with
@@ -266,6 +288,22 @@
        This two rules provide mechanism for route leak detection that is made by
        some party in ASPath.
        </t>
+   </section>
+   
+   <section anchor="complex_role" title="Restrictions on the Complex role">
+     <t>
+       Complex role should be set by BGP speaker if manual per-prefix policies 
+       will be used. To allow such flexibility and maintain integrity of 
+       proposed by this document solution BGP speaker MUST define in configuration 
+       not Complex role (one of Internal, Customer, Peer, Provider roles)
+       for each prefix for corresponing to Complex role AFI. During routing each 
+       route is handled according to <xref target="prevention_attribute" /> and 
+       <xref target="detection_attribute" /> separately based on corresponding for this 
+       route role. Specific implementation mechanism for allowing such binding 
+       between prefix and role is outside the scope of this document.</t>
+       <t> This document doesn't specify any security measures for per prefix 
+       role correctness between two speakers in Complex-Complex situation.       
+     </t>
    </section>
    
    <section anchor="security" title="Compatibility with BGPsec">
@@ -360,6 +398,7 @@
      &RFC2119;
      &RFC4271;
      &RFC4486;
+     &RFC4760;
      &RFC5492;
    </references>
 
