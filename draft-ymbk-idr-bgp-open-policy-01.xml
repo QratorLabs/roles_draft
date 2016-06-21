@@ -234,8 +234,9 @@
      <t>A new BGP configuration option "strict mode" is defined with
      values of true or false. If set to true, then the speaker MUST
      refuse to establish a BGP session with peers which do not announce
-     BGP Role capability in their OPEN message. If a speaker rejects a
-     connection, it MUST send a Connection Rejected Notification
+     BGP Role capability in their OPEN message for at least one of the AFI that is 
+     supported by speaker and was announced by speaker via corresponing capability. If a 
+     speaker rejects a connection, it MUST send a Connection Rejected Notification
      <xref target="RFC4486"/> (Notification with error code 6, subcode
      5).  By default strict mode SHOULD be set to false for backward
      compatibility with BGP speakers, that do not yet support this
