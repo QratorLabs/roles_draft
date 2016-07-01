@@ -221,6 +221,21 @@
     </section>
    </section>
 
+   <section anchor="complex_role" title="Restrictions on the Complex role">
+     <t>
+       Complex role should be set only if relations between BGP neighbors
+       could not be described using simple Customer/Provider/Peer roles. For a example,
+       if neighbor is literal peer, but for some prefixes it provides full transit,
+       complex role SHOULD be set on both sides. In this case roles Customer/Provider/Peer
+       should be set on per-prefix basis, keeping abstraction from detection and
+       filtering mechanisms (<xref target="prevention_attribute" /> and
+       <xref target="detection_attribute" />).
+     </t>
+     <t>
+       If role is not Complex all per-prefix role settings MUST be ignored.
+     </t>
+   </section>
+
    <section anchor="prevention_attribute" title="BGP Internal Only To Customer attribute">
      <t>
        The Internal Only To Customer (iOTC) attribute is a new optional,
@@ -228,18 +243,26 @@
        This attribute has zero length as it used only as a flag.
      </t>
      
-     <t> There are two rules for setting the iOTC attribute:
+     <t> There are four rules for setting the iOTC attribute:
          <list style="numbers">
            <t>
-             The iOTC attribute SHOULD be added to all incoming routes if
+             The iOTC attribute MUST be added to all incoming routes if
              the receiver's Role is Customer or Peer;
+           </t>
+           <t>
+             The iOTC attribute MUST be added to all incoming routes if
+             the receiver's Role is Complex and prefix Role is Customer or Peer;
            </t>
            <t>
              Routes with the iOTC attribute set MUST NOT be announced if
              the sender's Role is Customer or Peer;
            </t>
+           <t>
+             Routes with the iOTC attribute set MUST NOT be announced if
+             the sender's Role is Complex and prefix Role is Customer or Peer;
+           </t>
          </list>
-         This two rules provide mechanism that prevent route leak creation by an AS.
+         This four rules provide mechanism that prevent route leak creation by an AS.
        </t>
    </section>
    
@@ -250,14 +273,23 @@
        This attribute has four bytes length and contain an AS number of AS,
        that added attribute to the route.
      </t>
-       <t> There are two rules for setting the eOTC attribute:
+       <t> There are four rules for setting the eOTC attribute:
        <list style="numbers">
          <t>
            If eOTC is not set and sender's Role is Provider or Peer
            the eOTC attribute MUST be added with value equal to its ASN.
          </t>
          <t>
+           If eOTC is not set and sender's Role is Complex and prefix role is Provider or Peer
+           the eOTC attribute MUST be added with value equal to its ASN.
+         </t>
+         <t>
            If eOTC is set, receiver's Role is Provider or Peer, and its value
+           is not equal to neighbor ASN then such incoming route is route leak
+           and MUST be given a lower local preference, or they MAY be dropped.
+         </t>
+         <t>
+           If eOTC is set, receiver's is Complex and prefix role Role is Provider or Peer, and eOTC value
            is not equal to neighbor ASN then such incoming route is route leak
            and MUST be given a lower local preference, or they MAY be dropped.
          </t>
@@ -268,22 +300,6 @@
        </t>
    </section>
 
-   <section anchor="complex_role" title="Restrictions on the Complex role">
-     <t>
-       Complex role should be set by BGP speaker if manual per-prefix policies 
-       will be used. To allow such flexibility and maintain integrity of 
-       proposed by this document solution BGP speaker MUST define in configuration 
-       not Complex role (one of Internal, Customer, Peer, Provider roles)
-       for each prefix. During routing each route is handled according to 
-       <xref target="prevention_attribute" /> and 
-       <xref target="detection_attribute" /> separately based on corresponding for this 
-       route role. Specific implementation mechanism for allowing such binding 
-       between prefix and role is outside the scope of this document.</t>
-       <t> This document doesn't specify any security measures for per prefix 
-       role correctness between two speakers in Complex-Complex situation.       
-     </t>
-   </section>
-   
    <section anchor="security" title="Compatibility with BGPsec">
      <t>
        In BGPsec <xref target="I-D.ietf-sidr-bgpsec-protocol"></xref> enabled routers
@@ -310,6 +326,10 @@
      <t>Though such uses may be worthwhile, they are not the goal of
       this document.  Note that such uses would require local policy
       control. </t>
+     <t>
+      This document doesn't provide any security measures to check correctness
+       of per-prefix roles, so Complex role should be set with great caution.
+     </t>
    </section>
 
 
