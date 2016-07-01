@@ -176,7 +176,7 @@
      <c> 2   </c> <c> Sender is Provider  </c>
      <c> 3   </c> <c> Sender is Customer  </c>
      <c> 4   </c> <c> Sender is Internal  </c>
-     <c> 255 </c> <c> Sender is Complex   </c>
+     <c> 5 </c> <c> Sender is Complex   </c>
      </texttable>
 
      </section>
@@ -266,6 +266,22 @@
        This two rules provide mechanism for route leak detection that is made by
        some party in ASPath.
        </t>
+   </section>
+
+   <section anchor="complex_role" title="Restrictions on the Complex role">
+     <t>
+       Complex role should be set by BGP speaker if manual per-prefix policies 
+       will be used. To allow such flexibility and maintain integrity of 
+       proposed by this document solution BGP speaker MUST define in configuration 
+       not Complex role (one of Internal, Customer, Peer, Provider roles)
+       for each prefix. During routing each route is handled according to 
+       <xref target="prevention_attribute" /> and 
+       <xref target="detection_attribute" /> separately based on corresponding for this 
+       route role. Specific implementation mechanism for allowing such binding 
+       between prefix and role is outside the scope of this document.</t>
+       <t> This document doesn't specify any security measures for per prefix 
+       role correctness between two speakers in Complex-Complex situation.       
+     </t>
    </section>
    
    <section anchor="security" title="Compatibility with BGPsec">
