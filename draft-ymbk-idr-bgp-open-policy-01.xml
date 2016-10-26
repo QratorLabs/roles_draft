@@ -6,9 +6,9 @@
 <!ENTITY RFC4486 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4486.xml">
 <!ENTITY RFC5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
 <!ENTITY RFC5492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5492.xml">
-<!ENTITY I-D.ietf-grow-route-leak-problem-definition SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-route-leak-problem-definition-06.xml">
-<!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-03.xml">
-<!ENTITY I-D.ietf-sidr-bgpsec-protocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-sidr-bgpsec-protocol-15.xml">
+<!ENTITY RFC7908 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7908.xml">
+<!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-04.xml">
+<!ENTITY I-D.ietf-sidr-bgpsec-protocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-sidr-bgpsec-protocol-18.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -92,7 +92,7 @@
        For the purposes of this document BGP route leaks are when a BGP
        route was learned from transit provider or peer and is announced
        to another provider or peer.  See
-       <xref target="I-D.ietf-grow-route-leak-problem-definition"/>.
+       <xref target="RFC7908"/>.
        These are usually the result of misconfigured or absent BGP route
        filtering or lack of coordination between two BGP speakers.
      </t>
@@ -147,18 +147,22 @@
      real-world agreement between two BGP speakers about their business
      relationship.</t>
 
-     <t>Allowed Role values are: <list style="symbols">
+     <t>
+       Allowed Role values are: <list style="symbols">
          <t>Provider - sender is a transit provider to neighbor;</t>
          <t>Customer - sender is customer of neighbor;</t>
          <t>Peer     - sender and neighbor are peers;</t>
          <t>Internal - sender is part of an internal AS of an
          organization which has multiple ASs, is a confederation, ...</t>
-         <t>Complex  - sender has non-standard and wants to use
-         manual per-prefix based role policies. </t>
-       </list> </t>
-     <t>Since BGP Role reflects the relationship between two BGP
-     speakers, it could also be used for more than route leak
-     mitigation.</t>
+         <t>Complex  - sender has non-standard agreement and wants to use
+         manual policies. </t>
+       </list>
+     </t>
+     <t>
+       Since BGP Role reflects the relationship between two BGP
+       speakers, it could also be used for more than route leak
+       mitigation.
+     </t>
    </section>
 
    <section anchor="capability" title="Role capability">
@@ -226,13 +230,10 @@
        Complex role should be set only if relations between BGP neighbors
        could not be described using simple Customer/Provider/Peer roles. For a example,
        if neighbor is literal peer, but for some prefixes it provides full transit,
-       complex role SHOULD be set on both sides. In this case roles Customer/Provider/Peer
-       should be set on per-prefix basis, keeping abstraction from detection and
-       filtering mechanisms (<xref target="prevention_attribute" /> and
-       <xref target="detection_attribute" />).
-     </t>
-     <t>
-       If role is not Complex all per-prefix role settings MUST be ignored.
+       complex role SHOULD be set on both sides. In this case configuration of
+       detection and filtering mechanisms (<xref target="prevention_attribute" /> and
+       <xref target="detection_attribute" />) should be set on per-prefix basis
+       upon local policy.
      </t>
    </section>
 
@@ -243,26 +244,20 @@
        This attribute has zero length as it used only as a flag.
      </t>
      
-     <t> There are four rules for setting the iOTC attribute:
-         <list style="numbers">
-           <t>
-             The iOTC attribute MUST be added to all incoming routes if
-             the receiver's Role is Customer or Peer;
-           </t>
-           <t>
-             The iOTC attribute MUST be added to all incoming routes if
-             the receiver's Role is Complex and prefix Role is Customer or Peer;
-           </t>
-           <t>
-             Routes with the iOTC attribute set MUST NOT be announced if
-             the sender's Role is Customer or Peer;
-           </t>
-           <t>
-             Routes with the iOTC attribute set MUST NOT be announced if
-             the sender's Role is Complex and prefix Role is Customer or Peer;
-           </t>
-         </list>
-         This four rules provide mechanism that prevent route leak creation by an AS.
+     <t> There are two rules for setting the iOTC attribute:
+       <list style="numbers">
+         <t>
+           The iOTC attribute MUST be added to all incoming routes if
+           the receiver's Role is Customer or Peer;
+         </t>
+         <t>
+           Routes with the iOTC attribute set MUST NOT be announced if
+           the sender's Role is Customer or Peer;
+         </t>
+       </list>
+       These two rules provide mechanism that prevent route leak creation by an AS.
+       In case of Complex role usage the way of iOTC process is not automated
+       and upon local policy.
        </t>
    </section>
    
@@ -273,14 +268,10 @@
        This attribute has four bytes length and contain an AS number of AS,
        that added attribute to the route.
      </t>
-       <t> There are four rules for setting the eOTC attribute:
+       <t> There are two rules for setting the eOTC attribute:
        <list style="numbers">
          <t>
            If eOTC is not set and sender's Role is Provider or Peer
-           the eOTC attribute MUST be added with value equal to its ASN.
-         </t>
-         <t>
-           If eOTC is not set and sender's Role is Complex and prefix role is Provider or Peer
            the eOTC attribute MUST be added with value equal to its ASN.
          </t>
          <t>
@@ -288,15 +279,10 @@
            is not equal to neighbor ASN then such incoming route is route leak
            and MUST be given a lower local preference, or they MAY be dropped.
          </t>
-         <t>
-           If eOTC is set, receiver's is Complex and prefix role Role is Provider or Peer, and eOTC value
-           is not equal to neighbor ASN then such incoming route is route leak
-           and MUST be given a lower local preference, or they MAY be dropped.
-         </t>
-
        </list>
-       This two rules provide mechanism for route leak detection that is made by
-       some party in ASPath.
+         These two rules provide mechanism for route leak detection that is made by
+         some party in ASPath. In case of Complex role usage the way of eOTC process
+         is not automated and upon local policy.
        </t>
    </section>
 
@@ -319,16 +305,19 @@
    
 
    <section anchor="considerations" title="Additional Considerations">
-     <t>As BGP Role reflects the relationship between neighbors, it can
-     also have other uses.  As an example, BGP Role might affect route
-     priority, or be used to distinguish borders of a network if a
-     network consists of multiple AS.</t>
+     <t>
+       As BGP Role reflects the relationship between neighbors, it can
+       also have other uses.  As an example, BGP Role might affect route
+       priority, or be used to distinguish borders of a network if a
+       network consists of multiple AS.
+     </t>
      <t>Though such uses may be worthwhile, they are not the goal of
       this document.  Note that such uses would require local policy
-      control. </t>
+      control.
+     </t>
      <t>
-      This document doesn't provide any security measures to check correctness
-       of per-prefix roles, so Complex role should be set with great caution.
+       This document doesn't provide any security measures to check correctness
+       of attributes usage in case of Complex role, so Complex role should be set with great caution.
      </t>
    </section>
 
@@ -401,7 +390,7 @@
 
    <references title="Informative References">
      &RFC5226;
-     &I-D.ietf-grow-route-leak-problem-definition;
+     &RFC7908;
      &I-D.ietf-idr-route-leak-detection-mitigation;
      &I-D.ietf-sidr-bgpsec-protocol;
   </references>
