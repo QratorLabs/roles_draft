@@ -293,10 +293,10 @@
        MUST NOT be added as separate attribute.
      </t>
      <t>
-       When route is translated from BGPsec enabled router to BGPsec unabled,
+       When route is transmitted from BGPsec enabled router to BGPsec disabled device,
        in addition to AS_PATH reconstruction MUST be performed eOTC attribute
        reconstruction. If corresponded bit was set in one of Secure_Path Segments,
-       eOTC attribute SHOULD be added with value of ASN in which segment it appears for the first time.
+       eOTC attribute SHOULD be added with value that equals to ASN in which segment it appears for the first time.
      </t>
    </section>
    
