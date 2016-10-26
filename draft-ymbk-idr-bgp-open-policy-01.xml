@@ -289,14 +289,11 @@
    <section anchor="security" title="Compatibility with BGPsec">
      <t>
        In BGPsec <xref target="I-D.ietf-sidr-bgpsec-protocol"></xref> enabled routers
-       information about eOTC attribute MUST be added in Flags field of Secure_Path Segment in BGPsec
-       updates and MUST NOT be added as eOTC attribute itself. Flags field is
-       part  in BGPsec updates. One bit from this field could be designed to carry
-       information about added eOTC attribute. eOTC value will be automatically
-       carried in AS field of added Secure_Path Segment.
+       eOTC attribute MUST be turned into one bit of Flags field of Secure_Path Segment and
+       MUST NOT be added as separate attribute.
      </t>
      <t>
-       When route is translated from BGPsec enabled router to BGPsec disabled,
+       When route is translated from BGPsec enabled router to BGPsec unabled,
        in addition to AS_PATH reconstruction MUST be performed eOTC attribute
        reconstruction. If corresponded bit was set in one of Secure_Path Segments,
        eOTC attribute SHOULD be added with value of ASN in which segment it appears for the first time.
