@@ -49,8 +49,15 @@
      </address>
    </author>
 
-   <date year="2016"/>
-   <area>Routing</area>
+   <author fullname="Keyur Patel" initials="K"
+           surname="Patel">
+     <organization>????</organization>
+     <address>
+       <email>keyurpat@yahoo.com</email>
+     </address>
+   </author>
+
+   <date month="November" year="2016"/>
 
    <keyword>BGP</keyword>
    <keyword>Route leak</keyword>
@@ -58,20 +65,21 @@
 
    <abstract>
      <t>
-       Route Leaks are propagation of BGP prefixes which violate
+       Route Leaks are the propagation of BGP prefixes which violate
        assumptions of BGP topology relationships; e.g. passing a route
        learned from one peer to another peer or to a transit provider,
        passing a route learned from one transit provider to another
        transit provider or to a peer.  Today, approaches to leak
-       prevention rely on marking routes according to some configuration
-       options without any check of the configuration corresponds to
-       that of the BGP neighbor, or enforcement that the two BGP
-       speakers agree on the relationship.  This document enhances BGP
-       Open to establish agreement of the (peer, customer, provider,
-       internal) relationship of two BGP neighboring speakers to enforce
-       appropriate configuration on both sides. Propagated routes are
-       then marked with a eOTC and iOTC attributes according to agreed relationship allowing
-       prevetion and detection of route leaks.
+       prevention rely on marking routes according to operator
+       configuration options without any check that the configuration
+       corresponds to that of the BGP neighbor, or enforcement that the
+       two BGP speakers agree on the relationship.  This document
+       enhances BGP Open to establish agreement of the (peer, customer,
+       provider, internal) relationship of two neighboring BGP speakers
+       to enforce appropriate configuration on both sides. Propagated
+       routes are then marked with a eOTC and iOTC attributes according
+       to agreed relationship allowing prevention and detection of route
+       leaks.
      </t>
    </abstract>
 
@@ -89,11 +97,11 @@
  <middle>
    <section title="Introduction" anchor="intro">
      <t>
-       For the purposes of this document BGP route leaks are when a BGP
+       For the purpose of this document, BGP route leaks are when a BGP
        route was learned from transit provider or peer and is announced
-       to another provider or peer.  See
-       <xref target="I-D.ietf-grow-route-leak-problem-definition"/>.
-       These are usually the result of misconfigured or absent BGP route
+       to another provider or peer.  See <xref
+       target="I-D.ietf-grow-route-leak-problem-definition"/>.  These
+       are usually the result of misconfigured or absent BGP route
        filtering or lack of coordination between two BGP speakers.
      </t>
 
@@ -102,59 +110,64 @@
        describes a method of marking and detecting leaks which relies on
        operator maintained markings.  Unfortunately, in most cases, a
        leaking router will likely also be misconfigured to mark
-       incorrectly.  The proposed mechanism provides an opportunity to
-       detect route leaks made by third parties but provides no support
-       to prevent route leak creation. The leak prevention still relies on
-       communities which are optional and often missed due to mistakes
-       or misunderstanding of the BGP configuration process.
+       incorrectly.  The mechanism proposed in that draft provides the
+       opportunity to detect route leaks made by third parties but
+       provides no support to strongly prevent route leak creation.  The
+       leak prevention still relies on communities which are optional
+       and often missed due to mistakes or misunderstanding of the BGP
+       configuration process.
      </t>
 
      <t>
        It has been suggested to use white list filtering, relying on
-       knowing the prefixes in the customer cone as import filtering, in
-       order to detect route leaks.  Unfortunately, a large number of
-       incidents is created medium size transit operators use a single prefix list
-       as only the ACL for export filtering, without community tagging
-       and paying attention to the source of a learned route. So, if
-       they learn a customer's route from their provider or peer - they
-       will announce it in all directions, including other providers or
-       peers.  This misconfiguration affects a limited number of
-       prefixes; but such route leaks will obviously bypass customer
-       cone import filtering made by upper level upstream providers.
+       knowing the prefixes in the peer's customer cone as import
+       filtering, in order to detect route leaks.  Unfortunately, a
+       large number of incidents in medium transit operators use a
+       single prefix list as only the ACL for export filtering, without
+       community tagging and without paying attention to the source of a
+       learned route. So, if they learn a customer's route from their
+       provider or peer - they will announce it in all directions,
+       including other providers or peers.  This misconfiguration
+       affects a limited number of prefixes; but such route leaks will
+       obviously bypass customer cone import filtering made by upper
+       level upstream providers.
      </t>
      <t>
        Also, route tagging which relies on operator maintained policy
        configuration is too easily and too often misconfigured.
      </t>
 
-     <t>This document specifies a new BGP Capability Code,
-     <xref target="RFC5492"></xref> Sec 4, which two BGP speakers MAY
-     use to ensure that they MUST agree on their relationship;
-     i.e. customer and provider or peers.  Either or both may optionally
-     be configured to require that this option be exchanged for the BGP
-     Open to succeed. </t>
+     <t>
+       This document specifies a new BGP Capability Code, <xref
+       target="RFC5492"></xref> Sec 4, which two BGP speakers MAY use to
+       ensure that they MUST agree on their relationship; i.e. customer
+       and provider or peers.  Either or both may optionally be
+       configured to require that this option be exchanged for the BGP
+       Open to succeed. </t>
 
      <t>
        Also this document specifies a way to mark routes according to
-       BGP Roles and a way to create double-boundary filters for
-       prevention and detection of route leaks via a two new BGP
-       Path Attributes.
+       BGP Roles established in Open and a way to create double-boundary
+       filters for prevention and detection of route leaks via a two new
+       BGP Path Attributes.
      </t>
    </section>
 
    <section anchor="bgp_role" title="BGP Role">
-     <t>BGP Role is new mandatory configuration option which must be set per each address family. It reflects the
-     real-world agreement between two BGP speakers about their business
-     relationship.</t>
+     <t>
+       BGP Role is new mandatory configuration option which must be set
+       per each address family. It reflects the real-world agreement
+       between two BGP speakers about their business relationship.</t>
 
      <t>Allowed Role values are: <list style="symbols">
          <t>Provider - sender is a transit provider to neighbor;</t>
          <t>Customer - sender is customer of neighbor;</t>
          <t>Peer     - sender and neighbor are peers;</t>
          <t>Internal - sender is part of an internal AS of an
-         organization which has multiple ASs, is a confederation, ...</t>
-         <t>Complex  - sender has non-standard and wants to use
-         manual per-prefix based role policies. </t>
+         organization which has multiple ASs, or is a confederation,
+         etc.</t>
+         <t>Complex - sender has a non-standard relationship and wants
+         to use manual per-prefix based role policies. </t>
        </list> </t>
      <t>Since BGP Role reflects the relationship between two BGP
      speakers, it could also be used for more than route leak
@@ -187,7 +200,7 @@
      of BGP Role doesn't automatically guarantee role agreement between
      two BGP peers.</t>
 
-     <t>To enforce correctness, use the BGP Role check with a set
+     <t>To enforce correctness, the BGP Role check is used with a set
      of constrains on how speakers' BGP Roles MUST corresponded.  Of
      course, each speaker MUST announce and accept the BGP Role
      capability in the BGP OPEN message exchange.</t>
@@ -212,10 +225,10 @@
      <t>A new BGP configuration option "strict mode" is defined with
      values of true or false. If set to true, then the speaker MUST
      refuse to establish a BGP session with peers which do not announce
-     BGP Role capability in their OPEN message. If a speaker rejects a
-     connection, it MUST send a Connection Rejected Notification
-     <xref target="RFC4486"/> (Notification with error code 6, subcode
-     5).  By default strict mode SHOULD be set to false for backward
+     the BGP Role capability in their OPEN message. If a speaker rejects
+     a connection, it MUST send a Connection Rejected Notification <xref
+     target="RFC4486"/> (Notification with error code 6, subcode 5).  By
+     default strict mode SHOULD be set to false for backward
      compatibility with BGP speakers, that do not yet support this
      mechanism.</t>
     </section>
@@ -223,13 +236,15 @@
 
    <section anchor="complex_role" title="Restrictions on the Complex role">
      <t>
-       Complex role should be set only if relations between BGP neighbors
-       could not be described using simple Customer/Provider/Peer roles. For a example,
-       if neighbor is literal peer, but for some prefixes it provides full transit,
-       complex role SHOULD be set on both sides. In this case roles Customer/Provider/Peer
-       should be set on per-prefix basis, keeping abstraction from detection and
-       filtering mechanisms (<xref target="prevention_attribute" /> and
-       <xref target="detection_attribute" />).
+       The Complex role should be set only if the relationship between
+       BGP neighbors can not be described using simple
+       Customer/Provider/Peer roles. For a example, if neighbor is
+       literal peer, but for some prefixes it provides full transit; the
+       complex role SHOULD be set on both sides. In this case roles
+       Customer/Provider/Peer should be set on per-prefix basis, keeping
+       the abstraction from detection and filtering mechanisms (<xref
+       target="prevention_attribute" /> and <xref
+       target="detection_attribute" />).
      </t>
      <t>
        If role is not Complex all per-prefix role settings MUST be ignored.
@@ -239,8 +254,9 @@
    <section anchor="prevention_attribute" title="BGP Internal Only To Customer attribute">
      <t>
        The Internal Only To Customer (iOTC) attribute is a new optional,
-       non-transitive BGP Path attribute with the Type Code &lt;TBD3&gt;.
-       This attribute has zero length as it used only as a flag.
+       non-transitive BGP Path attribute with the Type Code
+       &lt;TBD3&gt;.  This attribute has zero length as it used only as
+       a flag.
      </t>
      
      <t> There are four rules for setting the iOTC attribute:
@@ -251,18 +267,21 @@
            </t>
            <t>
              The iOTC attribute MUST be added to all incoming routes if
-             the receiver's Role is Complex and prefix Role is Customer or Peer;
+             the receiver's Role is Complex and the prefix Role is
+             Customer or Peer;
+           </t>
+           <t>
+             Routes with the iOTC attribute set MUST NOT be announced by
+             a sender whose Role is Customer or Peer;
            </t>
            <t>
              Routes with the iOTC attribute set MUST NOT be announced if
-             the sender's Role is Customer or Peer;
-           </t>
-           <t>
-             Routes with the iOTC attribute set MUST NOT be announced if
-             the sender's Role is Complex and prefix Role is Customer or Peer;
+             by a sender whose Role is Complex and the prefix Role is
+             Customer or Peer;
            </t>
          </list>
-         This four rules provide mechanism that prevent route leak creation by an AS.
+         These four rules provide mechanism that strongly prevents route
+         leak creation by an AS.
        </t>
    </section>
    
@@ -270,65 +289,73 @@
      <t>
        The External Only To Customer (eOTC) attribute is a new optional,
        transitive BGP Path attribute with the Type Code &lt;TBD4&gt;.
-       This attribute has four bytes length and contain an AS number of AS,
-       that added attribute to the route.
+       This attribute is four bytes and contains an AS number of the AS
+       that added the attribute to the route.
      </t>
        <t> There are four rules for setting the eOTC attribute:
        <list style="numbers">
          <t>
-           If eOTC is not set and sender's Role is Provider or Peer
-           the eOTC attribute MUST be added with value equal to its ASN.
+           If eOTC is not set and the sender's Role is Provider or Peer,
+           the eOTC attribute MUST be added with value equal to the
+           sender's AS number
          </t>
          <t>
-           If eOTC is not set and sender's Role is Complex and prefix role is Provider or Peer
-           the eOTC attribute MUST be added with value equal to its ASN.
+           If eOTC is not set and the sender's Role is Complex and the
+           prefix role is Provider or Peer, the eOTC attribute MUST be
+           added with value equal to to the sender's AS number.
          </t>
          <t>
-           If eOTC is set, receiver's Role is Provider or Peer, and its value
-           is not equal to neighbor ASN then such incoming route is route leak
-           and MUST be given a lower local preference, or they MAY be dropped.
+           If eOTC is set, the receiver's Role is Provider or Peer, and
+           its value is not the neighbor's AS number then the incoming
+           route is route leak and MUST be given a lower local
+           preference, or MAY be dropped.
          </t>
          <t>
-           If eOTC is set, receiver's is Complex and prefix role Role is Provider or Peer, and eOTC value
-           is not equal to neighbor ASN then such incoming route is route leak
-           and MUST be given a lower local preference, or they MAY be dropped.
+           If eOTC is set, the receiver's Role is Complex, the prefix
+           role Role is Provider or Peer, and the eOTC value is not
+           equal to the neighbor's AS number, then the incoming route
+           is a route leak and MUST be given a lower local preference, or
+           they MAY be dropped.
          </t>
 
        </list>
-       This two rules provide mechanism for route leak detection that is made by
-       some party in ASPath.
+       These two rules provide mechanism for route leak detection that
+       is created by an distant party in the AS_Path.
        </t>
    </section>
 
    <section anchor="security" title="Compatibility with BGPsec">
      <t>
-       In BGPsec <xref target="I-D.ietf-sidr-bgpsec-protocol"></xref> enabled routers
-       information about eOTC attribute MUST be added in Flags field of Secure_Path Segment in BGPsec
-       updates and MUST NOT be added as eOTC attribute itself. Flags field is
-       part  in BGPsec updates. One bit from this field could be designed to carry
-       information about added eOTC attribute. eOTC value will be automatically
-       carried in AS field of added Secure_Path Segment.
+       For BGPsec <xref target="I-D.ietf-sidr-bgpsec-protocol"></xref>
+       enabled routers, the the Flags field will have a bit added to
+       indicate that an eOTC attribute exists.  The eOTC value will
+       be automatically carried in AS field of the added Secure_Path
+       Segment.
      </t>
      <t>
-       When route is translated from BGPsec enabled router to BGPsec disabled,
-       in addition to AS_PATH reconstruction MUST be performed eOTC attribute
-       reconstruction. If corresponded bit was set in one of Secure_Path Segments,
-       eOTC attribute SHOULD be added with value of ASN in which segment it appears for the first time.
+       When a route is translated from a BGPsec enabled router to a
+       non-BGPsec router, in addition to AS_PATH reconstruction,
+       reconstruction MUST be performed for the eOTC attribute.. If Flag
+       bit was set in one of Secure_Path Segments, the eOTC attribute
+       SHOULD be added with the AS number of the segment in which it
+       appears for the first time.
      </t>
    </section>
    
 
    <section anchor="considerations" title="Additional Considerations">
-     <t>As BGP Role reflects the relationship between neighbors, it can
-     also have other uses.  As an example, BGP Role might affect route
-     priority, or be used to distinguish borders of a network if a
+     <t>As the BGP Role reflects the relationship between neighbors, it
+     can also have other uses.  As an example, BGP Role might affect
+     route priority, or be used to distinguish borders of a network if a
      network consists of multiple AS.</t>
      <t>Though such uses may be worthwhile, they are not the goal of
       this document.  Note that such uses would require local policy
       control. </t>
      <t>
-      This document doesn't provide any security measures to check correctness
-       of per-prefix roles, so Complex role should be set with great caution.
+      This document doesn't provide any security measures to check
+      correctness of per-prefix roles, so the Complex role should be
+      used with great caution.  It is as dangerous as current BGP
+      peering.
      </t>
    </section>
 
@@ -370,17 +397,19 @@
    </section>
 
    <section anchor="Security" title="Security Considerations">
-     <t> This document proposes a mechanism for prevention and detection of route leaks,
-       that are the result of BGP policy misconfiguration. That includes
-       preventing route leaks created inside an AS (company), and route
-       leak detection, if a route was leaked by third party.</t>
+     <t> This document proposes a mechanism for prevention and detection
+     of route leaks that are the result of BGP policy
+     misconfiguration. This includes preventing route leaks created
+     inside an AS (company), and route leak detection if a route was
+     leaked by third party.</t>
      <t> Deliberate sending of a known conflicting BGP Role could be
        used to sabotage a BGP connection.  This is easily detectable.</t>
-     <t> Deliberate mis-marking of the eOTC flag could be used to
-       could affect BGP decision process but could not sabotage a route's propagation.</t>
-     <t> BGP Role is disclosed only to an immediate BGP speaker, so it
-       will not itself reveal any sensitive information to third
-       parties. </t>
+     <t> Deliberate mis-marking of the eOTC flag could be used to affect
+     the BGP decision process, but could not sabotage a route's
+     propagation.</t>
+     <t> BGP Role is disclosed only to an immediate BGP neighbor, so it
+     will not itself reveal any sensitive information to third
+     parties. </t>
      <t> On the other hand, eOTC is a transitive BGP AS_PATH attribute
        which reveals a bit about a BGP speaker's business relationship.
        It will give a strong hint that some link isn't customer to
