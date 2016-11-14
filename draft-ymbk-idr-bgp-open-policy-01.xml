@@ -20,7 +20,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ymbk-idr-bgp-open-policy-01" ipr="trust200902">
+<rfc category="std" docName="draft-ymbk-idr-bgp-open-policy-02" ipr="trust200902">
  <front>
 
    <title abbrev="Route Leak Detection and Filtering"> Route Leak Detection and Filtering using Roles in Update and Open messages </title>
@@ -51,9 +51,17 @@
 
    <author fullname="Keyur Patel" initials="K"
            surname="Patel">
-     <organization>????</organization>
+     <organization>Arrcus, Inc.</organization>
      <address>
        <email>keyurpat@yahoo.com</email>
+     </address>
+   </author>
+
+   <author fullname="Kotikalapudi Sriram" initials="K"
+           surname="Sriram">
+     <organization>US NIST</organization>
+     <address>
+       <email>ksriram@nist.gov</email>
      </address>
    </author>
 
@@ -153,6 +161,29 @@
      </t>
    </section>
 
+   <section anchor="defs" title="Role Definitions">
+     <t>As many of these terms are used differently in various contexts,
+       it is worth being explicit.  <list style="hanging">
+       <t hangText="A Provider:"> sends their own routes and (possibly) a
+         subset of routes learned from their other customers, peers, and
+	 transit providers to their customer.</t>
+       <t hangText="A Customer:"> accepts 'transit routes' from its
+         provider(s) and announces their own routes and the routes they
+         have learned from the transitive closure of their customers (AKA
+         their 'customer cone') to their provider(s).</t>
+       <t hangText="A Peer:"> announces their routes and the routes from
+         their customer cone to other Peers.</t>
+       <t hangText="An Internal:"> BGP Neighbor has one of the above
+         relationships to another internal BGP AS.</t>
+       <t hangText="A Complex:"> BGP relationship is an attempt to allow
+         those whose policy may vary by prefix.  It is aptly named and
+         the authors question its real utility.</t>
+       </list></t>
+       <t>Of course, any BGP speaker may apply policy to reduce what is
+         announced, and a recipient may apply policy to reduce the set
+	 of routes they accept.</t>
+     </section>
+       
    <section anchor="bgp_role" title="BGP Role">
      <t>
        BGP Role is new mandatory configuration option which must be set
@@ -255,7 +286,7 @@
      <t>
        The Internal Only To Customer (iOTC) attribute is a new optional,
        non-transitive BGP Path attribute with the Type Code
-       &lt;TBD3&gt;.  This attribute has zero length as it used only as
+       &lt;TBD3&gt;.  This attribute has zero length as it is used only as
        a flag.
      </t>
      
@@ -319,7 +350,7 @@
          </t>
 
        </list>
-       These two rules provide mechanism for route leak detection that
+       These four rules provide mechanism for route leak detection that
        is created by an distant party in the AS_Path.
        </t>
    </section>
@@ -327,7 +358,7 @@
    <section anchor="security" title="Compatibility with BGPsec">
      <t>
        For BGPsec <xref target="I-D.ietf-sidr-bgpsec-protocol"></xref>
-       enabled routers, the the Flags field will have a bit added to
+       enabled routers, the Flags field will have a bit added to
        indicate that an eOTC attribute exists.  The eOTC value will
        be automatically carried in AS field of the added Secure_Path
        Segment.
@@ -418,7 +449,14 @@
        removed for business confidentiality.</t>
 
    </section>
- </middle>
+
+   <section anchor="Acknowledgments" title="Acknowledgments">
+    <t>The authors wish to thank Douglas Montgomery, Brian Dickson, and
+      Andrei Robachevsky for their contributions to a variant of this
+      work.</t>
+    </section>
+
+</middle>
 
  <back>
    <references title="Normative References">
