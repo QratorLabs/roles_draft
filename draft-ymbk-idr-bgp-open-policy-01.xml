@@ -173,8 +173,8 @@
          their 'customer cone') to their provider(s).</t>
        <t hangText="A Peer:"> announces their routes and the routes from
          their customer cone to other Peers.</t>
-       <t hangText="An Internal:"> BGP Neighbor has one of the above
-         relationships to another internal BGP AS.</t>
+       <t hangText="An Internal:"> BGP neighbor is an eBGP speaker in a
+         different AS but is in the same organization.</t>
        <t hangText="A Complex:"> BGP relationship is an attempt to allow
          those whose policy may vary by prefix.  It is aptly named and
          the authors question its real utility.</t>
@@ -234,7 +234,7 @@
      <t>To enforce correctness, the BGP Role check is used with a set
      of constrains on how speakers' BGP Roles MUST corresponded.  Of
      course, each speaker MUST announce and accept the BGP Role
-     capability in the BGP OPEN message exchange.</t>
+      capability in the BGP OPEN message exchange.</t>
 
      <t>If a speaker receives a BGP Role capability, it SHOULD check
      value of the received capability with its own BGP Role. The allowed
