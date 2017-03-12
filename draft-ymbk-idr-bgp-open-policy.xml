@@ -9,6 +9,7 @@
 <!ENTITY I-D.ietf-grow-route-leak-problem-definition SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-route-leak-problem-definition-06.xml">
 <!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-03.xml">
 <!ENTITY I-D.ietf-sidr-bgpsec-protocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-sidr-bgpsec-protocol-15.xml">
+<!ENTITY I-D.ymbk-idr-bgp-eotr-policy "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ymbk-idr-bgp-eotr-policy-00.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -85,9 +86,8 @@
        enhances BGP Open to establish agreement of the (peer, customer,
        provider, internal) relationship of two neighboring BGP speakers
        to enforce appropriate configuration on both sides. Propagated
-       routes are then marked with a eOTC and iOTC attributes according
-       to agreed relationship allowing prevention and detection of route
-       leaks.
+       routes are then marked with an eOTC attribute according to agreed
+       relationship allowing prevention and detection of route leaks.
      </t>
    </abstract>
 
@@ -105,12 +105,6 @@
  <middle>
 
    <section title="Preamble" anchor="preamble">
-     <t>
-       If you have not read this document before, please do so and then
-       come back here.  This preamble discusses some critical open
-       design decisions which are the purpose of this version of the
-       draft.
-     </t>
      
      <section title="Peering Relationships" anchor="peering">
        <t>
@@ -128,32 +122,16 @@
        </t>
      </section>
 
-     <section title="eOTC" anchor="eotc">
+     <section title="Enforcement" anchor="enforce">
        <t>
-	 The eOTC attribute is transitive and makes explicit the peering
-	 relationship between the two parties.  It reveals their peering
-	 relationship globally.  Some see this revealing relationships
-	 that are no one's business.
-       </t>
-       <t>
-	 It is assumed that BGPsec would sign the eOTC attribute.  Note
-	 that, if it is BGPsec signed, the eOTC attribute may not be
-	 removed or modified; after all, that is the goal of BGPsec
-	 signing.
-       </t>
-       <t>
-	 As the iOTC attribute is not propagated, BGPsec does not affect
-	 it.
-       </t>
-       <t>
-	 It has been suggested that eOTC could be optional, allowing an
-	 ISP not to propagate its relationship.  If G and H are BGP
-	 peers, if one does not mark with eOTC, can it ask or tell the
-	 other not to do so?  This could be another option of the OPEN.
-       </t>
-       <t>
-	 If iOTC provides strong vendor-code-based enforcement of route
-	 leak prevention, is eOTC needed at all?
+	 As the iOTC provides strong vendor-code-based enforcement of
+	 route leak prevention, it is not clear that propagation of the
+	 peering relationship beyond the two peers is useful.  If the
+	 operator feels it would be useful, they may propagate the state
+	 via a community a la <xref
+	 target="I-D.ietf-idr-route-leak-detection-mitigation"/> or use
+	 the mechanism proposed by <xref
+	 target="I-D.ymbk-idr-bgp-eotr-policy"/>
        </t>
      </section>
        
@@ -371,54 +349,10 @@
        </t>
    </section>
    
-   <section anchor="detection_attribute" title="BGP External Only To Customer attribute">
-     <t>
-       The External Only To Customer (eOTC) attribute is a new optional,
-       transitive BGP Path attribute with the Type Code &lt;TBD4&gt;.
-       This attribute is four bytes and contains an AS number of the AS
-       that added the attribute to the route.</t>
-       <t> There are four rules for setting the eOTC attribute:
-       <list style="numbers">
-         <t>
-           If eOTC is not set and the sender's Role is Provider or Peer,
-           the eOTC attribute MUST be added with value equal to the
-           sender's AS number.</t>
-         <t>
-           If eOTC is not set and the sender's Role is Complex and the
-           prefix role is Provider or Peer, the eOTC attribute MUST be
-           added with value equal to to the sender's AS number.</t>
-         <t>
-           If eOTC is set, the receiver's Role is Provider or Peer, and
-           its value is not the neighbor's AS number then the incoming
-           route is route leak and MUST be given a lower local
-           preference, or MAY be dropped.</t>
-         <t>
-           If eOTC is set, the receiver's Role is Complex, the prefix
-           role Role is Provider or Peer, and the eOTC value is not
-           equal to the neighbor's AS number, then the incoming route
-           is a route leak and MUST be given a lower local preference, or
-           they MAY be dropped.</t>
-         </list>
-       These four rules provide mechanism for route leak detection that
-       is created by a distant party in the AS_Path.
-       </t>
-   </section>
-
    <section anchor="security" title="Compatibility with BGPsec">
      <t>
-       For BGPsec <xref target="I-D.ietf-sidr-bgpsec-protocol"></xref>
-       enabled routers, the Flags field will have a bit added to
-       indicate that an eOTC attribute exists.  The eOTC value will
-       be automatically carried in AS field of the added Secure_Path
-       Segment.
-     </t>
-     <t>
-       When a route is translated from a BGPsec enabled router to a
-       non-BGPsec router, in addition to AS_PATH reconstruction,
-       reconstruction MUST be performed for the eOTC attribute.. If Flag
-       bit was set in one of Secure_Path Segments, the eOTC attribute
-       SHOULD be added with the AS number of the segment in which it
-       appears for the first time.
+       As the iOTR field is non-transitive, it is not seen by or
+       signed by BGPsec.
      </t>
    </section>
    
@@ -467,13 +401,6 @@
        http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-2]
        <xref target="RFC4271"/>. The length of this attribute is 0.
      </t>
-     <t>
-       This document defines a new optional, transitive BGP Path
-       Attributes option, named "External Only To Customer", assigned value
-       &lt;TBD4&gt; [To be removed upon publication:
-       http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-2]
-       <xref target="RFC4271"/>. The length of this attribute is 4.
-     </t>
    </section>
 
    <section anchor="Security" title="Security Considerations">
@@ -517,6 +444,7 @@
 
    <references title="Informative References">
      &RFC5226;
+     &I-D.ymbk-idr-bgp-eotr-policy;
      &I-D.ietf-grow-route-leak-problem-definition;
      &I-D.ietf-idr-route-leak-detection-mitigation;
      &I-D.ietf-sidr-bgpsec-protocol;
