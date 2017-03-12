@@ -147,7 +147,7 @@
        Open to succeed. </t>
      <t>
        Also this document specifies a way to mark routes according to
-       BGP Roles established in Open and a way to create double-boundary
+       BGP Roles established in OPEN and a way to create double-boundary
        filters for prevention and detection of route leaks via a two new
        BGP Path Attributes.
      </t>
