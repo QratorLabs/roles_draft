@@ -315,7 +315,7 @@
    <section anchor="security" title="Compatibility with BGPsec">
      <t>
        As the iOTC field is non-transitive, it is not seen by or
-       signed by BGPsec.
+       signed by BGPsec <xref target="I-D.ietf-sidr-bgpsec-protocol"></xref>.
      </t>
    </section>
    

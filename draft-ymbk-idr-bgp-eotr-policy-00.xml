@@ -3,9 +3,6 @@
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC4271 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4271.xml">
-<!ENTITY RFC4486 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4486.xml">
-<!ENTITY RFC5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
-<!ENTITY RFC5492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5492.xml">
 <!ENTITY I-D.ietf-grow-route-leak-problem-definition SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-route-leak-problem-definition-06.xml">
 <!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-03.xml">
 <!ENTITY I-D.ietf-sidr-bgpsec-protocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-sidr-bgpsec-protocol-15.xml">
@@ -229,13 +226,10 @@
    <references title="Normative References">
      &RFC2119;
      &RFC4271;
-     &RFC4486;
-     &RFC5492;
      &I-D.ymbk-idr-bgp-open-policy;
    </references>
 
    <references title="Informative References">
-     &RFC5226;
      &I-D.ietf-grow-route-leak-problem-definition;
      &I-D.ietf-idr-route-leak-detection-mitigation;
      &I-D.ietf-sidr-bgpsec-protocol;
