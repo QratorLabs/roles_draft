@@ -87,27 +87,6 @@
  </front>
 
  <middle>
-
-   <section title="Preamble" anchor="preamble">
-
-     <section title="Peering Relationships" anchor="peering">
-       <t>
-	 Despite uses of words such as "Customer," "Peer." etc. the
-	 intent is not business relationships, who pays whom, etc.
-	 These are common terms to represent restrictions on BGP
-	 propagation, some times known as Gao/Rexford.  E.g. if A is a
-	 "peer" of B and C, A does not propagate B's prefixes to C.  If
-	 D is a "customer" of E and F, D does not propagate prefixes
-	 learned from E to F.
-       </t>
-       <t>
-	 As the whole point of route leak detection and prevention is to
-	 prevent vioation of these relationships, they are inescapable.
-       </t>
-     </section>
-
-   </section>
-   
    <section title="Introduction" anchor="intro">
      <t>
        For the purpose of this document, BGP route leaks are when a BGP
@@ -148,7 +127,7 @@
        filters for detection of route leaks via new BGP Path Attribute. While iOTC provides
        strong vendor-code-based enforcement of route leak prevention, route leaks
        could still exist as result of old BGP implementation. Route leaks could
-       also be result of malicious activity such as MiTM attacks or DoS.
+       also be result of malicious activity such as MITM attacks or DoS.
        The goal of this proposal is to allow a distant AS to determine
        a violation of valley-free peering that is made by mistake or by purpose.
      </t>
@@ -217,6 +196,12 @@
    </section>
 
    <section anchor="Security" title="Security Considerations">
+     <t>
+       This document proposes a mechanism for detection
+       of route leaks that are the result of BGP policy misconfiguration.
+       If BGPSec is enabled it also provides mechanism to detect leaks
+       that are result of malicious activity.
+     </t>
      <t>
        Deliberate mis-marking of the eOTC flag could be used to affect
        the BGP decision process, but could not sabotage a route's
