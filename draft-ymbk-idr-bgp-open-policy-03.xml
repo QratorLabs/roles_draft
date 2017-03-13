@@ -270,7 +270,7 @@
        literal peer, but for some prefixes it provides full transit; the
        complex role SHOULD be set on both sides. In this case roles
        Customer/Provider/Peer should be set on per-prefix basis, keeping
-       the abstraction from detection and filtering mechanisms (<xref
+       the abstraction from filtering mechanisms (<xref
        target="prevention_attribute" />).
      </t>
      <t>
