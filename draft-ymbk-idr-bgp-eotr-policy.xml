@@ -229,7 +229,7 @@
        will not help to distinguish if it is provider to customer or
        peer to peer. In addition it could reveal sequence of p2c
        to downstream ISPs. If eOTC is BGPsec signed, it can not be removed
-       for business confidentiality.
+       for peering confidentiality.
      </t>
      <t>
        Still, any Tier-1 number in AS_PATH could be used in the same way
