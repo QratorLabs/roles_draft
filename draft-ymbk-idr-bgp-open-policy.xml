@@ -23,7 +23,7 @@
 <rfc category="std" docName="draft-ymbk-idr-bgp-open-policy-03" ipr="trust200902">
  <front>
 
-   <title abbrev="Route Leak Detection and Filtering"> Route Leak Detection and Filtering using Roles in Update and Open messages </title>
+   <title abbrev="Route Leak Prevention"> Route Leak Prevention using Roles in Update and Open messages </title>
 
    <author fullname="Alexander Azimov" initials="A"
            surname="Azimov">
