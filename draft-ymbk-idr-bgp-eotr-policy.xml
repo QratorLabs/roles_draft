@@ -159,7 +159,7 @@
    <section anchor="detection_attribute" title="BGP External Only To Customer attribute">
      <t> The External Only To Customer (eOTC) attribute is a new
      optional, transitive BGP Path attribute with the Type Code
-     &lt;TBD4&gt;.  This attribute is four bytes and contains an AS
+     &lt;TBD1&gt;.  This attribute is four bytes and contains an AS
      number of the AS that added the attribute to the route.</t>
        <t> There are four rules for setting the eOTC attribute:
        <list style="numbers">
@@ -210,7 +210,7 @@
      <t>
        This document defines a new optional, transitive BGP Path
        Attributes option, named "External Only To Customer", assigned value
-       &lt;TBD4&gt; [To be removed upon publication:
+       &lt;TBD1&gt; [To be removed upon publication:
        http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-2]
        <xref target="RFC4271"/>. The length of this attribute is 4.
      </t>
