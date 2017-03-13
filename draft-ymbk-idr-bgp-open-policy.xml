@@ -171,8 +171,8 @@
          their 'customer cone') to their provider(s).</t>
        <t hangText="A Peer:"> announces their routes and the routes from
          their customer cone to other Peers.</t>
-       <t hangText="An Internal:"> BGP neighbor is an eBGP speaker in a
-         different AS but is in the same organization.</t>
+       <t hangText="An Internal:"> announces and accepts all routes learned
+         from customers, peers and transit providers.</t>
        <t hangText="A Complex:"> BGP relationship is an attempt to allow
          those whose policy may vary by prefix.  It is aptly named and
          the authors question its real utility.</t>
@@ -192,9 +192,10 @@
          <t>Provider - sender is a transit provider to neighbor;</t>
          <t>Customer - sender is customer of neighbor;</t>
          <t>Peer     - sender and neighbor are peers;</t>
-         <t>Internal - sender is part of an internal AS of an
-         organization which has multiple ASs, or is a confederation,
-         etc.</t>
+         <t>
+           Internal - sender and neighbor is part of same organization.
+           This includes but is not limited to situation when sender and neighbor are from same AS.
+         </t>
          <t>Complex - sender has a non-standard relationship and wants
          to use manual per-prefix based role policies. </t>
        </list> </t>
