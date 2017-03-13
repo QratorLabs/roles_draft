@@ -9,7 +9,7 @@
 <!ENTITY I-D.ietf-grow-route-leak-problem-definition SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-route-leak-problem-definition-06.xml">
 <!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-03.xml">
 <!ENTITY I-D.ietf-sidr-bgpsec-protocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-sidr-bgpsec-protocol-15.xml">
-<!ENTITY I-D.ymbk-idr-bgp-open-policy "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ymbk-idr-bgp-open-policy-02.xml">
+<!ENTITY I-D.ymbk-idr-bgp-open-policy SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ymbk-idr-bgp-open-policy-02.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -70,8 +70,8 @@
        and consequent route marking which enforces a valley-free
        peering relationship.  This document defines an eOTC (external
        Only To Customer) transitive BGP attribute which propagates the
-       peering relationship globally.  The goal is to allow a distant
-       AS to determine a violation of valley-free peering.
+       specific marking to automatically detect route leaks.
+       The goal is to allow a distant AS to determine a violation of valley-free peering.
      </t>
    </abstract>
 
@@ -106,46 +106,54 @@
        </t>
      </section>
 
-     <section title="eOTC" anchor="eotc">
-       <t>
-	 The eOTC attribute is transitive and makes explicit the peering
-	 relationship between the two parties.  It reveals their peering
-	 relationship globally.  Some see this revealing relationships
-	 that are no one's business.
-       </t>
-       <t>
-	 It has been suggested that eOTC could be optional, allowing an
-	 ISP not to propagate its relationship.  If G and H are BGP
-	 peers, if one does not mark with eOTC, can it ask or tell the
-	 other not to do so?  This could be another option of the OPEN.
-       </t>
-       <t>
-	 If iOTC provides strong vendor-code-based enforcement of route
-	 leak prevention, is eOTC needed at all?
-       </t>
-     </section>
-       
    </section>
    
    <section title="Introduction" anchor="intro">
      <t>
+       For the purpose of this document, BGP route leaks are when a BGP
+       route was learned from transit provider or peer is announced
+       to another provider or peer.  See <xref
+       target="I-D.ietf-grow-route-leak-problem-definition"/>.  These
+       are usually the result of misconfigured or absent BGP route
+       filtering or lack of coordination between two BGP speakers.
+     </t>
+
+     <t>
+       <xref target="I-D.ietf-idr-route-leak-detection-mitigation"/>
+       describes a method of marking and detecting leaks which relies on
+       operator maintained markings.  Unfortunately, in most cases, a
+       leaking router will likely also be misconfigured to mark
+       incorrectly.
+     </t>
+
+     <t>
+       It has been suggested to use white list filtering, relying on
+       knowing the prefixes in the peer's customer cone as import
+       filtering, in order to detect route leaks.  Unfortunately, a
+       large number of medium transit operators use a
+       single prefix list as only the ACL for export filtering, without
+       community tagging and without paying attention to the source of a
+       learned route. So, if they learn a customer's route from their
+       provider or peer - they will announce it in all directions,
+       including other providers or peers.  This misconfiguration
+       affects a limited number of prefixes; but such route leaks will
+       obviously bypass customer cone import filtering made by upper
+       level upstream providers.
+     </t>
+
+     <t>
        This document assumes implementation of <xref
-       target="I-D.ymbk-idr-bgp-open-policy"/>, and extends it by adding
-       an eOTC (external Only To Customer) transitive BGP attribute which
-       propagates the peering relationship globally.  The goal is to
-       allow a distant AS to determine a violation of valley-free
-       peering.
+       target="I-D.ymbk-idr-bgp-open-policy"/>, eOTC (external
+       Only To Customer) transitive BGP attribute which propagates the
+       specific marking to automatically detect route leaks. While iOTC provides
+       strong vendor-code-based enforcement of route leak prevention, route leaks
+       could still exist as result of old BGP implementation. Route leaks could
+       also be result of malicious activity such as MiTM attacks or DoS.
+       So, the goal of this proposal is to allow a distant AS to determine
+       a violation of valley-free peering that is made by mistake or by purpose.
      </t>
-     <t>
-       It is assumed that the reader is familiar with <xref
-       target="I-D.ymbk-idr-bgp-open-policy"/> and all terms and
-       concepts therein.
-     </t>
-     <t>
-       This document assumes a BGP OPEN with the the BGP Role capability
-       has been negotiated, see <xref
-       target="I-D.ymbk-idr-bgp-open-policy"/>/
-     </t>
+
+
    </section>
 
    <section anchor="detection_attribute" title="BGP External Only To Customer attribute">
@@ -191,7 +199,7 @@
      <t>
        When a route is translated from a BGPsec enabled router to a
        non-BGPsec router, in addition to AS_PATH reconstruction,
-       reconstruction MUST be performed for the eOTC attribute.. If Flag
+       reconstruction MUST be performed for the eOTC attribute. If Flag
        bit was set in one of Secure_Path Segments, the eOTC attribute
        SHOULD be added with the AS number of the segment in which it
        appears for the first time.
@@ -219,8 +227,13 @@
        information about a BGP speaker's peering relationship.  It will
        give a strong hint that some link isn't customer to provider, but
        will not help to distinguish if it is provider to customer or
-       peer to peer.  If eOTC is BGPsec signed, it can not be removed
+       peer to peer. In addition it could reveal sequence of p2c
+       to downstream ISPs. If eOTC is BGPsec signed, it can not be removed
        for business confidentiality.
+     </t>
+     <t>
+       Still, any Tier-1 number in AS_PATH could be used in the same way
+       to reveal possible p2c sequence.
      </t>
 
    </section>

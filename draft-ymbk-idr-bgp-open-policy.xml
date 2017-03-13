@@ -9,7 +9,6 @@
 <!ENTITY I-D.ietf-grow-route-leak-problem-definition SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-route-leak-problem-definition-06.xml">
 <!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-03.xml">
 <!ENTITY I-D.ietf-sidr-bgpsec-protocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-sidr-bgpsec-protocol-15.xml">
-<!ENTITY I-D.ymbk-idr-bgp-eotr-policy "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ymbk-idr-bgp-eotr-policy-00.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -86,8 +85,8 @@
        enhances BGP Open to establish agreement of the (peer, customer,
        provider, internal) relationship of two neighboring BGP speakers
        to enforce appropriate configuration on both sides. Propagated
-       routes are then marked with an eOTC attribute according to agreed
-       relationship allowing prevention and detection of route leaks.
+       routes are then marked with an iOTC attribute according to agreed
+       relationship allowing prevention of route leaks.
      </t>
    </abstract>
 
@@ -122,19 +121,6 @@
        </t>
      </section>
 
-     <section title="Enforcement" anchor="enforce">
-       <t>
-	 As the iOTC provides strong vendor-code-based enforcement of
-	 route leak prevention, it is not clear that propagation of the
-	 peering relationship beyond the two peers is useful.  If the
-	 operator feels it would be useful, they may propagate the state
-	 via a community a la <xref
-	 target="I-D.ietf-idr-route-leak-detection-mitigation"/> or use
-	 the mechanism proposed by <xref
-	 target="I-D.ymbk-idr-bgp-eotr-policy"/>
-       </t>
-     </section>
-       
    </section>
    
    <section title="Introduction" anchor="intro">
@@ -148,10 +134,9 @@
      <t>
        Also this document specifies a way to mark routes according to
        BGP Roles established in OPEN and a way to create double-boundary
-       filters for prevention and detection of route leaks via a two new
-       BGP Path Attributes.
+       filters for prevention of route leaks via new BGP Path Attribute.
      </t>
-      <t>
+     <t>
        For the purpose of this document, BGP route leaks are when a BGP
        route was learned from transit provider or peer and is announced
        to another provider or peer.  See <xref
@@ -162,31 +147,11 @@
 
      <t>
        <xref target="I-D.ietf-idr-route-leak-detection-mitigation"/>
-       describes a method of marking and detecting leaks which relies on
-       operator maintained markings.  Unfortunately, in most cases, a
-       leaking router will likely also be misconfigured to mark
-       incorrectly.  The mechanism proposed in that draft provides the
+       The mechanism proposed in that draft provides the
        opportunity to detect route leaks made by third parties but
-       provides no support to strongly prevent route leak creation.  The
-       leak prevention still relies on communities which are optional
-       and often missed due to mistakes or misunderstanding of the BGP
-       configuration process.
+       provides no support to strongly prevent route leak creation.
      </t>
 
-     <t>
-       It has been suggested to use white list filtering, relying on
-       knowing the prefixes in the peer's customer cone as import
-       filtering, in order to detect route leaks.  Unfortunately, a
-       large number of incidents in medium transit operators use a
-       single prefix list as only the ACL for export filtering, without
-       community tagging and without paying attention to the source of a
-       learned route. So, if they learn a customer's route from their
-       provider or peer - they will announce it in all directions,
-       including other providers or peers.  This misconfiguration
-       affects a limited number of prefixes; but such route leaks will
-       obviously bypass customer cone import filtering made by upper
-       level upstream providers.
-     </t>
      <t>
        Also, route tagging which relies on operator maintained policy
        configuration is too easily and too often misconfigured.
@@ -307,8 +272,7 @@
        complex role SHOULD be set on both sides. In this case roles
        Customer/Provider/Peer should be set on per-prefix basis, keeping
        the abstraction from detection and filtering mechanisms (<xref
-       target="prevention_attribute" /> and <xref
-       target="detection_attribute" />).
+       target="prevention_attribute" />).
      </t>
      <t>
        If role is not Complex all per-prefix role settings MUST be ignored.
@@ -351,7 +315,7 @@
    
    <section anchor="security" title="Compatibility with BGPsec">
      <t>
-       As the iOTR field is non-transitive, it is not seen by or
+       As the iOTC field is non-transitive, it is not seen by or
        signed by BGPsec.
      </t>
    </section>
@@ -411,18 +375,9 @@
      leaked by third party.</t>
      <t> Deliberate sending of a known conflicting BGP Role could be
        used to sabotage a BGP connection.  This is easily detectable.</t>
-     <t> Deliberate mis-marking of the eOTC flag could be used to affect
-     the BGP decision process, but could not sabotage a route's
-     propagation.</t>
      <t> BGP Role is disclosed only to an immediate BGP neighbor, so it
      will not itself reveal any sensitive information to third
      parties. </t>
-     <t> On the other hand, eOTC is a transitive BGP AS_PATH attribute
-       which reveals a bit about a BGP speaker's business relationship.
-       It will give a strong hint that some link isn't customer to
-       provider, but will not help to distinguish if it is provider to
-       customer or peer to peer.  If eOTC is BGPsec signed, it can not be
-       removed for business confidentiality.</t>
 
    </section>
 
@@ -444,7 +399,6 @@
 
    <references title="Informative References">
      &RFC5226;
-     &I-D.ymbk-idr-bgp-eotr-policy;
      &I-D.ietf-grow-route-leak-problem-definition;
      &I-D.ietf-idr-route-leak-detection-mitigation;
      &I-D.ietf-sidr-bgpsec-protocol;
