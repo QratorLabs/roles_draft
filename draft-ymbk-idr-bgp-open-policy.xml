@@ -171,8 +171,7 @@
          their 'customer cone') to their provider(s).</t>
        <t hangText="A Peer:"> announces their routes and the routes from
          their customer cone to other Peers.</t>
-       <t hangText="An Internal:"> announces and accepts all routes learned
-         from customers, peers and transit providers.</t>
+       <t hangText="An Internal:"> announces all routes, accepts all routes.</t>
        <t hangText="A Complex:"> BGP relationship is an attempt to allow
          those whose policy may vary by prefix.  It is aptly named and
          the authors question its real utility.</t>
@@ -194,7 +193,7 @@
          <t>Peer     - sender and neighbor are peers;</t>
          <t>
            Internal - sender and neighbor is part of same organization.
-           This includes but is not limited to situation when sender and neighbor are from same AS.
+           This includes but is not limited to situation when sender and neighbor are in same AS.
          </t>
          <t>Complex - sender has a non-standard relationship and wants
          to use manual per-prefix based role policies. </t>
@@ -369,11 +368,9 @@
    </section>
 
    <section anchor="Security" title="Security Considerations">
-     <t> This document proposes a mechanism for prevention and detection
+     <t> This document proposes a mechanism for prevention
      of route leaks that are the result of BGP policy
-     misconfiguration. This includes preventing route leaks created
-     inside an AS (company), and route leak detection if a route was
-     leaked by third party.</t>
+     misconfiguration. </t>
      <t> Deliberate sending of a known conflicting BGP Role could be
        used to sabotage a BGP connection.  This is easily detectable.</t>
      <t> BGP Role is disclosed only to an immediate BGP neighbor, so it
