@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC4271 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4271.xml">
+<!ENTITY RFC4486 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4486.xml">
+<!ENTITY RFC5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
+<!ENTITY RFC5492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5492.xml">
+<!ENTITY I-D.ietf-grow-route-leak-problem-definition SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-route-leak-problem-definition-06.xml">
+<!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-03.xml">
+<!ENTITY I-D.ietf-sidr-bgpsec-protocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-sidr-bgpsec-protocol-15.xml">
+]>
+
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc strict="yes" ?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+
+<rfc category="std" docName="draft-ymbk-idr-bgp-open-policy-04" ipr="trust200902">
+ <front>
+
+   <title abbrev="Route Leak Prevention"> Route Leak Prevention using Roles in Update and OPEN messages </title>
+
+   <author fullname="Alexander Azimov" initials="A"
+           surname="Azimov">
+     <organization>Qrator Labs</organization>
+     <address>
+       <email>aa@qrator.net</email>
+     </address>
+   </author>
+
+   <author fullname="Eugene Bogomazov" initials="E"
+           surname="Bogomazov">
+     <organization>Qrator Labs</organization>
+     <address>
+       <email>eb@qrator.net</email>
+     </address>
+   </author>
+
+   <author fullname="Randy Bush" initials="R"
+           surname="Bush">
+     <organization>Internet Initiative Japan</organization>
+     <address>
+       <email>randy@psg.com</email>
+     </address>
+   </author>
+
+   <author fullname="Keyur Patel" initials="K"
+           surname="Patel">
+     <organization>Arrcus, Inc.</organization>
+     <address>
+       <email>keyur@arrcus.com</email>
+     </address>
+   </author>
+
+   <author fullname="Kotikalapudi Sriram" initials="K"
+           surname="Sriram">
+     <organization>US NIST</organization>
+     <address>
+       <email>ksriram@nist.gov</email>
+     </address>
+   </author>
+
+   <date month="March" year="2017"/>
+
+   <keyword>BGP</keyword>
+   <keyword>Route leak</keyword>
+   <keyword>BGP role</keyword>
+
+   <abstract>
+     <t>
+       Route Leaks are the propagation of BGP prefixes which violate
+       assumptions of BGP topology relationships; e.g. passing a route
+       learned from one peer to another peer or to a transit provider,
+       passing a route learned from one transit provider to another
+       transit provider or to a peer.  Today, approaches to leak
+       prevention rely on marking routes according to operator
+       configuration options without any check that the configuration
+       corresponds to that of the BGP neighbor, or enforcement that the
+       two BGP speakers agree on the relationship.  This document
+       enhances BGP OPEN to establish agreement of the (peer, customer,
+       provider, internal) relationship of two neighboring BGP speakers
+       to enforce appropriate configuration on both sides. Propagated
+       routes are then marked with an iOTC attribute according to the
+       agreed relationship allowing prevention of route leaks.
+     </t>
+   </abstract>
+
+   <note title="Requirements Language">
+     <t>
+       The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+       "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" are to be
+       interpreted as described in <xref target="RFC2119">RFC 2119</xref>
+       only when they appear in all upper case.  They may also appear in lower
+       or mixed case as English words, without normative meaning.
+     </t>
+   </note>
+ </front>
+
+ <middle>
+
+   <section title="Preamble" anchor="preamble">
+     
+     <section title="Peering Relationships" anchor="peering">
+       <t>
+	 Despite uses of words such as "Customer," "Peer." etc. the
+	 intent is not business relationships, who pays whom, etc.
+	 These are common terms to represent restrictions on BGP
+	 propagation, some times known as Gao/Rexford.  E.g. if A is a
+	 "peer" of B and C, A does not propagate B's prefixes to C.  If
+	 D is a "customer" of E and F, D does not propagate prefixes
+	 learned from E to F.
+       </t>
+       <t>
+	 As the whole point of route leak detection and prevention is to
+	 prevent vioation of these relationships, they are inescapable.
+       </t>
+     </section>
+
+   </section>
+   
+   <section title="Introduction" anchor="intro">
+    <t>
+       This document specifies a new BGP Capability Code, <xref
+       target="RFC5492"></xref> Sec 4, which two BGP speakers MAY use to
+       ensure that they MUST agree on their relationship; i.e. customer
+       and provider or peers.  Either or both may optionally be
+       configured to require that this option be exchanged for the BGP
+       OPEN to succeed. </t>
+     <t>
+       Also this document specifies a way to mark routes according to
+       BGP Roles established in OPEN and a way to create double-boundary
+       filters to prevent route leaks via a new BGP Path Attribute.
+     </t>
+     <t>
+       For the purpose of this document, BGP route leaks are when a BGP
+       route was learned from transit provider or peer and is announced
+       to another provider or peer.  See <xref
+       target="I-D.ietf-grow-route-leak-problem-definition"/>.  These
+       are usually the result of misconfigured or absent BGP route
+       filtering or lack of coordination between two BGP speakers.
+     </t>
+     <t>
+       Route tagging which relies on operator maintained policy
+       configuration is too easily and too often misconfigured.
+     </t>
+     <t>
+       <xref target="I-D.ietf-idr-route-leak-detection-mitigation"/>
+       proposed a mechanism to provide an opportunity to detect route
+       leaks made by third parties but provided no support to strongly
+       prevent route leak creation.
+     </t>
+
+   </section>
+
+   <section anchor="defs" title="Role Definitions">
+     <t>As many of these terms are used differently in various contexts,
+       it is worth being explicit.  <list style="hanging">
+       <t hangText="A Provider:"> sends their own routes and (possibly) a
+         subset of routes learned from their other customers, peers, and
+	 transit providers to their customer.</t>
+       <t hangText="A Customer:"> accepts 'transit routes' from its
+         provider(s) and announces their own routes and the routes they
+         have learned from the transitive closure of their customers (AKA
+         their 'customer cone') to their provider(s).</t>
+       <t hangText="A Peer:"> announces their routes and the routes from
+         their customer cone to other Peers.</t>
+       <t hangText="An Internal:"> announces all routes, accepts all routes.</t>
+       <t hangText="A Complex:"> BGP relationship is an attempt to allow
+         those whose policy may vary by prefix.  It is aptly named and
+         the authors question its real utility.</t>
+       </list></t>
+       <t>Of course, any BGP speaker may apply policy to reduce what is
+         announced, and a recipient may apply policy to reduce the set
+	 of routes they accept.</t>
+     </section>
+       
+   <section anchor="bgp_role" title="BGP Role">
+     <t>
+       BGP Role is new mandatory configuration option. It reflects the
+       real-world agreement between two BGP speakers about their peering
+       relationship.
+     </t>
+
+     <t>Allowed Role values are: <list style="symbols">
+         <t>Provider - sender is a transit provider to neighbor;</t>
+         <t>Customer - sender is customer of neighbor;</t>
+         <t>Peer     - sender and neighbor are peers;</t>
+         <t>Internal - sender and neighbor is part of same organization.
+           This includes but is not limited to situation when sender and
+           neighbor are in same AS.</t>
+         <t>Complex - sender has a non-standard relationship and wants
+           to use manual per-prefix based role policies. </t>
+       </list> </t>
+       <t>
+	 As BGP Role reflects the relationship between two BGP speakers,
+	 it could also be used for more than route leak mitigation.
+       </t>
+   </section>
+
+   <section anchor="capability" title="Role capability">
+     <t> The TLV (type, length, value) of the BGP Role capability
+       are: <list style="symbols">
+     <t> Type   - &lt;TBD1&gt;;</t>
+     <t> Length - 1 (octet);</t>
+     <t> Value - integer corresponding to speaker' BGP Role.</t>
+     </list></t>
+     <texttable anchor="values" title="Predefined BGP Role Values" suppress-title="false">
+     <ttcol align="center"> Value </ttcol>
+     <ttcol align="left"> Role name </ttcol>
+     <c> 0   </c> <c> Undefined </c>
+     <c> 1   </c> <c> Sender is Peer      </c>
+     <c> 2   </c> <c> Sender is Provider  </c>
+     <c> 3   </c> <c> Sender is Customer  </c>
+     <c> 4   </c> <c> Sender is Internal  </c>
+     <c> 5 </c> <c> Sender is Complex   </c>
+     </texttable>
+
+     </section>
+
+   <section anchor="correctness" title="Role correctness">
+     <t><xref target="bgp_role"/> described how BGP Role is a reflection
+     of the relationship between two BGP speakers. But the mere presence
+     of BGP Role doesn't automatically guarantee role agreement between
+     two BGP peers.</t>
+
+     <t>To enforce correctness, the BGP Role check is used with a set
+     of constrains on how speakers' BGP Roles MUST corresponded.  Of
+     course, each speaker MUST announce and accept the BGP Role
+      capability in the BGP OPEN message exchange.</t>
+
+     <t>If a speaker receives a BGP Role capability, it SHOULD compare
+     value of the received capability with its own BGP Role. The allowed
+     pairings are (first a sender's Role, second the receiver's Role):</t>
+     <texttable anchor="allowed" title="Allowed Role Capabilities" suppress-title="false">
+     <ttcol align="left"> Sender Role </ttcol>
+     <ttcol align="left"> Receiver Role </ttcol>
+     <c> Peer     </c> <c> Peer     </c>
+     <c> Provider </c> <c> Customer </c>
+     <c> Customer </c> <c> Provider </c>
+     <c> Internal </c> <c> Internal </c>
+     <c> Complex  </c> <c> Complex  </c>
+     </texttable>
+     <t> In all other cases speaker MUST send a Role Mismatch
+     Notification (code 2, sub-code &lt;TBD2&gt;). </t>
+
+     <section title="Strict mode" anchor="strict">
+     <t>A new BGP configuration option "strict mode" is defined with
+     values of true or false. If set to true, then the speaker MUST
+     refuse to establish a BGP session with peers which do not announce
+     the BGP Role capability in their OPEN message. If a speaker rejects
+     a connection, it MUST send a Connection Rejected Notification <xref
+     target="RFC4486"/> (Notification with error code 6, subcode 5).  By
+     default strict mode SHOULD be set to false for backward
+     compatibility with BGP speakers, that do not yet support this
+     mechanism.</t>
+    </section>
+   </section>
+
+   <section anchor="complex_role" title="Restrictions on the Complex role">
+     <t>
+       The Complex role should be set only if the relationship between
+       BGP neighbors can not be described using simple
+       Customer/Provider/Peer roles. For a example, if neighbor is
+       literal peer, but for some prefixes it provides full transit; the
+       complex role SHOULD be set on both sides. In this case roles
+       Customer/Provider/Peer should be set on per-prefix basis, keeping
+       the abstraction from filtering mechanisms (<xref
+       target="prevention_attribute" />).
+     </t>
+     <t>
+       If role is not Complex all per-prefix role settings MUST be ignored.
+     </t>
+   </section>
+
+   <section anchor="prevention_attribute" title="BGP Internal Only To Customer attribute">
+     <t>
+       The Internal Only To Customer (iOTC) attribute is a new optional,
+       non-transitive BGP Path attribute with the Type Code
+       &lt;TBD3&gt;.  This attribute has zero length as it is used only as
+       a flag.
+     </t>
+     
+     <t> There are four rules for setting the iOTC attribute:
+         <list style="numbers">
+           <t>
+             The iOTC attribute MUST be added to all incoming routes if
+             the receiver's Role is Customer or Peer;
+           </t>
+           <t>
+             The iOTC attribute MUST be added to all incoming routes if
+             the receiver's Role is Complex and the prefix Role is
+             Customer or Peer;
+           </t>
+           <t>
+             Routes with the iOTC attribute set MUST NOT be announced by
+             a sender whose Role is Customer or Peer;
+           </t>
+           <t>
+             Routes with the iOTC attribute set MUST NOT be announced
+             by a sender whose Role is Complex and the prefix Role is
+             Customer or Peer;
+           </t>
+         </list>
+         These four rules provide mechanism that strongly prevents route
+         leak creation by an AS.
+       </t>
+   </section>
+   
+   <section anchor="security" title="Compatibility with BGPsec">
+     <t>
+       As the iOTC field is non-transitive, it is not seen by or
+       signed by BGPsec <xref target="I-D.ietf-sidr-bgpsec-protocol"></xref>.
+     </t>
+   </section>
+   
+
+   <section anchor="considerations" title="Additional Considerations">
+     <t>As the BGP Role reflects the relationship between neighbors, it
+     can also have other uses.  As an example, BGP Role might affect
+     route priority, or be used to distinguish borders of a network if a
+     network consists of multiple AS.</t>
+     <t>Though such uses may be worthwhile, they are not the goal of
+      this document.  Note that such uses would require local policy
+      control. </t>
+     <t>
+      This document doesn't provide any security measures to check
+      correctness of per-prefix roles, so the Complex role should be
+      used with great caution.  It is as dangerous as current BGP
+      peering.
+     </t>
+   </section>
+
+
+   <section anchor="IANA" title="IANA Considerations">
+     <t>This document defines a new Capability Codes option [to be
+     removed upon publication:
+     http://www.iana.org/assignments/capability-codes/capability-codes.xhtml]
+     <xref target="RFC5492"/>, named "BGP Role", assigned value
+     &lt;TBD1&gt; . The length of this capability is 1. </t>
+
+     <t>The BGP Role capability includes a Value field, for which IANA
+     is requested to create and maintain a new sub-registry called "BGP
+     Role Value".  Assignments consist of Value and corresponding Role
+     name.  Initially this registry is to be populated with the data in
+     <xref target="values"/>.  Future assignments may be made by a
+     standard action procedure <xref target="RFC5226"/>.</t>
+     <t>
+       This document defines new subcode, "Role Mismatch", assigned
+       value &lt;TBD2&gt; in the OPEN Message Error subcodes registry
+       [to be removed upon publication:
+       http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-6]
+       <xref target="RFC4271"/>.</t>
+	 
+     <t>
+       This document defines a new optional, non-transitive BGP Path
+       Attributes option, named "Internal Only To Customer", assigned value
+       &lt;TBD3&gt; [To be removed upon publication:
+       http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-2]
+       <xref target="RFC4271"/>. The length of this attribute is 0.
+     </t>
+   </section>
+
+   <section anchor="Security" title="Security Considerations">
+     <t> This document proposes a mechanism for prevention
+     of route leaks that are the result of BGP policy
+     misconfiguration. </t>
+     <t> Deliberate sending of a known conflicting BGP Role could be
+       used to sabotage a BGP connection.  This is easily detectable.</t>
+     <t> BGP Role is disclosed only to the immediate BGP neighbor, so it
+     will not itself reveal any sensitive information to third
+     parties. </t>
+
+   </section>
+
+   <section anchor="Acknowledgments" title="Acknowledgments">
+    <t>The authors wish to thank Douglas Montgomery, Brian Dickson, and
+      Andrei Robachevsky for their contributions to a variant of this
+      work.</t>
+    </section>
+
+</middle>
+
+ <back>
+   <references title="Normative References">
+     &RFC2119;
+     &RFC4271;
+     &RFC4486;
+     &RFC5492;
+   </references>
+
+   <references title="Informative References">
+     &RFC5226;
+     &I-D.ietf-grow-route-leak-problem-definition;
+     &I-D.ietf-idr-route-leak-detection-mitigation;
+     &I-D.ietf-sidr-bgpsec-protocol;
+  </references>
+ </back>
+</rfc>
+
+
