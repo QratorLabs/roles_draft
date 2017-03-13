@@ -121,12 +121,12 @@
      </t>
 
      <t>
-       This document specifies a way to mark routes according to
-       BGP Roles (<xref target="I-D.ymbk-idr-bgp-open-policy"/>) established
-       in OPEN and a way to create double-boundary
-       filters for detection of route leaks via new BGP Path Attribute. While iOTC provides
+       This document specifies a way to to create automatic
+       filters for detection of route leaks via new BGP Path Attribute which is set
+       according to BGP Roles (<xref target="I-D.ymbk-idr-bgp-open-policy"/>) .
+       While iOTC provides
        strong vendor-code-based enforcement of route leak prevention, route leaks
-       could still exist as result of old BGP implementation. Route leaks could
+       could still exist as result of misconfigured old BGP implementations. Route leaks could
        also be result of malicious activity such as MITM attacks or DoS.
        The goal of this proposal is to allow a distant AS to determine
        a violation of valley-free peering that is made by mistake or by purpose.
@@ -199,7 +199,7 @@
      <t>
        This document proposes a mechanism for detection
        of route leaks that are the result of BGP policy misconfiguration.
-       If BGPSec is enabled it also provides mechanism to detect leaks
+       If BGPSec is enabled it will also provide mechanism to detect leaks
        that are result of malicious activity.
      </t>
      <t>
@@ -222,12 +222,6 @@
      </t>
 
    </section>
-
-   <section anchor="Acknowledgments" title="Acknowledgments">
-    <t>The authors wish to thank Douglas Montgomery, Brian Dickson,
-    Kotikalapudi Sriram, and Andrei Robachevsky for their contributions
-    to a variant of this work.</t>
-    </section>
 
 </middle>
 
