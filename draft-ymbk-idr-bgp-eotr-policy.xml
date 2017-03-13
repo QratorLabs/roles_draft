@@ -142,14 +142,14 @@
      </t>
 
      <t>
-       This document assumes implementation of <xref
-       target="I-D.ymbk-idr-bgp-open-policy"/>, eOTC (external
-       Only To Customer) transitive BGP attribute which propagates the
-       specific marking to automatically detect route leaks. While iOTC provides
+       This document specifies a way to mark routes according to
+       BGP Roles (<xref target="I-D.ymbk-idr-bgp-open-policy"/>) established
+       in OPEN and a way to create double-boundary
+       filters for detection of route leaks via new BGP Path Attribute. While iOTC provides
        strong vendor-code-based enforcement of route leak prevention, route leaks
        could still exist as result of old BGP implementation. Route leaks could
        also be result of malicious activity such as MiTM attacks or DoS.
-       So, the goal of this proposal is to allow a distant AS to determine
+       The goal of this proposal is to allow a distant AS to determine
        a violation of valley-free peering that is made by mistake or by purpose.
      </t>
 
