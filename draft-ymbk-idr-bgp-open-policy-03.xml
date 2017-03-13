@@ -183,8 +183,7 @@
        
    <section anchor="bgp_role" title="BGP Role">
      <t>
-       BGP Role is new mandatory configuration option which must be set
-       for each address family. It reflects the real-world agreement
+       BGP Role is new mandatory configuration option. It reflects the real-world agreement
        between two BGP speakers about their peering relationship.</t>
 
      <t>Allowed Role values are: <list style="symbols">
