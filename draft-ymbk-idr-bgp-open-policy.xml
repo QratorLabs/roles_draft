@@ -20,7 +20,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ymbk-idr-bgp-open-policy-04" ipr="trust200902">
+<rfc category="std" docName="draft-ymbk-idr-bgp-open-policy-05" ipr="trust200902">
  <front>
 
    <title abbrev="Route Leak Prevention"> Route Leak Prevention using Roles in Update and OPEN messages </title>
@@ -310,7 +310,32 @@
          leak creation by an AS.
        </t>
    </section>
+
+   <section anchor="attrs" title="Attribute or Community">
+
+     <t>Having the relationship hard set by agreement between the two
+     peers in BGP OPEN is critical; the routers enforce the relationship
+     irrespective of operator configuration errors.</t>
+
+     <t>Similarly, it is critical that the application of that
+     relationshio on prefix propagation using iOTC is enforced by the
+     router(s), and minimally exposed to user misconfiguration.  There
+     is a question whether the iOTC marking should be an attribute or a
+     well-known community.</t>
+
+     <t>There is a long and sordid history of mis-configurations
+     inserting incorrect communities, deleting communities, ignoring
+     well-known community markings etc.  In this mechanism's case, an
+     operator could, for example, accidentally strip the well-known
+     community on receipt.</t>
+
+     <t>As opposed to communities, BGP attributes may not be generally
+     modified or filtered by the operator.  The router(s) enforce them.
+     This is the desired property for the iOTC marking.  Hence, this
+     document specifies iOTC as an attribute.</t>
    
+     </section>
+
    <section anchor="security" title="Compatibility with BGPsec">
      <t>
        As the iOTC field is non-transitive, it is not seen by or
