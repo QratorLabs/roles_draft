@@ -9,6 +9,7 @@
 <!ENTITY I-D.ietf-grow-route-leak-problem-definition SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-route-leak-problem-definition-06.xml">
 <!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-03.xml">
 <!ENTITY I-D.ietf-sidr-bgpsec-protocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-sidr-bgpsec-protocol-15.xml">
+<!ENTITY I-D.ietf-grow-bgp-reject SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-bgp-reject-08.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -20,7 +21,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-00" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-01" ipr="trust200902">
  <front>
 
    <title abbrev="Route Leak Prevention"> Route Leak Prevention using Roles in Update and Open messages </title>
@@ -65,7 +66,7 @@
      </address>
    </author>
 
-   <date month="June" year="2017"/>
+   <date month="July" year="2017"/>
 
    <keyword>BGP</keyword>
    <keyword>Route leak</keyword>
@@ -172,9 +173,6 @@
        <t hangText="A Peer:"> announces their routes and the routes from
          their customer cone to other Peers.</t>
        <t hangText="An Internal:"> announces all routes, accepts all routes.</t>
-       <t hangText="A Complex:"> BGP relationship is an attempt to allow
-         those whose policy may vary by prefix.  It is aptly named and
-         the authors question its real utility.</t>
        </list></t>
        <t>Of course, any BGP speaker may apply policy to reduce what is
          announced, and a recipient may apply policy to reduce the set
@@ -183,8 +181,9 @@
        
    <section anchor="bgp_role" title="BGP Role">
      <t>
-       BGP Role is new mandatory configuration option. It reflects the real-world agreement
-       between two BGP speakers about their peering relationship.</t>
+       BGP Role is new configuration option that SHOULD be configured at each BGP session.
+       It reflects the real-world agreement between two BGP speakers about their peering relationship.
+     </t>
 
      <t>Allowed Role values are: <list style="symbols">
          <t>Provider - sender is a transit provider to neighbor;</t>
@@ -194,8 +193,6 @@
            Internal - sender and neighbor is part of same organization.
            This includes but is not limited to situation when sender and neighbor are in same AS.
          </t>
-         <t>Complex - sender has a non-standard relationship and wants
-         to use manual per-prefix based role policies. </t>
        </list> </t>
      <t>Since BGP Role reflects the relationship between two BGP
      speakers, it could also be used for more than route leak
@@ -217,7 +214,6 @@
      <c> 2   </c> <c> Sender is Provider  </c>
      <c> 3   </c> <c> Sender is Customer  </c>
      <c> 4   </c> <c> Sender is Internal  </c>
-     <c> 5 </c> <c> Sender is Complex   </c>
      </texttable>
 
      </section>
@@ -233,10 +229,12 @@
      course, each speaker MUST announce and accept the BGP Role
       capability in the BGP OPEN message exchange.</t>
 
-     <t>If a speaker receives a BGP Role capability, it SHOULD check
-     value of the received capability with its own BGP Role. The allowed
-     pairings are (first a sender's Role, second the receiver's
-     Role):</t>
+     <t>
+       If a speaker receives a BGP Role capability, it MUST check
+       value of the received capability with its own BGP Role (if it is set).
+       The allowed pairings are (first a sender's Role, second the receiver's
+       Role):
+     </t>
      <texttable anchor="allowed" title="Allowed Role Capabilities" suppress-title="false">
      <ttcol align="left"> Sender Role </ttcol>
      <ttcol align="left"> Receiver Role </ttcol>
@@ -244,7 +242,6 @@
      <c> Provider </c> <c> Customer </c>
      <c> Customer </c> <c> Provider </c>
      <c> Internal </c> <c> Internal </c>
-     <c> Complex  </c> <c> Complex  </c>
      </texttable>
      <t> In all other cases speaker MUST send a Role Mismatch
      Notification (code 2, sub-code &lt;TBD2&gt;). </t>
@@ -262,22 +259,6 @@
     </section>
    </section>
 
-   <section anchor="complex_role" title="Restrictions on the Complex role">
-     <t>
-       The Complex role should be set only if the relationship between
-       BGP neighbors can not be described using simple
-       Customer/Provider/Peer roles. For a example, if neighbor is
-       literal peer, but for some prefixes it provides full transit; the
-       complex role SHOULD be set on both sides. In this case roles
-       Customer/Provider/Peer should be set on per-prefix basis, keeping
-       the abstraction from filtering mechanisms (<xref
-       target="prevention_attribute" />).
-     </t>
-     <t>
-       If role is not Complex all per-prefix role settings MUST be ignored.
-     </t>
-   </section>
-
    <section anchor="prevention_attribute" title="BGP Internal Only To Customer attribute">
      <t>
        The Internal Only To Customer (iOTC) attribute is a new optional,
@@ -286,32 +267,53 @@
        a flag.
      </t>
      
-     <t> There are four rules for setting the iOTC attribute:
+     <t> There are three rules of iOTC attribute usage:
          <list style="numbers">
            <t>
              The iOTC attribute MUST be added to all incoming routes if
              the receiver's Role is Customer or Peer;
            </t>
            <t>
-             The iOTC attribute MUST be added to all incoming routes if
-             the receiver's Role is Complex and the prefix Role is
-             Customer or Peer;
-           </t>
-           <t>
              Routes with the iOTC attribute set MUST NOT be announced by
              a sender whose Role is Customer or Peer;
            </t>
            <t>
-             Routes with the iOTC attribute set MUST NOT be announced if
-             by a sender whose Role is Complex and the prefix Role is
-             Customer or Peer;
+             A sender MUST NOT include this attribute in UPDATE messages
+             if its Role is Customer, Provider or Peer. If it is contained in an UPDATE message
+             and receiver's Role is Customer, Provider, Peer or unspecified,
+             then this attribute MUST be removed.
            </t>
          </list>
-         These four rules provide mechanism that strongly prevents route
+         These three rules provide mechanism that strongly prevents route
          leak creation by an AS.
        </t>
    </section>
-   
+
+   <section anchor="attrs" title="Attribute or Community">
+
+     <t>Having the relationship hard set by agreement between the two
+     peers in BGP OPEN is critical; the routers enforce the relationship
+     irrespective of operator configuration errors.</t>
+
+     <t>Similarly, it is critical that the application of that
+     relationship on prefix propagation using iOTC is enforced by the
+     router(s), and minimally exposed to user misconfiguration.  There
+     is a question whether the iOTC marking should be an attribute or a
+     well-known community.</t>
+
+     <t>There is a long and sordid history of mis-configurations
+     inserting incorrect communities, deleting communities, ignoring
+     well-known community markings etc.  In this mechanism's case, an
+     operator could, for example, accidentally strip the well-known
+     community on receipt.</t>
+
+     <t>As opposed to communities, BGP attributes may not be generally
+     modified or filtered by the operator.  The router(s) enforce them.
+     This is the desired property for the iOTC marking.  Hence, this
+     document specifies iOTC as an attribute.</t>
+
+   </section>
+
    <section anchor="security" title="Compatibility with BGPsec">
      <t>
        As the iOTC field is non-transitive, it is not seen by or
@@ -329,10 +331,13 @@
       this document.  Note that such uses would require local policy
       control. </t>
      <t>
-      This document doesn't provide any security measures to check
-      correctness of per-prefix roles, so the Complex role should be
-      used with great caution.  It is as dangerous as current BGP
-      peering.
+       As BGP role configuration results in automatic creation of inbound/outbound
+       filters, existence of roles should be treated as existence of Import and Export policy.
+       <xref target="I-D.ietf-grow-bgp-reject"></xref>
+     </t>
+     <t>
+       This document doesn't provide any security measures to check
+       correctness of iOTC usage if role isn't configured.
      </t>
    </section>
 
@@ -379,8 +384,8 @@
    </section>
 
    <section anchor="Acknowledgments" title="Acknowledgments">
-    <t>The authors wish to thank Douglas Montgomery, Brian Dickson, and
-      Andrei Robachevsky for their contributions to a variant of this
+    <t>The authors wish to thank Douglas Montgomery, Brian Dickson, Andrei Robachevsky and
+      Daniel Ginsburg for their contributions to a variant of this
       work.</t>
     </section>
 
