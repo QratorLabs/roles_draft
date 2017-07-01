@@ -404,6 +404,7 @@
      &I-D.ietf-grow-route-leak-problem-definition;
      &I-D.ietf-idr-route-leak-detection-mitigation;
      &I-D.ietf-sidr-bgpsec-protocol;
+     &I-D.ietf-grow-bgp-reject;
   </references>
  </back>
 </rfc>
