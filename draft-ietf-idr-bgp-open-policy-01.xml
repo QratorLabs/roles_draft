@@ -82,9 +82,9 @@
        prevention rely on marking routes according to operator
        configuration options without any check that the configuration
        corresponds to that of the BGP neighbor, or enforcement that the
-       two eBGP speakers agree on the relationship.  This document
+       two BGP speakers agree on the relationship.  This document
        enhances BGP Open to establish agreement of the (peer, customer,
-       provider, internal) relationship of two neighboring eBGP speakers
+       provider, internal) relationship of two neighboring BGP speakers
        to enforce appropriate configuration on both sides. Propagated
        routes are then marked with an iOTC attribute according to agreed
        relationship allowing prevention of route leaks.
@@ -127,7 +127,7 @@
    <section title="Introduction" anchor="intro">
      <t>
        This document specifies a new BGP Capability Code, <xref
-       target="RFC5492"></xref> Sec 4, which two eBGP speakers MAY use to
+       target="RFC5492"></xref> Sec 4, which two BGP speakers MAY use to
        ensure that they MUST agree on their relationship; i.e. customer
        and provider or peers.  Either or both may optionally be
        configured to require that this option be exchanged for the BGP
@@ -182,19 +182,26 @@
        
    <section anchor="bgp_role" title="BGP Role">
      <t>
-       BGP Role is new configuration option that SHOULD be configured at each eBGP session.
-       It reflects the real-world agreement between two eBGP speakers about their peering relationship.
+       BGP Role is new configuration option that SHOULD be configured at each BGP session.
+       It reflects the real-world agreement between two BGP speakers about their peering relationship.
      </t>
-
-     <t>Allowed Role values are: <list style="symbols">
+     <t>
+       Allowed Role values for eBGP sessions are:
+       <list style="symbols">
          <t>Provider - sender is a transit provider to neighbor;</t>
          <t>Customer - sender is customer of neighbor;</t>
          <t>Peer     - sender and neighbor are peers;</t>
          <t>Internal - sender and neighbor is part of same organization.</t>
-       </list> </t>
-     <t>Since BGP Role reflects the relationship between two eBGP
-     speakers, it could also be used for more than route leak
-     mitigation.</t>
+       </list>
+     </t>
+     <t>
+       For iBGP sessions the only Internal role MAY be configured.
+     </t>
+     <t>
+       Since BGP Role reflects the relationship between two BGP
+       speakers, it could also be used for more than route leak
+       mitigation.
+     </t>
    </section>
 
    <section anchor="capability" title="Role capability">
@@ -218,7 +225,7 @@
 
    <section anchor="correctness" title="Role correctness">
      <t><xref target="bgp_role"/> described how BGP Role is a reflection
-     of the relationship between two eBGP speakers. But the mere presence
+     of the relationship between two BGP speakers. But the mere presence
      of BGP Role doesn't automatically guarantee role agreement between
      two BGP peers.</t>
 
@@ -252,7 +259,7 @@
      a connection, it MUST send a Connection Rejected Notification <xref
      target="RFC4486"/> (Notification with error code 6, subcode 5).  By
      default strict mode SHOULD be set to false for backward
-     compatibility with eBGP speakers, that do not yet support this
+     compatibility with BGP speakers, that do not yet support this
      mechanism.</t>
     </section>
    </section>
@@ -278,7 +285,7 @@
            <t>
              A sender MUST NOT include this attribute in UPDATE messages
              if its Role is Customer, Provider or Peer. If it is contained in an UPDATE message
-             and receiver's Role is Customer, Provider, Peer or unspecified,
+             from eBGP speaker and receiver's Role is Customer, Provider, Peer or unspecified,
              then this attribute MUST be removed.
            </t>
          </list>
