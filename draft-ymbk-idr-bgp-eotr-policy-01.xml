@@ -3,10 +3,10 @@
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC4271 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4271.xml">
-<!ENTITY I-D.ietf-grow-route-leak-problem-definition SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-route-leak-problem-definition-06.xml">
+<!ENTITY RFC7908 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7908.xml">
 <!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-03.xml">
 <!ENTITY I-D.ietf-sidr-bgpsec-protocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-sidr-bgpsec-protocol-15.xml">
-<!ENTITY I-D.ymbk-idr-bgp-open-policy SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ymbk-idr-bgp-open-policy-02.xml">
+<!ENTITY I-D.ietf-idr-bgp-open-policy SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-bgp-open-policy-01.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -18,7 +18,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ymbk-idr-bgp-eotr-policy-00" ipr="trust200902">
+<rfc category="std" docName="draft-ymbk-idr-bgp-eotr-policy-01" ipr="trust200902">
  <front>
 
    <title abbrev="Route Leak Detection and Filtering"> Route Leak Detection and Filtering using Roles in Update and Open messages </title>
@@ -55,7 +55,7 @@
      </address>
    </author>
 
-   <date month="March" year="2017"/>
+   <date month="September" year="2017"/>
 
    <keyword>BGP</keyword>
    <keyword>Route leak</keyword>
@@ -63,7 +63,7 @@
 
    <abstract>
      <t>
-       [draft-ymbk-idr-bgp-open-policy] defines a BGP OPEN capability
+       [draft-ietf-idr-bgp-open-policy] defines a BGP OPEN capability
        and consequent route marking which enforces a valley-free
        peering relationship.  This document defines an eOTC (external
        Only To Customer) transitive BGP attribute which propagates the
@@ -88,8 +88,7 @@
      <t>
        For the purpose of this document, BGP route leaks are when a BGP
        route was learned from transit provider or peer is announced
-       to another provider or peer.  See <xref
-       target="I-D.ietf-grow-route-leak-problem-definition"/>.  These
+       to another provider or peer.  See <xref target="RFC7908"/>. These
        are usually the result of misconfigured or absent BGP route
        filtering or lack of coordination between two BGP speakers.
      </t>
@@ -120,7 +119,7 @@
      <t>
        This document specifies a way to to create automatic
        filters for detection of route leaks via new BGP Path Attribute which is set
-       according to BGP Roles (<xref target="I-D.ymbk-idr-bgp-open-policy"/>) .
+       according to BGP Roles (<xref target="I-D.ietf-idr-bgp-open-policy"/>) .
        While iOTC provides
        strong vendor-code-based enforcement of route leak prevention, route leaks
        could still exist as result of misconfigured old BGP implementations. Route leaks could
@@ -137,29 +136,19 @@
      optional, transitive BGP Path attribute with the Type Code
      &lt;TBD1&gt;.  This attribute is four bytes and contains an AS
      number of the AS that added the attribute to the route.</t>
-       <t> There are four rules for setting the eOTC attribute:
+       <t> There are two rules for setting the eOTC attribute:
        <list style="numbers">
          <t>
            If eOTC is not set and the sender's Role is Provider or Peer,
            the eOTC attribute MUST be added with value equal to the
            sender's AS number.</t>
          <t>
-           If eOTC is not set and the sender's Role is Complex and the
-           prefix role is Provider or Peer, the eOTC attribute MUST be
-           added with value equal to to the sender's AS number.</t>
-         <t>
            If eOTC is set, the receiver's Role is Provider or Peer, and
            its value is not the neighbor's AS number then the incoming
            route is route leak and MUST be given a lower local
            preference, or MAY be dropped.</t>
-         <t>
-           If eOTC is set, the receiver's Role is Complex, the prefix
-           role Role is Provider or Peer, and the eOTC value is not
-           equal to the neighbor's AS number, then the incoming route
-           is a route leak and MUST be given a lower local preference, or
-           they MAY be dropped.</t>
          </list>
-       These four rules provide mechanism for route leak detection that
+       These two rules provide mechanism for route leak detection that
        is created by a distant party in the AS_Path.
        </t>
    </section>
@@ -226,11 +215,11 @@
    <references title="Normative References">
      &RFC2119;
      &RFC4271;
-     &I-D.ymbk-idr-bgp-open-policy;
+     &RFC7908;
+     &I-D.ietf-idr-bgp-open-policy;
    </references>
 
    <references title="Informative References">
-     &I-D.ietf-grow-route-leak-problem-definition;
      &I-D.ietf-idr-route-leak-detection-mitigation;
      &I-D.ietf-sidr-bgpsec-protocol;
   </references>
