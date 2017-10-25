@@ -195,7 +195,7 @@
        </list>
      </t>
      <t>
-       For iBGP sessions the only Internal role MAY be configured.
+       For iBGP sessions only Internal role MAY be configured.
      </t>
      <t>
        Since BGP Role reflects the relationship between two BGP
@@ -214,11 +214,10 @@
      <texttable anchor="values" title="Predefined BGP Role Values" suppress-title="false">
      <ttcol align="center"> Value </ttcol>
      <ttcol align="left"> Role name </ttcol>
-     <c> 0   </c> <c> Undefined </c>
-     <c> 1   </c> <c> Sender is Peer      </c>
-     <c> 2   </c> <c> Sender is Provider  </c>
-     <c> 3   </c> <c> Sender is Customer  </c>
-     <c> 4   </c> <c> Sender is Internal  </c>
+     <c> 0   </c> <c> Sender is Peer      </c>
+     <c> 1   </c> <c> Sender is Provider  </c>
+     <c> 2   </c> <c> Sender is Customer  </c>
+     <c> 3   </c> <c> Sender is Internal  </c>
      </texttable>
 
      </section>
@@ -248,7 +247,7 @@
      <c> Customer </c> <c> Provider </c>
      <c> Internal </c> <c> Internal </c>
      </texttable>
-     <t> In all other cases speaker MUST send a Role Mismatch
+     <t> In case of any other pair of roles, speaker MUST send a Role Mismatch
      Notification (code 2, sub-code &lt;TBD2&gt;). </t>
 
      <section title="Strict mode" anchor="strict">
