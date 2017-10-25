@@ -118,7 +118,7 @@
        </t>
        <t>
 	 As the whole point of route leak detection and prevention is to
-	 prevent vioation of these relationships, they are inescapable.
+	 prevent violation of these relationships, they are inescapable.
        </t>
      </section>
 
@@ -164,20 +164,15 @@
    <section anchor="defs" title="Role Definitions">
      <t>As many of these terms are used differently in various contexts,
        it is worth being explicit.  <list style="hanging">
-       <t hangText="A Provider:"> sends their own routes and (possibly) a
-         subset of routes learned from their other customers, peers, and
-	 transit providers to their customer.</t>
-       <t hangText="A Customer:"> accepts 'transit routes' from its
-         provider(s) and announces their own routes and the routes they
-         have learned from the transitive closure of their customers (AKA
-         their 'customer cone') to their provider(s).</t>
-       <t hangText="A Peer:"> announces their routes and the routes from
-         their customer cone to other Peers.</t>
-       <t hangText="An Internal:"> announces all routes, accepts all routes.</t>
+       <t hangText="A Provider:"> MAY send to the customer all routes.
+         MAY accept customer's routes and routes from its customer cone. </t>
+       <t hangText="A Customer:"> MAY send to the provider its own routes and
+         routes from its customer cone. MAY accept all routes.</t>
+       <t hangText="A Peer:"> MAY send to the peer its own routes and
+         routes from its customer cone. MAY accept peer's routes
+         and routes from its customer cone </t>
+       <t hangText="An Internal:"> MAY send all routes. May accept all routes</t>
        </list></t>
-       <t>Of course, any BGP speaker may apply policy to reduce what is
-         announced, and a recipient may apply policy to reduce the set
-	 of routes they accept.</t>
      </section>
        
    <section anchor="bgp_role" title="BGP Role">
