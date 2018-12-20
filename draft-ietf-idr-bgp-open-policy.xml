@@ -261,7 +261,7 @@
           a connection, it MUST send a Connection Rejected Notification
           <xref
                   target="RFC4486"/>
-          (Notification with error code 6, subcode 5). By
+          (Notfication with error code 6, subcode 5). By
           default strict mode SHOULD be set to false for backward
           compatibility with BGP speakers, that do not yet support this
           mechanism.
