@@ -6,7 +6,7 @@
 <!ENTITY RFC7908 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7908.xml">
 <!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-03.xml">
 <!ENTITY I-D.ietf-sidr-bgpsec-protocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-sidr-bgpsec-protocol-15.xml">
-<!ENTITY I-D.ietf-idr-bgp-open-policy SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-bgp-open-policy-01.xml">
+<!ENTITY I-D.ietf-idr-bgp-open-policy SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-bgp-open-policy-02.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -18,7 +18,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ymbk-idr-bgp-eotr-policy-01" ipr="trust200902">
+<rfc category="std" docName="draft-ymbk-idr-bgp-eotr-policy-02" ipr="trust200902">
  <front>
 
    <title abbrev="Route Leak Detection and Filtering"> Route Leak Detection and Filtering using Roles in Update and Open messages </title>
@@ -55,7 +55,7 @@
      </address>
    </author>
 
-   <date month="September" year="2017"/>
+   <date month="March" year="2018"/>
 
    <keyword>BGP</keyword>
    <keyword>Route leak</keyword>
