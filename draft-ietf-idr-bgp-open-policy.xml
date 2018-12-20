@@ -278,22 +278,24 @@
       </t>
 
       <t>
-        There are three rules of iOTC attribute usage:
+        There are four rules of iOTC attribute usage:
         <list style="numbers">
           <t>
             The iOTC attribute MUST be added to all incoming routes if
-            the receiver's Role is Customer, Peer;
+            the receiver's Role is Customer, Peer or RS-client;
           </t>
           <t>
             Routes with the iOTC attribute set MUST NOT be announced by
-            a sender whose Role is Customer or Peer;
+            a sender whose Role is Customer, Peer or RS-client;
           </t>
           <t>
-            A sender MUST NOT include iOTC in UPDATE messages if its Role isn't Internal.
+            A sender MUST NOT include iOTC in UPDATE messages advertised to eBGP neighbor if its Role isn't Internal.
+          </t>
+          <t>
             If iOTC is contained in an UPDATE message from eBGP speaker and receiver's Role isn't Internal then this attribute MUST be removed.
           </t>
         </list>
-        These three rules provide mechanism that strongly prevents route leak creation by an AS.
+        These rules provide mechanism that strongly prevents route leak creation by an AS.
       </t>
     </section>
 
