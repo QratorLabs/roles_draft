@@ -6,10 +6,11 @@
 <!ENTITY RFC4486 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4486.xml">
 <!ENTITY RFC5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
 <!ENTITY RFC5492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5492.xml">
-<!ENTITY I-D.ietf-grow-route-leak-problem-definition SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-route-leak-problem-definition-06.xml">
-<!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-03.xml">
-<!ENTITY I-D.ietf-sidr-bgpsec-protocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-sidr-bgpsec-protocol-15.xml">
-<!ENTITY I-D.ietf-grow-bgp-reject SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-bgp-reject-08.xml">
+<!ENTITY RFC7908 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7908.xml">
+<!ENTITY RFC8212 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8212.xml">
+<!ENTITY RFC8205 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8205.xml">
+
+<!ENTITY I-D.ietf-idr-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-idr-route-leak-detection-mitigation-10.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -95,7 +96,7 @@
 
     <section title="Introduction" anchor="intro">
       <t>
-        This document specifies a new BGP Capability Code, <xref target="RFC5492"></xref> Sec 4, which two BGP speakers MAY use to ensure that they MUST agree on their relationship;
+        This document specifies a new BGP Capability Code, <xref target="RFC5492"/> Sec 4, which two BGP speakers MAY use to ensure that they MUST agree on their relationship;
         i.e. customer and provider or peers.
         Either or both MAY optionally be configured to require that this option be exchanged for the BGP Open to succeed.
       </t>
@@ -103,7 +104,7 @@
         Also this document specifies a way to mark routes according to BGP Roles established in OPEN message and a way to create double-boundary filters for prevention of route leaks using the new BGP Path Attribute.
       </t>
       <t>
-        For the purpose of this document, BGP route leaks are when a BGP route was learned from transit provider or peer and is announced to another provider or peer. See<xref target="I-D.ietf-grow-route-leak-problem-definition"/>.
+        For the purpose of this document, BGP route leaks are when a BGP route was learned from transit provider or peer and is announced to another provider or peer. See<xref target="RFC7908"/>.
         These are usually the result of misconfigured or absent BGP route filtering or lack of coordination between two BGP speakers.
       </t>
 
@@ -330,7 +331,7 @@
 
     <section anchor="security" title="Compatibility with BGPsec">
       <t>
-        As the iOTC attribute is non-transitive, it is not seen by or signed by BGPsec <xref target="I-D.ietf-sidr-bgpsec-protocol"></xref>.
+        As the iOTC attribute is non-transitive, it is not seen by or signed by BGPsec <xref target="RFC8205"/>.
       </t>
     </section>
 
@@ -346,7 +347,7 @@
       <t>
         As BGP role configuration results in automatic creation of inbound/outbound
         filters, existence of roles should be treated as existence of Import and Export policy.
-        <xref target="I-D.ietf-grow-bgp-reject"></xref>
+        <xref target="RFC8212"/>
       </t>
       <t>
         This document doesn't provide any security measures to check correctness of iOTC usage if role isn't configured.
@@ -418,10 +419,10 @@
 
     <references title="Informative References">
       &RFC5226;
-      &I-D.ietf-grow-route-leak-problem-definition;
+      &RFC7908;
+      &RFC8212;
+      &RFC8205;
       &I-D.ietf-idr-route-leak-detection-mitigation;
-      &I-D.ietf-sidr-bgpsec-protocol;
-      &I-D.ietf-grow-bgp-reject;
     </references>
   </back>
 </rfc>
