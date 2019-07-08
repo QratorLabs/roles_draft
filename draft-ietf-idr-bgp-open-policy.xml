@@ -270,7 +270,7 @@
             If a route with OTC attribute is received from Peer and its value isn't equal to the neighbor's ASN - it's a route leak and MUST be rejected.
           </t>
           <t>
-            If a route is received from a Provider, Peer or RS and the OTC attribute has not been set it MUST be added with value equal to global administrator ID of the neighbor (sender).
+            If a route is received from a Provider, Peer or RS and the OTC attribute has not been set it MUST be added with value equal to AS number of the neighbor (sender).
           </t>
         </list>
       </t>
@@ -282,7 +282,7 @@
             A route with the OTC attribute set MUST NOT be sent to providers, peers, or RS(s).
           </t>
           <t>
-            If route is sent to customer or peer and the OTC attribute is not set it MUST be added with value equal to global administrator ID of the sender.
+            If route is sent to customer or peer and the OTC attribute is not set it MUST be added with value equal to AS number of the sender.
           </t>
         </list>
       </t>
