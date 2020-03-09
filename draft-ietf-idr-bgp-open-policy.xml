@@ -95,13 +95,13 @@
 
     <section title="Introduction" anchor="intro">
       <t>
-        BGP route leak occurs when a route is learned from a transit provider or peer and then announced to another provider or peer. See <xref target="RFC7908"/>.
+        A BGP route leak occurs when a route is learned from a transit provider or peer and then announced to another provider or peer. See <xref target="RFC7908"/>.
         These are usually the result of misconfigured or absent BGP route filtering or lack of coordination between two BGP speakers.
       </t>
 
       <t>
         The mechanism proposed in <xref target="I-D.ietf-grow-route-leak-detection-mitigation"/> uses large-communities to perform detection and mitigation of route leaks.
-        While signaling using communities is easy to implement and deploy quickly, it normally relies on operator-maintained policy configuration, which is often vulnerable to misconfiguration.
+        While signaling using communities is easy to implement and deploy quickly, it normally relies on operator-maintained policy configuration, which is often vulnerable to misconfiguration and even attack <xref target="Streibelt"/>.
         There is also the vulnerability that the community signal may be stripped, accidentally or maliciously.
       </t>
 
@@ -145,7 +145,7 @@
         Of course, any BGP speaker may apply policy to reduce what is announced, and a recipient may apply policy to reduce the set of routes they accept.
         Violation of the above rules may result in route leaks and MUST not be allowed.
         Automatic enforcement of these rules should significantly reduce route leaks that may otherwise occur due to manual configuration mistakes.
-        While enforcing the above rules will address most BGP peering scenarios, their configuration is not part of BGP itself; therefore, additionally requiring configuration of ingress and egress prefix filters is still strongly advised.
+        While enforcing the above rules will address most BGP peering scenarios, their configuration is not part of BGP itself; therefore,configuration of ingress and egress prefix filters is still strongly advised.
       </t>
     </section>
 
@@ -197,10 +197,8 @@
 
     <section anchor="correctness" title="Role correctness">
       <t>
-        <xref target="bgp_role"/>
-        described how BGP Role encodes
-        the relationship between two BGP speakers. But the mere presence
-        of BGP Role doesn't automatically guarantee role agreement between
+        <xref target="bgp_role"/> described how BGP Role encodes the relationship between two BGP speakers.
+        But the mere presence of BGP Role doesn't automatically guarantee role agreement between
         two BGP peers.
       </t>
 
@@ -234,7 +232,7 @@
         <c>Peer</c>
       </texttable>
       <t>
-        If the observed Role pair is not in the above table, then the receiving speaker MUST send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;).
+        If the observed Role pair is not in the above table, then the receiving speaker MUST send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;) and reset the BGP session.
       </t>
 
       <section title="Strict mode" anchor="strict">
@@ -255,9 +253,9 @@
 
     <section anchor="prevention_attribute" title="BGP Only to Customer (OTC) Attribute">
       <t>
-        Newly defined here, the Only to Customer (OTC) is an optional, transitive BGP Path attribute with the Type Code &lt;TBD3&gt;.
-          The OTC attribute is four bytes long and its value equals an AS number.
-          The semantics and usage of the OTC attribute are made clear by the ingress and egress policies described below.
+        Newly defined here, the Only to Customer (OTC) is an optional, 4 byte long, transitive BGP Path attribute with the Type Code &lt;TBD3&gt;.
+        The purpose of this attribute is to guarantee that once route is sent to customer, peer or RS-client it will go only to customers.
+        The semantics and usage of the OTC attribute are made clear by the ingress and egress policies described below.
       </t>
 
       <t>
@@ -282,7 +280,7 @@
             A route with the OTC attribute set MUST NOT be sent to providers, peers, or RS(s).
           </t>
           <t>
-            If route is sent to a customer or peer, or an RS clien and the OTC attribute is not present, then it MUST be added with value equal to AS number of the sender.
+            If route is sent to a customer or peer, or an RS-Client and the OTC attribute is not present, then it MUST be added with value equal to AS number of the sender.
           </t>
         </list>
       </t>
@@ -294,7 +292,6 @@
     </section>
 
     <section anchor="attrs" title="Enforcement">
-
       <t>
         Having the relationship unequivocally agreed between the two peers in BGP OPEN is critical;
         BGP implementations MUST enforce the relationship/role establishment rules (see <xref target="correctness"/>) in order to overcome operator policy configuration errors (if any).
@@ -320,7 +317,7 @@
 
       <t>
         No Roles SHOULD be configured on a 'complex' BGP session (assuming it is not segregated) and in that case, OTC MUST be set by configuration on a per-prefix basis.
-        However, there can be no measures to check correctness of OTC use if BGP Role is not configured.
+        However, there are no built-in measures to check correctness of OTC use if BGP Role is not configured.
       </t>
 
       <t>
@@ -372,9 +369,7 @@
         of route leaks that are the result of BGP policy
         mis-configuration.
       </t>
-      <t>Deliberate sending of a known conflicting BGP Role could be
-        used to sabotage a BGP connection. This is easily detectable.
-      </t>
+
       <t>
         A misconfiguration in OTC setup may affect prefix propagation.
         But the automation that is provided by BGP roles should make such misconfiguration unlikely.
@@ -403,6 +398,19 @@
       &RFC8212;
       &I-D.ietf-grow-route-leak-detection-mitigation;
 
+      <reference anchor="Streibelt" target="https://people.mpi-inf.mpg.de/~fstreibelt/preprint/communities-imc2018.pdf">
+        <front>
+          <title>BGP Communities: Even more Worms in the Routing Can</title>
+          <author initials="F." surname="Streibelt"/>
+          <author initials="F." surname="Lichtblau"/>
+          <author initials="R." surname="Beverly"/>
+          <author initials="A." surname="Feldmann"/>
+          <author initials="C." surname="Cristel"/>
+          <author initials="G." surname="Smaragdakis"/>
+          <author initials="R." surname="Bush"/>
+          <date/>
+        </front>
+      </reference>
       <reference anchor="Gao" target="https://ieeexplore.ieee.org/document/974523">
         <front>
           <title>Stable Internet routing without global coordination</title>
