@@ -25,34 +25,56 @@
 <rfc category="std" docName="draft-ietf-idr-bgp-open-policy-10" ipr="trust200902">
   <front>
     <title abbrev="Route Leak Prevention">Route Leak Prevention using Roles in Update and Open messages</title>
-    <author fullname="Alexander Azimov" initials="A"
-            surname="Azimov">
+    <author fullname="Alexander Azimov" initials="A." surname="Azimov">
       <organization>Qrator Labs</organization>
       <address>
+        <postal>
+          <street>1-y Magistralnyy tupik 5A</street>
+          <city>Moscow</city>
+          <code>123290</code>
+          <country>Russian Federation</country>
+        </postal>
         <email>a.e.azimov@gmail.com</email>
       </address>
     </author>
 
-    <author fullname="Eugene Bogomazov" initials="E"
-            surname="Bogomazov">
+    <author fullname="Eugene Bogomazov" initials="E." surname="Bogomazov">
       <organization>Qrator Labs</organization>
       <address>
+        <postal>
+          <street>1-y Magistralnyy tupik 5A</street>
+          <city>Moscow</city>
+          <code>123290</code>
+          <country>Russian Federation</country>
+        </postal>
         <email>eb@qrator.net</email>
       </address>
     </author>
 
-    <author fullname="Randy Bush" initials="R"
-            surname="Bush">
-      <organization>Internet Initiative Japan &amp; Arrcus</organization>
+    <author fullname="Randy Bush" initials="R." surname="Bush">
+      <organization>Internet Initiative Japan &amp; Arrcus, Inc.</organization>
       <address>
+        <postal>
+          <street>5147 Crystal Springs</street>
+          <city>Bainbridge Island</city>
+          <region>Washington</region>
+          <code>98110</code>
+          <country>United States of America</country>
+        </postal>
         <email>randy@psg.com</email>
       </address>
     </author>
 
-    <author fullname="Keyur Patel" initials="K"
-            surname="Patel">
-      <organization>Arrcus, Inc.</organization>
+    <author fullname="Keyur Patel" initials="K." surname="Patel">
+      <organization>Arrcus</organization>
       <address>
+        <postal>
+          <street>2077 Gateway Place, Suite #400</street>
+          <city>San Jose</city>
+          <region>CA</region>
+          <code>95119</code>
+          <country>US</country>
+          </postal>
         <email>keyur@arrcus.com</email>
       </address>
     </author>
