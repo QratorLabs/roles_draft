@@ -22,7 +22,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-09" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-10" ipr="trust200902">
   <front>
     <title abbrev="Route Leak Prevention">Route Leak Prevention using Roles in Update and Open messages</title>
     <author fullname="Alexander Azimov" initials="A"
@@ -57,13 +57,20 @@
       </address>
     </author>
 
-    <author fullname="Kotikalapudi Sriram" initials="K"
-            surname="Sriram">
-      <organization>US NIST</organization>
+    <author fullname="Kotikalapudi Sriram" initials="K." surname="Sriram">
+      <organization abbrev="USA NIST">USA National Institute of Standards and Technology</organization>
       <address>
+        <postal>
+          <street>100 Bureau Drive</street>
+          <city>Gaithersburg</city>
+          <region>MD</region>
+          <code>20899</code>
+          <country>United States of America</country>
+        </postal>
         <email>ksriram@nist.gov</email>
       </address>
     </author>
+
 
     <date/>
 
@@ -255,8 +262,7 @@
     <section anchor="prevention_attribute" title="BGP Only to Customer (OTC) Attribute">
       <t>
         Newly defined here, the Only to Customer (OTC) is an optional, 4 bytes long, transitive BGP Path attribute with the Type Code &lt;TBD3&gt;. 
-        The purpose of this attribute is to guarantee that once route is sent to customer, peer, or RS-client, it will subsequently go only to customers.
-        The value of OTC is an AS number determined by policy as described below.
+        The purpose of this attribute is to guarantee that once route is sent to customer, peer, or RS-client, it will subsequently go only to customers. The value of OTC is an AS number determined by policy as described below.
         The semantics and usage of the OTC attribute are made clear by the ingress and egress policies described below.
       </t>
 
@@ -299,10 +305,9 @@
         BGP implementations MUST enforce the relationship/role establishment rules (see <xref target="correctness"/>) in order to ameliorate operator policy configuration errors (if any).
       </t>
 
-      <t>
-        Similarly, the application of that
+      <t>Similarly, the application of that
         relationship on prefix propagation using OTC MUST BE enforced by the
-        BGP implementations, and not exposed to user misconfiguration.
+        BGP implementations, and not exposed to user misconfiguration. 
       </t>
 
       <t>As opposed to communities, BGP attributes may not be generally
@@ -377,12 +382,6 @@
         But the automation that is provided by BGP roles should make such misconfiguration unlikely.
       </t>
     </section>
-
-    <section anchor="Acknowledgments" title="Acknowledgments">
-      <t>The authors wish to thank Douglas Montgomery, Brian Dickson, Andrei Robachevsky, and Daniel Ginsburg for their contributions to a variant of this work.
-      </t>
-    </section>
-
   </middle>
 
   <back>
@@ -428,6 +427,26 @@
       </reference>
 
     </references>
+
+    <section title="Acknowledgements" numbered="no">
+      <t>
+        The authors wish to thank Andrei Robachevsky, Daniel Ginsburg, Jeff Haas, Ruediger Volk, Sue Hares, and John Scudder for comments, suggestions, and critique.
+      </t>
+    </section>
+    <section title="Contributors" numbered="no">
+      <figure><artwork><![CDATA[
+
+      Brian Dickson
+      Independent
+      Email: brian.peter.dickson@gmail.com
+
+      Doug Montgomery
+      USA National Institute of Standards and Technology
+      Email: dougm@nist.gov
+
+      ]]></artwork></figure>
+
+    </section>
   </back>
 </rfc>
 
