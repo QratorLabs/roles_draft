@@ -154,18 +154,18 @@
             MAY send to a customer all available prefixes.
           </t>
           <t hangText="Customer:">
-            MAY send to a provider originated prefixes and prefixes learned from any of their customers.
+            MAY send to a provider prefixes which the sender originates and prefixes learned from any of their customers.
             A customer MUST NOT send to a provider prefixes learned from its peers, from other providers, or from Route Servers.
           </t>
           <t hangText="Route Server (RS):">
             MAY send to an Route Server client (RS-client) all available prefixes.
           </t>
           <t hangText="RS-client:">
-            MAY send to an RS its originated prefixes and prefixes learned from its customers.
+            MAY send to an RS prefixes which the sender originates and prefixes learned from its customers.
             An RS-client MUST NOT send to an RS prefixes learned from its peers or providers, or from another RS.
           </t>
           <t hangText="Peer:">
-            MAY send to a peer its originated prefixes and prefixes learned from its customers.
+            MAY send to a peer prefixes which the sender originates and prefixes learned from its customers.
             A peer MUST NOT send to a peer prefixes learned from other peers, from its providers, or from RS(s).
           </t>
         </list>
@@ -262,7 +262,7 @@
         <c>Peer</c>
       </texttable>
       <t>
-        If at least one of the Roles is included in <xref target="values"/> and the observed Role pair is not in the above table, then the receiving speaker MUST reject the BGP connection, send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/>   (Notification with error code 6, subcode 5).
+        If at least one of the Roles is included in <xref target="values"/> and the observed Role pair is not in the above <xref target="allowed"/>, then the receiving speaker MUST reject the BGP connection, send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/>   (Notification with error code 6, subcode 5).
       </t>
 
       <section title="Strict mode" anchor="strict">
@@ -351,8 +351,8 @@
       </t>
 
       <t>
-        The incorrect setting of BGP Roles and/or OTC attributes may affect prefix propagation.
-        Further, this document doesn't specify any special handling of incorrect/private ASNs in OTC attribute, though such configuration should not happen with proper configuration.
+        An incorrect setting of BGP Roles and/or OTC attributes may affect prefix propagation.
+        Further, this document doesn't specify any special handling of incorrect/private ASNs in the OTC attribute, though such configuration is not proper.
       </t>
 
       <t>
@@ -363,7 +363,7 @@
       </t>
 
       <t>
-        The use of BGP Roles and OTC attribute are specified for unicast IPv4 and IPv6 address families.
+        The use of BGP Roles and the OTC attribute are specified for unicast IPv4 and IPv6 address families.
         The applicability of BGP Roles and newly defined attribute for other address families are out of scope of this document.
       </t>
 
