@@ -154,18 +154,18 @@
             MAY send to a customer all available prefixes.
           </t>
           <t hangText="Customer:">
-            MAY send to a provider their own prefixes and prefixes learned from any of their customers.
+            MAY send to a provider originated prefixes and prefixes learned from any of their customers.
             A customer MUST NOT send to a provider prefixes learned from its peers, from other providers, or from Route Servers.
           </t>
           <t hangText="Route Server (RS):">
             MAY send to an Route Server client (RS-client) all available prefixes.
           </t>
           <t hangText="RS-client:">
-            MAY send to an RS its own prefixes and prefixes learned from its customers.
+            MAY send to an RS its originated prefixes and prefixes learned from its customers.
             An RS-client MUST NOT send to an RS prefixes learned from its peers or providers, or from another RS.
           </t>
           <t hangText="Peer:">
-            MAY send to a peer its own prefixes and prefixes learned from its customers.
+            MAY send to a peer its originated prefixes and prefixes learned from its customers.
             A peer MUST NOT send to a peer prefixes learned from other peers, from its providers, or from RS(s).
           </t>
         </list>
@@ -180,7 +180,7 @@
 
     <section anchor="bgp_role" title="BGP Role">
       <t>
-        BGP Role is new configuration option that SHOULD be configured on each BGP session.
+        BGP Role is a new configuration option that SHOULD be configured on each eBGP session between ISPs that carry IPv4 and(or) IPv6 unicast prefixes.
         It reflects the real-world agreement between two BGP speakers about their relationship.
       </t>
       <t>
@@ -203,7 +203,7 @@
         are:
         <list style="symbols">
           <t>Type - &lt;TBD1&gt;;</t>
-          <t>Length - 1 (octet);</t>
+          <t>Length - 1 (byte);</t>
           <t>Value - integer corresponding to speaker's BGP Role.</t>
         </list>
       </t>
@@ -262,7 +262,7 @@
         <c>Peer</c>
       </texttable>
       <t>
-        If the observed Role pair is not in the above table, then the receiving speaker MUST reject the BGP connection, send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/>   (Notification with error code 6, subcode 5). 
+        If at least one of the Roles is included in <xref target="values"/> and the observed Role pair is not in the above table, then the receiving speaker MUST reject the BGP connection, send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/>   (Notification with error code 6, subcode 5).
       </t>
 
       <section title="Strict mode" anchor="strict">
@@ -351,11 +351,22 @@
       </t>
 
       <t>
+        The incorrect setting of BGP Roles and/or OTC attributes may affect prefix propagation.
+        Further, this document doesn't specify any special handling of incorrect/private ASNs in OTC attribute, though such configuration should not happen with proper configuration.
+      </t>
+
+      <t>
         As the BGP Role reflects the peering relationship between neighbors, it might have other uses beyond the route leak solution discussed so far.
         For example, BGP Role might affect route priority, or be used to distinguish borders of a network if a network consists of multiple ASs.
         Though such uses may be worthwhile, they are not the goal of this document.
         Note that such uses would require local policy control.
       </t>
+
+      <t>
+        The use of BGP Roles and OTC attribute are specified for unicast IPv4 and IPv6 address families.
+        The applicability of BGP Roles and newly defined attribute for other address families are out of scope of this document.
+      </t>
+
       <t>
         As BGP role configuration results in automatic creation of inbound/outbound filters, existence of roles should be treated as existence of Import and Export policy <xref target="RFC8212"/>.
       </t>
@@ -369,12 +380,14 @@
         &lt;TBD1&gt;. The length of this capability is 1.
       </t>
 
-      <t>The BGP Role capability includes a Value field, for which IANA
-        is requested to create and maintain a new sub-registry called "BGP
-        Role Value". Assignments consist of Value and corresponding Role
-        name. Initially this registry is to be populated with the data in
-        <xref target="values"/>. Future assignments may be made by a
-        standard action procedure <xref target="RFC5226"/>.
+      <t>
+        The BGP Role capability includes a Value field, for which IANA is requested to create and maintain a new sub-registry called "BGP Role Value".
+        Assignments consist of Value and corresponding Role name.
+        Initially this registry is to be populated with the data in <xref target="values"/>.
+        Future assignments may be made by a standard action procedure <xref target="RFC5226"/>.
+        The allocation policy for new entries up to and including value 127 is "Expert Review" <xref target="RFC5226"/>.
+        The allocation policy for values 128 through 251 is "First Come First Served".
+        The values from 252 through 255 are for "Experimental Use".
       </t>
       <t>
         This document defines a new subcode, "Role Mismatch" with an assigned
