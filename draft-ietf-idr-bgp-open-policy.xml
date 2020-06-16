@@ -22,7 +22,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-10" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-11" ipr="trust200902">
   <front>
     <title abbrev="Route Leak Prevention">Route Leak Prevention using Roles in Update and Open messages</title>
     <author fullname="Alexander Azimov" initials="A." surname="Azimov">
@@ -102,9 +102,9 @@
 
     <abstract>
       <t>
-        Route leaks are the propagation of BGP prefixes which violate assumptions of BGP topology relationships; e.g. passing a route learned from one peer to another peer or to a transit provider, passing a route learned from one transit provider to another transit provider or to a peer.
-        Today, approaches to leak prevention rely on marking routes by operator configuration, with no check that the configuration corresponds to that of the BGP neighbor, or enforcement that the two BGP speakers agree on the relationship.
-        This document enhances BGP OPEN to establish agreement of the (peer, customer, provider, Route Server, Route Server client) relationship of two neighboring BGP speakers to enforce appropriate configuration on both sides.
+        Route leaks are the propagation of BGP prefixes which violate assumptions of BGP topology relationships; e.g. passing a route learned from one lateral peer to another lateral peer or a transit provider, passing a route learned from one transit provider to another transit provider or a lateral peer.
+        Existing approaches to leak prevention rely on marking routes by operator configuration, with no check that the configuration corresponds to that of the eBGP neighbor, or enforcement that the two eBGP speakers agree on the relationship.
+        This document enhances BGP OPEN to establish agreement of the (peer, customer, provider, Route Server, Route Server client) relationship of two neighboring eBGP speakers to enforce appropriate configuration on both sides.
         Propagated routes are then marked with an OTC attribute according to the agreed relationship, allowing both prevention and detection of route leaks.
       </t>
     </abstract>
@@ -124,8 +124,8 @@
 
     <section title="Introduction" anchor="intro">
       <t>
-        A BGP route leak occurs when a route is learned from a transit provider or peer and then announced to another provider or peer. See <xref target="RFC7908"/>.
-        These are usually the result of misconfigured or absent BGP route filtering or lack of coordination between two BGP speakers.
+        A BGP route leak occurs when a route is learned from a transit provider or lateral peer and then announced to another provider or lateral peer. See <xref target="RFC7908"/>.
+        These are usually the result of misconfigured or absent BGP route filtering or lack of coordination between two eBGP speakers.
       </t>
 
       <t>
@@ -143,12 +143,16 @@
         A new BGP Path Attribute is specified that SHOULD be automatically configured using BGP roles.
         This attribute prevents networks from creating leaks, and detects leaks created by third parties.
       </t>
+      <t>
+        In the rest of this document, we use the term "peer" to refer to "lateral peer" for simplicity.
+      </t>
      </section>
 
     <section anchor="defs" title="Peering Relationships">
       <t>
         Despite the use of terms such as "customer", "peer", etc. in this document, these are not necessarily business relationships based on payment agreements.
-        These terms are used to represent restrictions on BGP route propagation, sometimes known as the Gao-Rexford model <xref target="Gao"/>. The following is a list of various roles in BGP peering and the corresponding rules for route propagation: 
+        These terms are used to represent restrictions on BGP route propagation, sometimes known as the Gao-Rexford model <xref target="Gao"/>.
+        The following is a list of various roles in eBGP peering and the corresponding rules for route propagation:
         <list style="hanging">
           <t hangText="Provider:">
             MAY send to a customer all available prefixes.
@@ -184,7 +188,7 @@
         It reflects the real-world agreement between two BGP speakers about their relationship.
       </t>
       <t>
-        Allowed Role values for eBGP sessions are:
+        Allowed Role values for eBGP sessions between ISPs are:
         <list style="symbols">
           <t>Provider - sender is a transit provider to neighbor;</t>
           <t>Customer - sender is a transit customer of neighbor;</t>
@@ -204,7 +208,7 @@
         <list style="symbols">
           <t>Type - &lt;TBD1&gt;;</t>
           <t>Length - 1 (byte);</t>
-          <t>Value - integer corresponding to speaker's BGP Role.</t>
+          <t>Value - integer corresponding to speaker's BGP Role (see <xref target="values"/>).</t>
         </list>
       </t>
       <texttable anchor="values" title="Predefined BGP Role Values" suppress-title="false">
@@ -226,7 +230,7 @@
 
     <section anchor="correctness" title="Role correctness">
       <t>
-        <xref target="bgp_role"/> described how BGP Role encodes the relationship between two BGP speakers.
+        <xref target="bgp_role"/> described how BGP Role encodes the relationship between two eBGP speakers.
         But the mere presence of BGP Role doesn't automatically guarantee role agreement between
         two BGP peers.
       </t>
@@ -262,7 +266,7 @@
         <c>Peer</c>
       </texttable>
       <t>
-        If at least one of the Roles is included in <xref target="values"/> and the observed Role pair is not in the above <xref target="allowed"/>, then the receiving speaker MUST reject the BGP connection, send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/>   (Notification with error code 6, subcode 5).
+        If the role of the receiving speaker for the eBGP session in consideration is included in <xref target="values"/> and the observed Role pair is not in the above table, then the receiving speaker MUST reject the eBGP connection, send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/> (Notification with error code 6, subcode 5).
       </t>
 
       <section title="Strict mode" anchor="strict">
@@ -351,8 +355,8 @@
       </t>
 
       <t>
-        An incorrect setting of BGP Roles and/or OTC attributes may affect prefix propagation.
-        Further, this document doesn't specify any special handling of incorrect/private ASNs in the OTC attribute, though such configuration is not proper.
+        The incorrect setting of BGP Roles and/or OTC attributes may affect prefix propagation.
+        Further, this document doesn't specify any special handling of incorrect/private ASNs in OTC attribute; such errors should not happen with proper configuration.
       </t>
 
       <t>
@@ -363,8 +367,8 @@
       </t>
 
       <t>
-        The use of BGP Roles and the OTC attribute are specified for unicast IPv4 and IPv6 address families.
-        The applicability of BGP Roles and newly defined attribute for other address families are out of scope of this document.
+        The use of BGP Roles are specified for unicast IPv4 and IPv6 address families.
+        While BGP roles can be configured on other address families its applicability for these cases is out of scope of this document.
       </t>
 
       <t>
@@ -465,7 +469,7 @@
 
     <section title="Acknowledgements" numbered="no">
       <t>
-        The authors wish to thank Andrei Robachevsky, Daniel Ginsburg, Jeff Haas, Ruediger Volk, Sue Hares, and John Scudder for comments, suggestions, and critique.
+        The authors wish to thank Andrei Robachevsky, Daniel Ginsburg, Jeff Haas, Ruediger Volk, Pavel Lunin, Gyan Mishra, Ignas Bagdonas, Sue Hares, and John Scudder for comments, suggestions, and critique.
       </t>
     </section>
     <section title="Contributors" numbered="no">
