@@ -26,12 +26,12 @@
   <front>
     <title abbrev="Route Leak Prevention">Route Leak Prevention using Roles in Update and Open messages</title>
     <author fullname="Alexander Azimov" initials="A." surname="Azimov">
-      <organization>Qrator Labs</organization>
+      <organization>Qrator Labs &amp; Yandex</organization>
       <address>
         <postal>
-          <street>1-y Magistralnyy tupik 5A</street>
+          <street>Ulitsa Lva Tolstogo 16</street>
           <city>Moscow</city>
-          <code>123290</code>
+          <code>119021</code>
           <country>Russian Federation</country>
         </postal>
         <email>a.e.azimov@gmail.com</email>
@@ -162,7 +162,7 @@
             A customer MUST NOT send to a provider prefixes learned from its peers, from other providers, or from Route Servers.
           </t>
           <t hangText="Route Server (RS):">
-            MAY send to an Route Server client (RS-client) all available prefixes.
+            MAY send to a Route Server client (RS-client) all available prefixes.
           </t>
           <t hangText="RS-client:">
             MAY send to an RS prefixes which the sender originates and prefixes learned from its customers.
@@ -184,8 +184,9 @@
 
     <section anchor="bgp_role" title="BGP Role">
       <t>
-        BGP Role is a new configuration option that SHOULD be configured on each eBGP session between ISPs that carry IPv4 and(or) IPv6 unicast prefixes.
-        It reflects the real-world agreement between two BGP speakers about their relationship.
+        BGP Role is a new configuration option that CAN be configured on each BGP session.
+        BGP Roles are reflecting the agreement between two BGP speakers about their relationship.
+        One of the described bellow Roles SHOULD be configured on each eBGP session between ISPs that carry IPv4 and(or) IPv6 unicast prefixes.
       </t>
       <t>
         Allowed Role values for eBGP sessions between ISPs are:
@@ -245,7 +246,7 @@
       <t>
         If a speaker receives a BGP Role capability, it MUST check the
         value of the received capability (i.e., the sender's role) with its own BGP Role.
-        The allowed pairings are as follow:
+        The allowed pairings are as follows:
       </t>
       <texttable anchor="allowed" title="Allowed Pairs of Role Capabilities" suppress-title="false">
         <ttcol align="left">Sender's Role</ttcol>
@@ -288,7 +289,7 @@
     <section anchor="prevention_attribute" title="BGP Only to Customer (OTC) Attribute">
       <t>
         Newly defined here, the Only to Customer (OTC) is an optional, 4 bytes long, transitive BGP Path attribute with the Type Code &lt;TBD3&gt;. 
-        The purpose of this attribute is to guarantee that once route is sent to customer, peer, or RS-client, it will subsequently go only to customers. The value of OTC is an AS number determined by policy as described below.
+        The purpose of this attribute is to guarantee that once a route is sent to customer, peer, or RS-client, it will subsequently go only to customers. The value of OTC is an AS number determined by policy as described below.
         The semantics and usage of the OTC attribute are made clear by the ingress and egress policies described below.
       </t>
 
@@ -332,12 +333,12 @@
       </t>
 
       <t>Similarly, the application of that
-        relationship on prefix propagation using OTC MUST BE enforced by the
+        relationship on prefix propagation using OTC MUST be enforced by the
         BGP implementations, and not exposed to user misconfiguration. 
       </t>
 
       <t>As opposed to communities, BGP attributes may not be generally
-        modified or filtered by the operator; BGP router implementations enforce such treatment.
+        modified or stripped by the operator; BGP router implementations enforce such treatment.
         This is the desired property for the OTC marking. Hence, this
         document specifies OTC as an attribute.
       </t>
