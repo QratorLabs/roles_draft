@@ -10,7 +10,7 @@
 <!ENTITY RFC8174 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml">
 <!ENTITY RFC8212 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8212.xml">
 
-<!ENTITY I-D.ietf-grow-route-leak-detection-mitigation SYSTEM "https://xml2rfc.tools.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-grow-route-leak-detection-mitigation-01.xml">
+<!ENTITY I-D.ietf-grow-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-grow-route-leak-detection-mitigation.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -22,7 +22,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-11" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-12" ipr="trust200902">
   <front>
     <title abbrev="Route Leak Prevention">Route Leak Prevention using Roles in Update and Open messages</title>
     <author fullname="Alexander Azimov" initials="A." surname="Azimov">
@@ -105,7 +105,7 @@
         Route leaks are the propagation of BGP prefixes which violate assumptions of BGP topology relationships; e.g. passing a route learned from one lateral peer to another lateral peer or a transit provider, passing a route learned from one transit provider to another transit provider or a lateral peer.
         Existing approaches to leak prevention rely on marking routes by operator configuration, with no check that the configuration corresponds to that of the eBGP neighbor, or enforcement that the two eBGP speakers agree on the relationship.
         This document enhances BGP OPEN to establish agreement of the (peer, customer, provider, Route Server, Route Server client) relationship of two neighboring eBGP speakers to enforce appropriate configuration on both sides.
-        Propagated routes are then marked with an OTC attribute according to the agreed relationship, allowing both prevention and detection of route leaks.
+        Propagated routes are then marked with an Only to Customer (OTC) attribute according to the agreed relationship, allowing both prevention and detection of route leaks.
       </t>
     </abstract>
 
@@ -130,8 +130,8 @@
 
       <t>
         The mechanism proposed in <xref target="I-D.ietf-grow-route-leak-detection-mitigation"/> uses large-communities to perform detection and mitigation of route leaks.
-        While signaling using communities is easy to implement and deploy quickly, it normally relies on operator-maintained policy configuration, which is often vulnerable to misconfiguration and even attack <xref target="Streibelt"/>.
-        There is also the vulnerability that the community signal may be stripped, accidentally or maliciously.
+        While signaling using communities is easy to implement and deploy quickly, it normally relies on operator-maintained policy configuration, which is often vulnerable to misconfiguration <xref target="Streibelt"/>.
+        The community signal can also be stripped at the ISP boundaries.
       </t>
 
       <t>
@@ -140,7 +140,7 @@
       </t>
 
       <t>
-        A new BGP Path Attribute is specified that SHOULD be automatically configured using BGP roles.
+        A new optional, transitive BGP Path Attribute Only to Customer (OTC) is specified that SHOULD be automatically configured using BGP roles.
         This attribute prevents networks from creating leaks, and detects leaks created by third parties.
       </t>
       <t>
@@ -162,7 +162,7 @@
             A customer MUST NOT send to a provider prefixes learned from its peers, from other providers, or from Route Servers.
           </t>
           <t hangText="Route Server (RS):">
-            MAY send to a Route Server client (RS-client) all available prefixes.
+            MAY send to an Route Server client (RS-client) all available prefixes.
           </t>
           <t hangText="RS-client:">
             MAY send to an RS prefixes which the sender originates and prefixes learned from its customers.
@@ -273,15 +273,10 @@
       <section title="Strict mode" anchor="strict">
         <t>
           A new BGP configuration option "strict mode" is defined with
-          values of true or false. If set to true, then the speaker MUST
-          refuse to establish a BGP session with a neighbor which does not announce
-          the BGP Role capability in the OPEN message. If a speaker rejects
-          a connection, it MUST send a Connection Rejected Notification
-          <xref target="RFC4486"/>
-          (Notification with error code 6, subcode 5). By
-          default, strict mode SHOULD be set to false for backward
-          compatibility with BGP speakers that do not yet support this
-          mechanism.
+          values of true or false.
+          If set to true, then the speaker MUST refuse to establish a BGP session with a neighbor which does not announce the BGP Role capability in the OPEN message.
+          If a speaker rejects a connection, it MUST send a send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/> (Notification with error code 6, subcode 5).
+          By default, strict mode SHOULD be set to false for backward compatibility with BGP speakers that do not yet support this mechanism.
         </t>
       </section>
     </section>
