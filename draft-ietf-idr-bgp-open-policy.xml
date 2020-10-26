@@ -22,7 +22,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-12" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-13" ipr="trust200902">
   <front>
     <title abbrev="Route Leak Prevention">Route Leak Prevention using Roles in Update and Open messages</title>
     <author fullname="Alexander Azimov" initials="A." surname="Azimov">
@@ -184,7 +184,7 @@
 
     <section anchor="bgp_role" title="BGP Role">
       <t>
-        BGP Role is a new configuration option that can be configured on any BGP session.
+        BGP Role is a new configuration option that is configured on a per-session basis.
         BGP Roles reflect the agreement between two BGP speakers about their relationship.
         One of the Roles described below SHOULD be configured on each eBGP session between ISPs that carry IPv4 and(or) IPv6 unicast prefixes.
       </t>
