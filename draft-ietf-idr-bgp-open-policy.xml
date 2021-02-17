@@ -4,7 +4,7 @@
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC4271 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4271.xml">
 <!ENTITY RFC4486 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4486.xml">
-<!ENTITY RFC5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
+<!ENTITY RFC8126 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8126.xml">
 <!ENTITY RFC5492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5492.xml">
 <!ENTITY RFC7908 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7908.xml">
 <!ENTITY RFC8174 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml">
@@ -22,7 +22,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-14" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-15" ipr="trust200902">
   <front>
     <title abbrev="Route Leak Prevention">Route Leak Prevention using Roles in Update and Open messages</title>
     <author fullname="Alexander Azimov" initials="A." surname="Azimov">
@@ -176,7 +176,7 @@
       </t>
       <t>
         Of course, any BGP speaker may apply policy to reduce what is announced, and a recipient may apply policy to reduce the set of routes they accept.
-        Violation of the above rules may result in route leaks and MUST not be allowed.
+        Violation of the above rules may result in route leaks and MUST NOT be allowed.
         Automatic enforcement of these rules should significantly reduce route leaks that may otherwise occur due to manual configuration mistakes.
         While enforcing the above rules will address most BGP peering scenarios, their configuration is not part of BGP itself; therefore, configuration of ingress and egress prefix filters is still strongly advised.
       </t>
@@ -383,9 +383,9 @@
       <t>
         The BGP Role capability includes a Value field, for which IANA is requested to create and maintain a new sub-registry called "BGP Role Value".
         Assignments consist of Value and corresponding Role name.
-        Initially this registry is to be populated with the data in <xref target="values"/>.
-        Future assignments may be made by a standard action procedure <xref target="RFC5226"/>.
-        The allocation policy for new entries up to and including value 127 is "Expert Review" <xref target="RFC5226"/>.
+        Initially this registry is to be populated with the data contained in <xref target="values"/> found in <xref target="capability"/>.
+        Future assignments may be made by a Standard Action procedure <xref target="RFC8126"/>.
+        The allocation policy for new entries up to and including value 127 is "Expert Review" <xref target="RFC8126"/>.
         The allocation policy for values 128 through 251 is "First Come First Served".
         The values from 252 through 255 are for "Experimental Use".
       </t>
@@ -429,7 +429,7 @@
     </references>
 
     <references title="Informative References">
-      &RFC5226;
+      &RFC8126;
       &RFC7908;
       &RFC8212;
       &I-D.ietf-grow-route-leak-detection-mitigation;
