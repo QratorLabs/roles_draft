@@ -22,7 +22,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-15" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-16" ipr="trust200902">
   <front>
     <title abbrev="Route Leak Prevention">Route Leak Prevention using Roles in Update and Open messages</title>
     <author fullname="Alexander Azimov" initials="A." surname="Azimov">
@@ -141,7 +141,7 @@
 
       <t>
         A new optional, transitive BGP Path Attribute Only to Customer (OTC) is specified that SHOULD be automatically configured using BGP roles.
-        This attribute prevents networks from creating leaks, and detects leaks created by third parties.
+        This attribute prevents networks from creating leaks, and detects leaks created by third parties. 
       </t>
       <t>
         In the rest of this document, we use the term "peer" to refer to "lateral peer" for simplicity.
@@ -158,7 +158,7 @@
             MAY send to a customer all available prefixes.
           </t>
           <t hangText="Customer:">
-            MAY send to a provider prefixes which the sender originates and prefixes learned from any of their customers.
+            MAY send to a provider prefixes which the sender originates and prefixes learned from any of its customers.
             A customer MUST NOT send to a provider prefixes learned from its peers, from other providers, or from Route Servers.
           </t>
           <t hangText="Route Server (RS):">
@@ -189,7 +189,7 @@
         One of the Roles described below SHOULD be configured on each eBGP session between ISPs that carry IPv4 and(or) IPv6 unicast prefixes.
       </t>
       <t>
-        Allowed Role values for eBGP sessions between ISPs are:
+        Allowed Roles for eBGP sessions between ISPs are:
         <list style="symbols">
           <t>Provider - sender is a transit provider to neighbor;</t>
           <t>Customer - sender is a transit customer of neighbor;</t>
@@ -225,6 +225,8 @@
         <c>Sender is Customer</c>
         <c>4</c>
         <c>Sender is Peer</c>
+        <c>5-255</c>
+        <c>Reserved</c>
       </texttable>
 
     </section>
@@ -267,15 +269,17 @@
         <c>Peer</c>
       </texttable>
       <t>
-        If the role of the receiving speaker for the eBGP session in consideration is included in <xref target="values"/> and the observed Role pair is not in the above table, then the receiving speaker MUST reject the eBGP connection, send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/> (Notification with error code 6, subcode 5).
+        If the observed Role pair is not in the above table, then the receiving speaker MUST reject the eBGP connection, send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/> (Notification with error code 6, subcode 5).
+      </t>
+      <t>
+        If the role capability is not advertised by the neighbor, speaker MUST rely on its local role configuration.
       </t>
 
       <section title="Strict mode" anchor="strict">
         <t>
-          A new BGP configuration option "strict mode" is defined with
-          values of true or false.
+          A new BGP configuration option "strict mode" is defined with values of true or false.
           If set to true, then the speaker MUST refuse to establish a BGP session with a neighbor which does not announce the BGP Role capability in the OPEN message.
-          If a speaker rejects a connection, it MUST send a send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/> (Notification with error code 6, subcode 5).
+          If a speaker rejects a connection, it MUST send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/> (Notification with error code 6, subcode 5).
           By default, strict mode SHOULD be set to false for backward compatibility with BGP speakers that do not yet support this mechanism.
         </t>
       </section>
