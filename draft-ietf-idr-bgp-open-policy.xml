@@ -24,7 +24,7 @@
 
 <rfc category="std" docName="draft-ietf-idr-bgp-open-policy-16" ipr="trust200902">
   <front>
-    <title abbrev="Route Leak Prevention">Route Leak Prevention using Roles in Update and Open messages</title>
+    <title abbrev="Route Leak Prevention">Route Leak Prevention using Roles in UPDATE and OPEN messages</title>
     <author fullname="Alexander Azimov" initials="A." surname="Azimov">
       <organization>Qrator Labs &amp; Yandex</organization>
       <address>
@@ -104,8 +104,8 @@
       <t>
         Route leaks are the propagation of BGP prefixes which violate assumptions of BGP topology relationships; e.g. passing a route learned from one lateral peer to another lateral peer or a transit provider, passing a route learned from one transit provider to another transit provider or a lateral peer.
         Existing approaches to leak prevention rely on marking routes by operator configuration, with no check that the configuration corresponds to that of the eBGP neighbor, or enforcement that the two eBGP speakers agree on the relationship.
-        This document enhances BGP OPEN to establish agreement of the (peer, customer, provider, Route Server, Route Server client) relationship of two neighboring eBGP speakers to enforce appropriate configuration on both sides.
-        Propagated routes are then marked with an Only to Customer (OTC) attribute according to the agreed relationship, allowing both prevention and detection of route leaks.
+        This document enhances the BGP OPEN message to establish an agreement of the relationship between two eBGP speakers in order to enforce appropriate configuration on both sides.
+        Propagated routes are then marked according to the agreed relationship, allowing both prevention and detection of route leaks.
       </t>
     </abstract>
 
@@ -124,7 +124,7 @@
 
     <section title="Introduction" anchor="intro">
       <t>
-        A BGP route leak occurs when a route is learned from a transit provider or lateral peer and then announced to another provider or lateral peer. See <xref target="RFC7908"/>.
+        A BGP route leak occurs when a route is learned from a transit provider or lateral peer and then announced to another provider or lateral peer <xref target="RFC7908"/>.
         These are usually the result of misconfigured or absent BGP route filtering or lack of coordination between two eBGP speakers.
       </t>
 
@@ -135,50 +135,49 @@
       </t>
 
       <t>
-        This document provides configuration automation using 'BGP roles', which are negotiated using a new BGP Capability Code in OPEN message (see Section 4 in <xref target="RFC5492"/>).
-        Either or both BGP speakers MAY be configured to require that this capability be agreed for the BGP OPEN to succeed.
+        This document provides configuration automation using 'BGP roles', which are negotiated using a new BGP Capability Code in the OPEN message <xref target="RFC5492"/>.
+        Either or both BGP speakers MAY be configured to require the presence of this capability to establish a BGP session.
       </t>
 
       <t>
-        A new optional, transitive BGP Path Attribute Only to Customer (OTC) is specified that SHOULD be automatically configured using BGP roles.
-        This attribute prevents networks from creating leaks, and detects leaks created by third parties. 
+        A new optional, transitive BGP Path Attribute, called Only to Customer (OTC), is specified in <xref target="prevention_attribute"/>.  It prevents networks from creating leaks, and detects leaks created by third parties.
       </t>
       <t>
-        In the rest of this document, we use the term "peer" to refer to "lateral peer" for simplicity.
+        In the rest of this document, we use the term "Peer" to refer to "lateral peer" for simplicity.
       </t>
      </section>
 
     <section anchor="defs" title="Peering Relationships">
       <t>
-        Despite the use of terms such as "customer", "peer", etc. in this document, these are not necessarily business relationships based on payment agreements.
+        Despite the use of terms such as "Customer", "Peer", etc. in this document, these are not necessarily business relationships based on payment agreements.
         These terms are used to represent restrictions on BGP route propagation, sometimes known as the Gao-Rexford model <xref target="Gao"/>.
         The following is a list of various roles in eBGP peering and the corresponding rules for route propagation:
         <list style="hanging">
           <t hangText="Provider:">
-            MAY send to a customer all available prefixes.
+            MAY advertise any available route to a Customer.
           </t>
           <t hangText="Customer:">
-            MAY send to a provider prefixes which the sender originates and prefixes learned from any of its customers.
-            A customer MUST NOT send to a provider prefixes learned from its peers, from other providers, or from Route Servers.
+            MAY advertise to a Provider prefixes which the sender originates and prefixes learned its own Customers, thus representing its customer cone.
+            A Customer MUST NOT advertise to a Provider prefixes learned from its Peers, from other Providers, or from Route Servers.
           </t>
           <t hangText="Route Server (RS):">
-            MAY send to an Route Server client (RS-client) all available prefixes.
+            MAY advertise to a Route Server client (RS-client) all available prefixes.
           </t>
           <t hangText="RS-client:">
-            MAY send to an RS prefixes which the sender originates and prefixes learned from its customers.
-            An RS-client MUST NOT send to an RS prefixes learned from its peers or providers, or from another RS.
+            MAY advertise to an RS prefixes which the sender originates and prefixes learned from its Customers.
+            An RS-client MUST NOT advertise to an RS prefixes learned from its Peers or Providers, or from another RS.
           </t>
           <t hangText="Peer:">
-            MAY send to a peer prefixes which the sender originates and prefixes learned from its customers.
-            A peer MUST NOT send to a peer prefixes learned from other peers, from its providers, or from RS(s).
+            MAY advertise to a Peer prefixes which the sender originates and prefixes learned from its Customers.
+            A Peer MUST NOT advertise to a Peer prefixes learned from other Peers, from its Providers, or from RS(s).
           </t>
         </list>
       </t>
       <t>
-        Of course, any BGP speaker may apply policy to reduce what is announced, and a recipient may apply policy to reduce the set of routes they accept.
-        Violation of the above rules may result in route leaks and MUST NOT be allowed.
+        A BGP speaker may apply policy to reduce what is announced, and a recipient may apply policy to reduce the set of routes they accept.
+        Violation of the above rules may result in route leaks.
+        At the moment of writing the above rules are often implemented with BGP communities, but the BGP community marking and corresponding route filtering configuration processes are not part of BGP protocol itself.
         Automatic enforcement of these rules should significantly reduce route leaks that may otherwise occur due to manual configuration mistakes.
-        While enforcing the above rules will address most BGP peering scenarios, their configuration is not part of BGP itself; therefore, configuration of ingress and egress prefix filters is still strongly advised.
       </t>
     </section>
 
@@ -191,11 +190,11 @@
       <t>
         Allowed Roles for eBGP sessions between ISPs are:
         <list style="symbols">
-          <t>Provider - sender is a transit provider to neighbor;</t>
-          <t>Customer - sender is a transit customer of neighbor;</t>
+          <t>Provider - sender is a transit Provider to neighbor;</t>
+          <t>Customer - sender is a transit Customer of neighbor;</t>
           <t>RS - sender is a Route Server, usually at an Internet exchange point (IX);</t>
           <t>RS-client - sender is client of an RS;</t>
-          <t>Peer - sender and neighbor are peers.</t>
+          <t>Peer - sender and neighbor are Peers.</t>
         </list>
       </t>
       <t>
@@ -224,7 +223,7 @@
         <c>3</c>
         <c>Sender is Customer</c>
         <c>4</c>
-        <c>Sender is Peer</c>
+        <c>Sender is Peering Patner</c>
         <c>5-255</c>
         <c>Reserved</c>
       </texttable>
@@ -273,6 +272,7 @@
       </t>
       <t>
         If the role capability is not advertised by the neighbor, speaker MUST rely on its local role configuration.
+        The OTC attribute processing <xref target="prevention_attribute"/> remains unaffected.
       </t>
 
       <section title="Strict mode" anchor="strict">
@@ -280,7 +280,7 @@
           A new BGP configuration option "strict mode" is defined with values of true or false.
           If set to true, then the speaker MUST refuse to establish a BGP session with a neighbor which does not announce the BGP Role capability in the OPEN message.
           If a speaker rejects a connection, it MUST send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/> (Notification with error code 6, subcode 5).
-          By default, strict mode SHOULD be set to false for backward compatibility with BGP speakers that do not yet support this mechanism.
+          By default, strict mode SHOULD be set to false (i.e. non-strict mode is used) for backward compatibility with BGP speakers that do not yet support this mechanism.
         </t>
       </section>
     </section>
@@ -288,7 +288,7 @@
     <section anchor="prevention_attribute" title="BGP Only to Customer (OTC) Attribute">
       <t>
         Newly defined here, the Only to Customer (OTC) is an optional, 4 bytes long, transitive BGP Path attribute with the Type Code &lt;TBD3&gt;. 
-        The purpose of this attribute is to guarantee that once a route is sent to customer, peer, or RS-client, it will subsequently go only to customers. The value of OTC is an AS number determined by policy as described below.
+        The purpose of this attribute is to guarantee that once a route is sent to Customer, Peer, or RS-client, it will subsequently go only to Customers. The value of OTC is an AS number determined by policy as described below.
         The semantics and usage of the OTC attribute are made clear by the ingress and egress policies described below.
       </t>
 
@@ -314,7 +314,7 @@
             A route with the OTC attribute set MUST NOT be sent to Providers, Peers, or RS(s).
           </t>
           <t>
-            If route is sent to a Customer or Peer, or an RS-client (when the sender is an RS) and the OTC attribute is not present, then it MUST be added with value equal to AS number of the sender.
+            If a route is sent to a Customer or Peer, or an RS-client (when the sender is an RS) and the OTC attribute is not present, then it MUST be added with a value equal to AS number of the sender.
           </t>
         </list>
       </t>
@@ -345,18 +345,19 @@
 
     <section anchor="considerations" title="Additional Considerations">
       <t>
-        There are peering relationships that are 'complex', i.e., both parties are intentionally sending prefixes received from each other to their non-transit peers and/or transit providers.
+        There are peering relationships that are 'complex', i.e., both parties are intentionally advertising prefixes received from each other to their non-transit Peers and/or transit Providers.
         If multiple BGP peerings can segregate the 'complex' parts of the relationship, the complex peering roles can be segregated into different normal BGP sessions, and BGP Roles MUST be used on each of the resulting normal (non-complex) BGP sessions.
       </t>
 
       <t>
-        No Roles SHOULD be configured on a 'complex' BGP session (assuming it is not segregated) and in that case, OTC MUST be set by configuration on a per-prefix basis.
+        No Roles SHOULD be configured on a 'complex' BGP session (assuming it is not segregated) and in that case, the OTC attribute processing MUST be done relying on configuration on a per-prefix basis.
+        In this case per-prefix OTC configuration MUST follow the same logic of peering relations described in <xref target="prevention_attribute"/>
         However, there are no built-in measures to check correctness of OTC use if BGP Role is not configured.
       </t>
 
       <t>
         The incorrect setting of BGP Roles and/or OTC attributes may affect prefix propagation.
-        Further, this document doesn't specify any special handling of incorrect/private ASNs in OTC attribute; such errors should not happen with proper configuration.
+        Further, this document doesn't specify any special handling of incorrect/private ASNs in the OTC attribute; such errors should not happen with proper configuration.
       </t>
 
       <t>
@@ -367,12 +368,12 @@
       </t>
 
       <t>
-        The use of BGP Roles are specified for unicast IPv4 and IPv6 address families.
-        While BGP roles can be configured on other address families its applicability for these cases is out of scope of this document.
+        The use of BGP Roles is specified for unicast IPv4 and IPv6 address families.
+        While BGP roles can be configured on other address families its applicability for these cases is out of the scope of this document.
       </t>
 
       <t>
-        As BGP role configuration results in automatic creation of inbound/outbound filters, existence of roles should be treated as existence of Import and Export policy <xref target="RFC8212"/>.
+        As BGP role configuration results in the automatic creation of inbound/outbound filters, the existence of roles should be treated as the existence of Import and Export policy <xref target="RFC8212"/>.
       </t>
     </section>
 
@@ -387,7 +388,7 @@
       <t>
         The BGP Role capability includes a Value field, for which IANA is requested to create and maintain a new sub-registry called "BGP Role Value".
         Assignments consist of Value and corresponding Role name.
-        Initially this registry is to be populated with the data contained in <xref target="values"/> found in <xref target="capability"/>.
+        Initially, this registry is to be populated with the data contained in <xref target="values"/> found in <xref target="capability"/>.
         Future assignments may be made by a Standard Action procedure <xref target="RFC8126"/>.
         The allocation policy for new entries up to and including value 127 is "Expert Review" <xref target="RFC8126"/>.
         The allocation policy for values 128 through 251 is "First Come First Served".
@@ -411,13 +412,13 @@
     </section>
 
     <section anchor="Security" title="Security Considerations">
-      <t>This document proposes a mechanism for prevention
+      <t>This document proposes a mechanism for the prevention
         of route leaks that are the result of BGP policy
         misconfiguration.
       </t>
 
       <t>
-        A misconfiguration in OTC setup may affect prefix propagation.
+        A misconfiguration in the OTC setup may affect prefix propagation.
         But the automation that is provided by BGP roles should make such misconfiguration unlikely.
       </t>
     </section>
