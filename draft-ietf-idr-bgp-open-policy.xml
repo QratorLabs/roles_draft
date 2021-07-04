@@ -200,80 +200,83 @@
       <t>
         Since BGP Role reflects the relationship between two BGP speakers, it could also be used for other purposes besides route leak mitigation.
       </t>
-    </section>
+      <section anchor="capability" title="BGP Role Capability">
+        <t>
+          The BGP Role Capability is defined as follows:
+          <list style="symbols">
+            <t>Code - 9;</t>
+            <t>Length - 1 (byte);</t>
+            <t>Value - integer corresponding to speaker's BGP Role (see <xref target="values"/>).</t>
+          </list>
+        </t>
+        <texttable anchor="values" title="Predefined BGP Role Values" suppress-title="false">
+          <ttcol align="center">Value</ttcol>
+          <ttcol align="left">Role name</ttcol>
+          <c>0</c>
+          <c>Sender is Provider</c>
+          <c>1</c>
+          <c>Sender is RS</c>
+          <c>2</c>
+          <c>Sender is RS-client</c>
+          <c>3</c>
+          <c>Sender is Customer</c>
+          <c>4</c>
+          <c>Sender is Peering Patner</c>
+          <c>5-255</c>
+          <c>Reserved</c>
+        </texttable>
 
-    <section anchor="capability" title="BGP Role Capability">
-      <t>The TLV (type, length, value) of the BGP Role capability
-        are:
-        <list style="symbols">
-          <t>Type - &lt;TBD1&gt;;</t>
-          <t>Length - 1 (byte);</t>
-          <t>Value - integer corresponding to speaker's BGP Role (see <xref target="values"/>).</t>
-        </list>
-      </t>
-      <texttable anchor="values" title="Predefined BGP Role Values" suppress-title="false">
-        <ttcol align="center">Value</ttcol>
-        <ttcol align="left">Role name</ttcol>
-        <c>0</c>
-        <c>Sender is Provider</c>
-        <c>1</c>
-        <c>Sender is RS</c>
-        <c>2</c>
-        <c>Sender is RS-client</c>
-        <c>3</c>
-        <c>Sender is Customer</c>
-        <c>4</c>
-        <c>Sender is Peering Patner</c>
-        <c>5-255</c>
-        <c>Reserved</c>
-      </texttable>
+      </section>
+      <section anchor="correctness" title="Role correctness">
+        <t>
+          <xref target="capability"/> described how BGP Role encodes the relationship between two eBGP speakers.
+          But the mere presence of BGP Role doesn't automatically guarantee role agreement between
+          two BGP peers.
+        </t>
 
-    </section>
+        <t>
+          To enforce correctness, the BGP Role check is applied with a set
+          of constraints on how speakers' BGP Roles MUST correspond. Of
+          course, each speaker MUST announce and accept the BGP Role
+          capability in the BGP OPEN message exchange.
+        </t>
 
-    <section anchor="correctness" title="Role correctness">
-      <t>
-        <xref target="bgp_role"/> described how BGP Role encodes the relationship between two eBGP speakers.
-        But the mere presence of BGP Role doesn't automatically guarantee role agreement between
-        two BGP peers.
-      </t>
+        <t>
+          If a speaker receives a BGP Role capability, it MUST check the
+          value of the received capability (i.e., the sender's role) with its own BGP Role.
+          The allowed pairings are as follows:
+        </t>
+        <texttable anchor="allowed" title="Allowed Pairs of Role Capabilities" suppress-title="false">
+          <ttcol align="left">Sender's Role</ttcol>
+          <ttcol align="left">Receiver's Role</ttcol>
+          <c>Provider</c>
+          <c>Customer</c>
 
-      <t>
-        To enforce correctness, the BGP Role check is applied with a set
-        of constraints on how speakers' BGP Roles MUST correspond. Of
-        course, each speaker MUST announce and accept the BGP Role
-        capability in the BGP OPEN message exchange.
-      </t>
+          <c>Customer</c>
+          <c>Provider</c>
 
-      <t>
-        If a speaker receives a BGP Role capability, it MUST check the
-        value of the received capability (i.e., the sender's role) with its own BGP Role.
-        The allowed pairings are as follows:
-      </t>
-      <texttable anchor="allowed" title="Allowed Pairs of Role Capabilities" suppress-title="false">
-        <ttcol align="left">Sender's Role</ttcol>
-        <ttcol align="left">Receiver's Role</ttcol>
-        <c>Provider</c>
-        <c>Customer</c>
+          <c>RS</c>
+          <c>RS-client</c>
 
-        <c>Customer</c>
-        <c>Provider</c>
+          <c>RS-client</c>
+          <c>RS</c>
 
-        <c>RS</c>
-        <c>RS-client</c>
+          <c>Peer</c>
+          <c>Peer</c>
+        </texttable>
+        <t>
+          A BGP Speaker MUST NOT advertise multiple versions of the BGP Role Capability.
+          If a BGP Speaker receives multiple copies of the BGP Role Capability, all copies MUST be checked with the receiver's role.
+        </t>
+        <t>
+          If the observed Role pair is not in the above table, then the receiving speaker MUST reject the eBGP connection, send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/> (Notification with error code 6, subcode 5).
+        </t>
+        <t>
+          If the role capability is not advertised by the neighbor, speaker MUST rely on its local role configuration.
+          The OTC attribute processing <xref target="prevention_attribute"/> remains unaffected.
+        </t>
 
-        <c>RS-client</c>
-        <c>RS</c>
-
-        <c>Peer</c>
-        <c>Peer</c>
-      </texttable>
-      <t>
-        If the observed Role pair is not in the above table, then the receiving speaker MUST reject the eBGP connection, send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/> (Notification with error code 6, subcode 5).
-      </t>
-      <t>
-        If the role capability is not advertised by the neighbor, speaker MUST rely on its local role configuration.
-        The OTC attribute processing <xref target="prevention_attribute"/> remains unaffected.
-      </t>
+      </section>
 
       <section title="Strict mode" anchor="strict">
         <t>
@@ -285,9 +288,10 @@
       </section>
     </section>
 
+
     <section anchor="prevention_attribute" title="BGP Only to Customer (OTC) Attribute">
       <t>
-        Newly defined here, the Only to Customer (OTC) is an optional, 4 bytes long, transitive BGP Path attribute with the Type Code &lt;TBD3&gt;. 
+        Newly defined here, the Only to Customer (OTC) is an optional, 4 bytes long, transitive BGP Path attribute with the Type Code &lt;TBD3&gt;.
         The purpose of this attribute is to guarantee that once a route is sent to Customer, Peer, or RS-client, it will subsequently go only to Customers. The value of OTC is an AS number determined by policy as described below.
         The semantics and usage of the OTC attribute are made clear by the ingress and egress policies described below.
       </t>
