@@ -9,8 +9,10 @@
 <!ENTITY RFC7908 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7908.xml">
 <!ENTITY RFC8174 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml">
 <!ENTITY RFC8212 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8212.xml">
+<!ENTITY RFC8205 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8205.xml">
 
 <!ENTITY I-D.ietf-grow-route-leak-detection-mitigation SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-grow-route-leak-detection-mitigation.xml">
+<!ENTITY I-D.ietf-sidrops-aspa-verification SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-sidrops-aspa-verification.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -98,7 +100,7 @@
 
     <keyword>BGP</keyword>
     <keyword>Route leak</keyword>
-    <keyword>BGP role</keyword>
+    <keyword>BGP Role</keyword>
 
     <abstract>
       <t>
@@ -135,7 +137,7 @@
       </t>
 
       <t>
-        This document provides configuration automation using 'BGP roles', which are negotiated using a new BGP Capability Code in the OPEN message <xref target="RFC5492"/>.
+        This document provides configuration automation using 'BGP Roles', which are negotiated using a new BGP Capability Code in the OPEN message <xref target="RFC5492"/>.
         Either or both BGP speakers MAY be configured to require the presence of this capability to establish a BGP session.
       </t>
 
@@ -225,30 +227,25 @@
           <c>5-255</c>
           <c>Reserved</c>
         </texttable>
+        <t>
+          If a BGP Role is locally configured a speaker MUST announce BGP Role Capability in the BGP OPEN message exchange.
+          A BGP Speaker MUST NOT advertise multiple versions of the BGP Role Capability.
+        </t>
 
       </section>
       <section anchor="correctness" title="Role correctness">
         <t>
           <xref target="capability"/> described how BGP Role encodes the relationship between two eBGP speakers.
-          But the mere presence of BGP Role doesn't automatically guarantee role agreement between
-          two BGP peers.
+          But the mere presence of BGP Role doesn't automatically guarantee role agreement between two BGP peers.
         </t>
 
         <t>
-          To enforce correctness, the BGP Role check is applied with a set
-          of constraints on how speakers' BGP Roles MUST correspond. Of
-          course, each speaker MUST announce and accept the BGP Role
-          capability in the BGP OPEN message exchange.
-        </t>
-
-        <t>
-          If a speaker receives a BGP Role capability, it MUST check the
-          value of the received capability (i.e., the sender's role) with its own BGP Role.
-          The allowed pairings are as follows:
+          If the BGP Role Capability is adverised and one is also received from the peer, the roles must correspond to the relationships in Table 2.
+          If the roles do not correspond, the BGP Speaker MUST reject the connection using the Role Mismatch Notification (code 2, subcode 8).
         </t>
         <texttable anchor="allowed" title="Allowed Pairs of Role Capabilities" suppress-title="false">
-          <ttcol align="left">Sender's Role</ttcol>
-          <ttcol align="left">Receiver's Role</ttcol>
+          <ttcol align="left">Local Role</ttcol>
+          <ttcol align="left">Remote Role</ttcol>
           <c>Provider</c>
           <c>Customer</c>
 
@@ -265,45 +262,30 @@
           <c>Peer</c>
         </texttable>
         <t>
-          A BGP Speaker MUST NOT advertise multiple versions of the BGP Role Capability.
-          If a BGP Speaker receives multiple copies of the BGP Role Capability, all copies MUST be checked with the receiver's role.
+          If a BGP Speaker receives multiple copies of the BGP Role Capability, all corresponding remote roles MUST be checked with the local role.
         </t>
         <t>
-          If the observed Role pair is not in the above table, then the receiving speaker MUST reject the eBGP connection, send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/> (Notification with error code 6, subcode 5).
-        </t>
-        <t>
-          If the role capability is not advertised by the neighbor, speaker MUST rely on its local role configuration.
-          The OTC attribute processing <xref target="prevention_attribute"/> remains unaffected.
-        </t>
-
-      </section>
-
-      <section title="Strict mode" anchor="strict">
-        <t>
-          A new BGP configuration option "strict mode" is defined with values of true or false.
-          If set to true, then the speaker MUST refuse to establish a BGP session with a neighbor which does not announce the BGP Role capability in the OPEN message.
-          If a speaker rejects a connection, it MUST send a Role Mismatch Notification (code 2, subcode &lt;TBD2&gt;), and also send a Connection Rejected Notification <xref target="RFC4486"/> (Notification with error code 6, subcode 5).
-          By default, strict mode SHOULD be set to false (i.e. non-strict mode is used) for backward compatibility with BGP speakers that do not yet support this mechanism.
+          If the BGP Role Capability is sent, but one is not received, then the connection MAY be rejected using the Role Mismatch Notification (code 2, subcode 8); this mode of operation is called "strict mode".
+          For backward compatibility, if the BGP speaker does not receive the capability from its peer, it SHOULD treat such scenario as a successful negotiation and proceed with session establishment; this SHOULD be the default mode of operation.
         </t>
       </section>
     </section>
 
-
     <section anchor="prevention_attribute" title="BGP Only to Customer (OTC) Attribute">
       <t>
-        Newly defined here, the Only to Customer (OTC) is an optional, 4 bytes long, transitive BGP Path attribute with the Type Code &lt;TBD3&gt;.
-        The purpose of this attribute is to guarantee that once a route is sent to Customer, Peer, or RS-client, it will subsequently go only to Customers. The value of OTC is an AS number determined by policy as described below.
-        The semantics and usage of the OTC attribute are made clear by the ingress and egress policies described below.
+        The Only to Customer (OTC) Attribute is an optional transitive path attribute with Attribute Type Code 35 and a length of 4 octets.
+        The purpose of this attribute is to guarantee that once a route is sent to Customer, Peer, or RS-client, it will subsequently go only to Customers.
+        The attribute value is an AS number (ASN) determined by the policy described below.
       </t>
 
       <t>
         The following ingress policy applies to the OTC attribute:
         <list style="numbers">
           <t>
-            If a route with OTC attribute is received from a Customer or RS-client, then it is a route leak and MUST be rejected.
+            If a route with the OTC attribute is received from a Customer or RS-client, then it is a route leak and MUST be rejected.
           </t>
           <t>
-            If a route with OTC attribute is received from a Peer and its value is not equal to the sending neighbor's Autonomous System (AS) number, then it is a route leak and MUST be rejected.
+            If a route with the OTC attribute is received from a Peer and its value is not equal to the sending neighbor's Autonomous System (AS) number, then it is a route leak and MUST be rejected.
           </t>
           <t>
             If a route is received from a Provider, Peer, or RS and the OTC attribute is not present, then it MUST be added with value equal to the sending neighbor's AS number.
@@ -312,7 +294,7 @@
       </t>
 
       <t>
-        The egress policy MUST be:
+        The following egress policy applies to the OTC attribute:
         <list style="numbers">
           <t>
             A route with the OTC attribute set MUST NOT be sent to Providers, Peers, or RS(s).
@@ -324,9 +306,14 @@
       </t>
 
       <t>
-        Once the OTC attribute has been set, it MUST be preserved unchanged.
+        The described ingress and egress policies are specific only for unicast IPv4 and IPv6 address families only and MUST not affect other address families by default.
+        The operator MUST NOT have the ability to modify the policies defined in this section.
       </t>
 
+      <t>
+        If a speaker receives the OTC attribute with length different from 4 bytes it SHOULD be stripped.
+        Otherwise, once the OTC attribute has been set, it MUST be preserved unchanged.
+      </t>
     </section>
 
     <section anchor="attrs" title="Enforcement">
@@ -335,15 +322,8 @@
         BGP implementations MUST enforce the relationship/role establishment rules (see <xref target="correctness"/>) in order to ameliorate operator policy configuration errors (if any).
       </t>
 
-      <t>Similarly, the application of that
-        relationship on prefix propagation using OTC MUST be enforced by the
-        BGP implementations, and not exposed to user misconfiguration. 
-      </t>
-
-      <t>As opposed to communities, BGP attributes may not be generally
-        modified or stripped by the operator; BGP router implementations enforce such treatment.
-        This is the desired property for the OTC marking. Hence, this
-        document specifies OTC as an attribute.
+      <t>
+        Similarly, the application of that relationship on prefix propagation using OTC MUST be enforced by the BGP implementations, and not exposed to user misconfiguration.
       </t>
     </section>
 
@@ -355,7 +335,7 @@
 
       <t>
         No Roles SHOULD be configured on a 'complex' BGP session (assuming it is not segregated) and in that case, the OTC attribute processing MUST be done relying on configuration on a per-prefix basis.
-        In this case per-prefix OTC configuration MUST follow the same logic of peering relations described in <xref target="prevention_attribute"/>
+        In this case per-prefix OTC configuration MUST follow the same logic of peering relations described in <xref target="prevention_attribute"/>.
         However, there are no built-in measures to check correctness of OTC use if BGP Role is not configured.
       </t>
 
@@ -365,32 +345,21 @@
       </t>
 
       <t>
-        As the BGP Role reflects the peering relationship between neighbors, it might have other uses beyond the route leak solution discussed so far.
-        For example, BGP Role might affect route priority, or be used to distinguish borders of a network if a network consists of multiple ASs.
-        Though such uses may be worthwhile, they are not the goal of this document.
-        Note that such uses would require local policy control.
-      </t>
-
-      <t>
-        The use of BGP Roles is specified for unicast IPv4 and IPv6 address families.
-        While BGP roles can be configured on other address families its applicability for these cases is out of the scope of this document.
-      </t>
-
-      <t>
-        As BGP role configuration results in the automatic creation of inbound/outbound filters, the existence of roles should be treated as the existence of Import and Export policy <xref target="RFC8212"/>.
+        As BGP Role configuration results in the automatic creation of inbound/outbound filters, the existence of roles should be treated as the existence of Import and Export policy <xref target="RFC8212"/>.
       </t>
     </section>
 
 
     <section anchor="IANA" title="IANA Considerations">
-      <t>This document defines a new Capability Codes option [to be
-        removed upon publication: https://www.iana.org/assignments/capability-codes/capability-codes.xhtml ]
-        <xref target="RFC5492"/>, named "BGP Role" with an assigned value
-        &lt;TBD1&gt;. The length of this capability is 1.
+      <t>
+        This document defines a new Capability Codes option, named "BGP Role".
+        IANA has assigned value 9.
+        [to be removed upon publication: https://www.iana.org/assignments/capability-codes/capability-codes.xhtml ]
+        <xref target="RFC5492"/>
       </t>
 
       <t>
-        The BGP Role capability includes a Value field, for which IANA is requested to create and maintain a new sub-registry called "BGP Role Value".
+        The BGP Role capability includes a Value field, for which IANA is requested to create and maintain a new sub-registry called "BGP Role Value" in the Capability Codes registry.
         Assignments consist of Value and corresponding Role name.
         Initially, this registry is to be populated with the data contained in <xref target="values"/> found in <xref target="capability"/>.
         Future assignments may be made by a Standard Action procedure <xref target="RFC8126"/>.
@@ -399,31 +368,42 @@
         The values from 252 through 255 are for "Experimental Use".
       </t>
       <t>
-        This document defines a new subcode, "Role Mismatch" with an assigned
-        value &lt;TBD2&gt; in the OPEN Message Error subcodes registry
-        [to be removed upon publication:
-        http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-6]
+        This document defines a new subcode, the "Role Mismatch" Message Error subcode.
+        IANA has assigned value 8.
+        [to be removed upon publication: http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-6]
         <xref target="RFC4271"/>.
       </t>
 
       <t>
-        This document defines a new optional, transitive BGP Path
-        Attributes option, named "Only to Customer (OTC)" with an assigned value
-        &lt;TBD3&gt; [To be removed upon publication:
-        http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-2]
-        <xref target="RFC4271"/>. The length of this attribute is four bytes.
+        This document defines the "Only to Customer (OTC)" BGP Path Attribute.
+        IANA has assigned code value 35.
+        [To be removed upon publication: http://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-2]
+        <xref target="RFC4271"/>.
       </t>
     </section>
 
     <section anchor="Security" title="Security Considerations">
-      <t>This document proposes a mechanism for the prevention
-        of route leaks that are the result of BGP policy
-        misconfiguration.
+      <t>
+        This document proposes a mechanism for the prevention of route leaks that are the result of BGP policy misconfiguration.
       </t>
 
       <t>
-        A misconfiguration in the OTC setup may affect prefix propagation.
-        But the automation that is provided by BGP roles should make such misconfiguration unlikely.
+        A role misconfiguration may affect prefix propagation.
+        For example, if the downstream link will be configured with Provider or Peer role, this will limit the number of prefixes that can be advertised in this direction.
+        On other hand, if the upstream provider will be configured with the Customer role, this may result in propagating routes that are received from other Providers or Peers.
+        But the role negotiation process and simplicity compared to community configuration should make such misconfiguration unlikely.
+      </t>
+
+      <t>
+        Setting strict mode negotiation by default may result in a situation when the BGP session won't come up after a software update.
+        Such implementation of this document is strongly discouraged.
+      </t>
+
+      <t>
+        Removing the OTC attribute or changing its value can limit the opportunity of route leak detection.
+        Such activity can be done on purpose as part of the MiTM attack.
+        For example, an AS can remove the OTC attribute on a received route and then leak the route to its transit provider.
+        Such malicious activity cannot be prevented without cryptographically signing the update <xref target="RFC8205"/> or out of band detection <xref target="I-D.ietf-sidrops-aspa-verification"/>, but such schemes are beyond the scope of this document.
       </t>
     </section>
   </middle>
@@ -432,16 +412,17 @@
     <references title="Normative References">
       &RFC2119;
       &RFC4271;
-      &RFC4486;
       &RFC5492;
       &RFC8174;
+      &RFC7908;
+      &RFC8126;
     </references>
 
     <references title="Informative References">
-      &RFC8126;
-      &RFC7908;
       &RFC8212;
+      &RFC8205;
       &I-D.ietf-grow-route-leak-detection-mitigation;
+      &I-D.ietf-sidrops-aspa-verification;
 
       <reference anchor="Streibelt" target="https://people.mpi-inf.mpg.de/~fstreibelt/preprint/communities-imc2018.pdf">
         <front>
