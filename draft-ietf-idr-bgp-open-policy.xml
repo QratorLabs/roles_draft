@@ -153,7 +153,7 @@
       </t>
       <t>
         The terms "local AS" and "remote AS" are used to refer to the two ends of an eBGP session.
-        "local AS" is the AS where the protocol action being described is to be performed, and "remote AS" is the AS at the other end of the eBGP session in consideration.
+        The "local AS" is the AS where the protocol action being described is to be performed, and "remote AS" is the AS at the other end of the eBGP session in consideration.
       </t>
 
       <t>
@@ -314,26 +314,24 @@
         The following egress policy applies to the processing of  the OTC Attribute:
         <list style="numbers">
           <t>
+            If a route already contains the OTC Attribute, it MUST NOT be propagated to Providers, Peers, or RS(s).
+          </t>
+          <t>
             If a route is to be advertised to a Customer, Peer, or an RS-Client (when the sender is an RS), and the OTC Attribute is not present, then an OTC Attribute MUST be added with a value equal to the AS number of the local AS.
-          </t>
-          <t>
-            A route with the OTC attribute set MUST NOT be sent to Providers or RS(s).
-          </t>
-          <t>
-            A route with the OTC attribute set and its value not equal to the local AS MUST NOT be advertised to Peers.
           </t>
         </list>
       </t>
 
       <t>
-        The described policies provide both leak prevention for the local AS and leak detection and mitigation several hops away.
-        In the case of the local AS, the presence of an OTC Attribute indicates to the egress router that the route was learned from a Peer, Provider, or RS, and it can be advertised only to the customers.
-        The same OTC attribute which is set locally also provides a way to detect route leaks by the AS several hops away if a route is received from a Customer, a Peer, or an RS-Client.
+        The described policies provide both leak prevention for the local AS and leak detection and mitigation multiple hops away.
+        In the case of prevention at the local AS, the presence of an OTC Attribute indicates to the egress router that the route was learned from a Peer, Provider, or RS, and it can be advertised only to the customers.
+        The same OTC Attribute which is set locally also provides a way to detect route leaks by an AS multiple hops away if a route is received from a Customer, Peer, or an RS-Client.
       </t>
 
       <t>
-        The OTC may be set by the egress policy of remote AS or by the ingress policy of local AS.
-        In both scenarios, the OTC value will be the same, which should provide additional error prune and support for early adopters.
+        The OTC Attribute may be set by the egress policy of remote AS or by the ingress policy of local AS.
+        In both scenarios, the OTC value will be the same.
+        This makes the scheme more robust and benefits early adopters. 
       </t>
 
       <t>
@@ -351,7 +349,7 @@
       </t>
 
       <t>
-        The described ingress and egress policies are specific only for unicast IPv4 and IPv6 address families only and MUST not affect other address families by default.
+        The described ingress and egress policies are applicable only for unicast IPv4 and IPv6 address families and MUST not affect other address families by default.
         The operator MUST NOT have the ability to modify the policies defined in this section.
       </t>
     </section>
@@ -459,10 +457,10 @@ Author Note: It is best to assign the values only through IETF Review as the tab
       </t>
 
       <t>
-        Adding an OTC Attribute when the route is advertised from Customer to Provider may limit the propagation of a route.
-        Such route may be marked as ineligible by the immediate Provider or by its Peers or upper layer Providers.
-        This kind of marking is unlikely to happen on the Provider side because it will limit the traffic volume toward its Customer.
-        On the Customer side, such traffic engineering is also discouraged, because it will limit route propagation in an unpredictable way, compared to the communities, that are normally provided by the IP-transit providers.
+        Adding an OTC Attribute when the route is advertised from Customer to Provider will limit the propagation of the route.
+        Such a route may be considered as ineligible by the immediate Provider or its Peers or upper layer Providers.
+        This kind of OTC Attribute addition is unlikely to happen on the Provider side because it will limit the traffic volume towards its Customer.
+        On the Customer side, adding an OTC Attribute for traffic engineering purpose is also discouraged, because it will limit route propagation in an unpredictable way.
       </t>
     </section>
   </middle>
