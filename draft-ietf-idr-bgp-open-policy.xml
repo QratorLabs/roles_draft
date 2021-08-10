@@ -26,7 +26,7 @@
 
 <rfc category="std" docName="draft-ietf-idr-bgp-open-policy-16" ipr="trust200902">
   <front>
-    <title abbrev="Route Leak Prevention">Route Leak Prevention using Roles in UPDATE and OPEN Messages</title>
+    <title abbrev="Route Leak Prevention">Route Leak Prevention and Detection using Roles in UPDATE and OPEN Messages</title>
     <author fullname="Alexander Azimov" initials="A." surname="Azimov">
       <organization>Qrator Labs &amp; Yandex</organization>
       <address>
