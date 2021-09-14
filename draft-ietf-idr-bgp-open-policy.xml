@@ -157,7 +157,7 @@
       </t>
 
       <t>
-        The use of the term "route is ineligible" in this document has the same meaning as in <xref target="RFC4271"/>, i.e., "route is ineligible to be installed in Loc-RIB and will be excluded from the next phase of route selection."    
+        The use of the term "route is ineligible" in this document has the same meaning as in <xref target="RFC4271"/>, i.e., "route is ineligible to be installed in Loc-RIB and will be excluded from the next phase of route selection."
       </t>
 </section>
 
@@ -334,7 +334,7 @@
       <t>
         The OTC Attribute may be set by the egress policy of the remote AS or by the ingress policy of the local AS.
         In both scenarios, the OTC value will be the same.
-        This makes the scheme more robust and benefits early adopters. 
+        This makes the scheme more robust and benefits early adopters.
       </t>
 
       <t>
@@ -364,12 +364,9 @@
       </t>
 
       <t>
-   No Roles SHOULD be configured on a 'complex' eBGP session (assuming
-   it is not segregated).  An operator may want to achieve an equivalent
-   outcome by configuring policies on a per-prefix basis to follow the
-   definitions of peering relations as described in <xref target="defs"/>.  However,
-   in this case, there are no built-in measures to check the correctness of
-   the per-prefix peering configuration.
+        No Roles SHOULD be configured on a 'complex' eBGP session (assuming it is not segregated).
+        An operator may want to achieve an equivalent outcome by configuring policies on a per-prefix basis to follow the definitions of peering relations as described in <xref target="defs"/>.
+        However, in this case, there are no built-in measures to check the correctness of the per-prefix peering configuration.
       </t>
 
       <t>
@@ -384,37 +381,37 @@
         The description for the new capability is "BGP Role".
         IANA has assigned the value 9 [to be removed upon publication: https://www.iana.org/assignments/capability-codes/capability-codes.xhtml].
         This document is the reference for the new capability.
-    </t>
-              
+      </t>
+
       <t>
         The BGP Role capability includes a Value field, for which IANA is requested to create and maintain a new sub-registry called "BGP Role Value" in the Capability Codes registry.
         Assignments consist of a Value and a corresponding Role name.
         Initially, this registry is to be populated with the data contained in <xref target="values"/> found in <xref target="capability"/>.
         Future assignments may be made by the "IETF Review" policy as defined in <xref target="RFC8126"/>. The registry is as shown in <xref target="role-table"/>.
-        </t>
-        <texttable anchor="role-table" title="IANA Registry for BGP Role" suppress-title="false">
-          <ttcol align="center">Value</ttcol>
-          <ttcol align="left">Role name (for the local AS)</ttcol>
-          <ttcol align="center">Reference</ttcol>
+      </t>
+      <texttable anchor="role-table" title="IANA Registry for BGP Role" suppress-title="false">
+        <ttcol align="center">Value</ttcol>
+        <ttcol align="left">Role name (for the local AS)</ttcol>
+        <ttcol align="center">Reference</ttcol>
 
-          <c>0</c>
-          <c>Provider</c>
-          <c>This document</c>
-          <c>1</c>
-          <c>RS</c>
-          <c>This document</c>
-          <c>2</c>
-          <c>RS-Client</c>
-          <c>This document</c>
-          <c>3</c>
-          <c>Customer</c>
-          <c>This document</c>
-          <c>4</c>
-          <c>Peer (i.e., Lateral Peer)</c>
-          <c>This document</c>
-          <c>5-255</c>
-          <c>To be assigned by IETF Review </c>
-        </texttable>
+        <c>0</c>
+        <c>Provider</c>
+        <c>This document</c>
+        <c>1</c>
+        <c>RS</c>
+        <c>This document</c>
+        <c>2</c>
+        <c>RS-Client</c>
+        <c>This document</c>
+        <c>3</c>
+        <c>Customer</c>
+        <c>This document</c>
+        <c>4</c>
+        <c>Peer (i.e., Lateral Peer)</c>
+        <c>This document</c>
+        <c>5-255</c>
+        <c>To be assigned by IETF Review </c>
+      </texttable>
 
       <t>
         IANA has registered a new OPEN Message Error subcode named the "Role Mismatch" (see <xref target="correctness"/>) in the OPEN Message Error subcodes registry.
@@ -443,16 +440,19 @@
       </t>
 
       <t>
-   Strictly requiring the presence of the BGP Role Capability may result
-   in a situation where the eBGP session will not come up after a software
-   update or configuration change. Such an implementation of this document
-   is strongly discouraged.
+        Setting the strict mode of operation for BGP Role negotiation as the default may result in a situation where the eBGP session will not come up after a software update.
+        Implementations with such default behaviour are strongly discouraged.
+      </t>
+
+      <t>
+        Configuring BGP Roles inside AS Configurations may lead to incorrect route filtering and must be avoided in all cases except for the routes that are locally originated and are not supposed to reach interdomain routing level, i.e. in a controlled environment such as datacenters.
       </t>
 
       <t>
         Removing the OTC Attribute or changing its value can limit the opportunity of route leak detection.
         Such activity can be done on purpose as part of an on-path attack.
-        For example, an AS can remove the OTC Attribute on a received route and then leak the route to its transit provider. This kind of threat is not new in BGP and it may affect any Attribute (BGPsec <xref target="RFC8205"/> offers protection only for the AS_PATH Attribute). 
+        For example, an AS can remove the OTC Attribute on a received route and then leak the route to its transit provider.
+        This kind of threat is not new in BGP and it may affect any Attribute (BGPsec <xref target="RFC8205"/> offers protection only for the AS_PATH Attribute).
       </t>
 
       <t>
