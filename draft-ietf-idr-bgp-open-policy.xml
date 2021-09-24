@@ -189,12 +189,12 @@
           </t>
         </list>
       </t>
+
       <t>
         A BGP speaker may apply policy to reduce what is announced, and a recipient may apply policy to reduce the set of routes they accept.
         Violation of the above rules may result in route leaks.
         Automatic enforcement of these rules should significantly reduce route leaks that may otherwise occur due to manual configuration mistakes.
       </t>
-
       <t>
         As specified in <xref target="prevention_attribute"/>, the Only to Customer (OTC) Attribute is used to identify all the routes in the AS that have been received from a Peer, Provider, or RS.
       </t>
@@ -203,9 +203,8 @@
     <section anchor="bgp_role" title="BGP Role">
       <t>
         The BGP Role characterizes the relationship between the eBGP speakers forming a session.
-        One of the Roles described below SHOULD be configured at the local AS for each EGP session (see definitions in <xref target="terminology"/>) based on the local AS's knowledge of its Role.
+        One of the Roles described below SHOULD be configured at the local AS for each eBGP session at interdomain routing level (see definitions in <xref target="terminology"/>) based on the local AS's knowledge of its Role.
         The only exception is when the eBGP connection is 'complex' (see <xref target="considerations"/>).
-        The eBPG sessions between AS confederations <xref target="RFC5065"/> should be treated as IGP, so Roles SHOULD not be configured between its members (see <xref target="Security"/>).
         BGP Roles are mutually confirmed using the BGP Role Capability (described in <xref target="capability"/>) on each eBGP session.
       </t>
       <t>
@@ -278,9 +277,12 @@
           <c>Peer</c>
         </texttable>
         <t>
-          If the BGP Role Capability is sent, but one is not received, then the connection MAY be rejected using the Role Mismatch Notification (code 2, subcode 8); this mode of operation is called the "strict mode".
-          For backward compatibility, if the BGP speaker does not receive the capability from its peer, it SHOULD ignore the absence of BGP Role Capability and proceed with session establishment; this SHOULD be the default non-strict mode of operation.
-          In this case, the locally configured BGP Role is used for the procedures described in <xref target="prevention_attribute"/>.
+          For backward compatibility, if the BGP Role Capability is sent but one is not received, the BGP Speaker SHOULD ignore the absence of the BGP Role Capability and proceed with session establishment.
+          The locally configured BGP Role is used for the procedures described in <xref target="prevention_attribute"/>.
+        </t>
+        <t>
+          An operator may choose to apply a "strict mode" in which the receipt of a BGP Role Capability from the remote AS is required.
+          When operating in the "strict mode", if the BGP Role Capability is sent, but one is not received, then the connection is rejected using the Role Mismatch Notification (code 2, subcode 8).
         </t>
         <t>
           If an eBGP speaker receives multiple but identical BGP Role Capabilities with the same value in each, then the speaker must consider it to be a single BGP Role Capability and proceed <xref target="RFC5492"/>.
@@ -343,7 +345,13 @@
       </t>
 
       <t>
-        Once the OTC Attribute has been set, it MUST be preserved unchanged.
+        The procedures specified in this document are NOT RECOMMENDED to be used between autonomous systems in an AS Confederation <xref target="RFC5065"/>.
+        If an OTC Attribute is added on egress from the AS Confederation, its value MUST equal the AS Confederation Identifier.
+        Also, on egress from the AS Confederation, an UPDATE MUST NOT contain an OTC Attribute with a value corresponding to any Member-AS Number other than the AS Confederation Identifier.
+      </t>
+
+      <t>
+        Once the OTC Attribute has been set, it MUST be preserved unchanged (this also applies to an AS Confederation).
       </t>
 
       <t>
@@ -441,18 +449,17 @@
 
       <t>
         Setting the strict mode of operation for BGP Role negotiation as the default may result in a situation where the eBGP session will not come up after a software update.
-        Implementations with such default behaviour are strongly discouraged.
+        Implementations with such default behavior are strongly discouraged.
       </t>
-
       <t>
-        Configuring BGP Roles inside AS Configurations may lead to incorrect route filtering and must be avoided in all cases except for the routes that are locally originated and are not supposed to reach interdomain routing level, i.e. in a controlled environment such as datacenters.
+        Applying the specified procedures using the OTC Attribute (<xref target="prevention_attribute"/>) between internal network structures, for example in an AS Confederation, may lead to incorrect route filtering thus may be applied only on locally originated routes that are not supposed to be advertised beyond network boundaries.
       </t>
 
       <t>
         Removing the OTC Attribute or changing its value can limit the opportunity of route leak detection.
         Such activity can be done on purpose as part of an on-path attack.
         For example, an AS can remove the OTC Attribute on a received route and then leak the route to its transit provider.
-        This kind of threat is not new in BGP and it may affect any Attribute (BGPsec <xref target="RFC8205"/> offers protection only for the AS_PATH Attribute).
+        This kind of threat is not new in BGP and it may affect any Attribute (BGPsec <xref target="RFC8205"/> offers protection only for the AS_PATH Attribute.
       </t>
 
       <t>
