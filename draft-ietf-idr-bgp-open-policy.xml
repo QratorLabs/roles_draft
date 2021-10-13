@@ -9,6 +9,7 @@
 <!ENTITY RFC5492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5492.xml">
 <!ENTITY RFC7606 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7606.xml">
 <!ENTITY RFC7908 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7908.xml">
+<!ENTITY RFC7938 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7938.xml">
 <!ENTITY RFC8126 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8126.xml">
 <!ENTITY RFC8174 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml">
 <!ENTITY RFC8205 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8205.xml">
@@ -203,7 +204,7 @@
     <section anchor="bgp_role" title="BGP Role">
       <t>
         The BGP Role characterizes the relationship between the eBGP speakers forming a session.
-        One of the Roles described below SHOULD be configured at the local AS for each eBGP session at interdomain routing level (see definitions in <xref target="terminology"/>) based on the local AS's knowledge of its Role.
+        One of the Roles described below SHOULD be configured at the local AS for each eBGP session (see definitions in <xref target="terminology"/>) based on the local AS's knowledge of its Role.
         The only exception is when the eBGP connection is 'complex' (see <xref target="considerations"/>).
         BGP Roles are mutually confirmed using the BGP Role Capability (described in <xref target="capability"/>) on each eBGP session.
       </t>
@@ -282,7 +283,7 @@
         </t>
         <t>
           An operator may choose to apply a "strict mode" in which the receipt of a BGP Role Capability from the remote AS is required.
-          When operating in the "strict mode", if the BGP Role Capability is sent, but one is not received, then the connection is rejected using the Role Mismatch Notification (code 2, subcode 8).
+          When operating in the "strict mode", if the BGP Role Capability is sent, but one is not received, then the connection is rejected using the Role Mismatch Notification (code 2, subcode 8). See comments in <xref target="Security"/>.
         </t>
         <t>
           If an eBGP speaker receives multiple but identical BGP Role Capabilities with the same value in each, then the speaker must consider it to be a single BGP Role Capability and proceed <xref target="RFC5492"/>.
@@ -298,7 +299,7 @@
       <t>
         The Only to Customer (OTC) Attribute is an optional transitive path attribute with Attribute Type Code 35 and a length of 4 octets.
         The purpose of this attribute is to guarantee that once a route is sent to a Customer, Peer, or RS-Client, it will subsequently go only to Customers.
-        The attribute value is an AS number determined by the policy described below.
+        The attribute value is an AS number (ASN) determined by the policy described below.
       </t>
       <t>
         The following ingress policy applies to the processing of the OTC Attribute:
@@ -349,7 +350,10 @@
         If an OTC Attribute is added on egress from the AS Confederation, its value MUST equal the AS Confederation Identifier.
         Also, on egress from the AS Confederation, an UPDATE MUST NOT contain an OTC Attribute with a value corresponding to any Member-AS Number other than the AS Confederation Identifier.
       </t>
-
+      <t>
+        The procedures specified in this document in scenarios that use private AS numbers behind an Internet-facing ASN (e.g., a data center network <xref target="RFC7938"/> or stub customer) may be used, but any details are outside the scope of this document.
+        On egress from the Internet-facing AS, the OTC Attribute MUST NOT contain a value other than the Internet-facing ASN.
+      </t>
       <t>
         Once the OTC Attribute has been set, it MUST be preserved unchanged (this also applies to an AS Confederation).
       </t>
@@ -451,15 +455,12 @@
         Setting the strict mode of operation for BGP Role negotiation as the default may result in a situation where the eBGP session will not come up after a software update.
         Implementations with such default behavior are strongly discouraged.
       </t>
-      <t>
-        Applying the specified procedures using the OTC Attribute (<xref target="prevention_attribute"/>) between internal network structures, for example in an AS Confederation, may lead to incorrect route filtering thus may be applied only on locally originated routes that are not supposed to be advertised beyond network boundaries.
-      </t>
 
       <t>
         Removing the OTC Attribute or changing its value can limit the opportunity of route leak detection.
         Such activity can be done on purpose as part of an on-path attack.
         For example, an AS can remove the OTC Attribute on a received route and then leak the route to its transit provider.
-        This kind of threat is not new in BGP and it may affect any Attribute (BGPsec <xref target="RFC8205"/> offers protection only for the AS_PATH Attribute.
+        This kind of threat is not new in BGP and it may affect any Attribute (Note: BGPsec <xref target="RFC8205"/> offers protection only for the AS_PATH Attribute).
       </t>
 
       <t>
@@ -479,6 +480,7 @@
       &RFC5492;
       &RFC7606;
       &RFC7908;
+      &RFC7938;
       &RFC8126;
       &RFC8174;
     </references>
