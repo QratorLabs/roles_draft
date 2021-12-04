@@ -24,7 +24,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-17" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-18" ipr="trust200902">
   <front>
     <title abbrev="Route Leak Prevention">Route Leak Prevention and Detection using Roles in UPDATE and OPEN Messages</title>
     <author fullname="Alexander Azimov" initials="A." surname="Azimov">
@@ -480,7 +480,6 @@
       &RFC5492;
       &RFC7606;
       &RFC7908;
-      &RFC7938;
       &RFC8126;
       &RFC8174;
     </references>
@@ -488,6 +487,7 @@
     <references title="Informative References">
       &RFC8205;
       &RFC4272;
+      &RFC7938;
 
       <reference anchor="Gao" target="https://ieeexplore.ieee.org/document/974523">
         <front>
