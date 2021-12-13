@@ -188,6 +188,9 @@
             MAY propagate any route learned from a Customer, or locally originated, to a Peer.
             All other routes MUST NOT be propagated.
           </t>
+          <t hangText="Complex:">
+            Both parties intentionally propagate prefixes received from Peers and/or transit Providers.
+          </t>
         </list>
       </t>
 
@@ -205,7 +208,7 @@
       <t>
         The BGP Role characterizes the relationship between the eBGP speakers forming a session.
         One of the Roles described below SHOULD be configured at the local AS for each eBGP session (see definitions in <xref target="terminology"/>) based on the local AS's knowledge of its Role.
-        The only exception is when the eBGP connection is 'complex' (see <xref target="considerations"/>).
+        The only exception is when the eBGP connection is Complex (see <xref target="considerations"/>).
         BGP Roles are mutually confirmed using the BGP Role Capability (described in <xref target="capability"/>) on each eBGP session.
       </t>
       <t>
@@ -297,7 +300,7 @@
 
     <section anchor="prevention_attribute" title="BGP Only to Customer (OTC) Attribute">
       <t>
-        The Only to Customer (OTC) Attribute is an optional transitive path attribute with Attribute Type Code 35 and a length of 4 octets.
+        The Only to Customer (OTC) Attribute is an optional transitive path attribute of the UPDATE message with Attribute Type Code 35 and a length of 4 octets.
         The purpose of this attribute is to guarantee that once a route is sent to a Customer, Peer, or RS-Client, it will subsequently go only to Customers.
         The attribute value is an AS number (ASN) determined by the policy described below.
       </t>
@@ -371,12 +374,11 @@
 
     <section anchor="considerations" title="Additional Considerations">
       <t>
-        There are peering relationships that are 'complex', i.e., both parties intentionally advertise prefixes received from each other to their Peers and/or transit Providers.
-        If multiple eBGP sessions can segregate the 'complex' parts of the relationship, then the complex peering roles can be segregated into different normal eBGP sessions, and BGP Roles MUST be used on each of the resulting normal (non-complex) eBGP sessions.
+        Roles MUST NOT be configured on a eBGP session with Complex peering relationship.
+        If multiple eBGP sessions can segregate the Complex peering relationship into eBGP sessions with normal peering relationships, BGP Roles SHOULD be used on each of the resulting eBGP sessions.
       </t>
 
       <t>
-        No Roles SHOULD be configured on a 'complex' eBGP session (assuming it is not segregated).
         An operator may want to achieve an equivalent outcome by configuring policies on a per-prefix basis to follow the definitions of peering relations as described in <xref target="defs"/>.
         However, in this case, there are no built-in measures to check the correctness of the per-prefix peering configuration.
       </t>
