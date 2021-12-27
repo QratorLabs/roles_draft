@@ -24,7 +24,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-18" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-19" ipr="trust200902">
   <front>
     <title abbrev="Route Leak Prevention">Route Leak Prevention and Detection using Roles in UPDATE and OPEN Messages</title>
     <author fullname="Alexander Azimov" initials="A." surname="Azimov">
@@ -172,28 +172,33 @@
         <list style="hanging">
           <t hangText="Provider:">
             MAY propagate any available route to a Customer.
+            MAY accept routes originated by Customer or its Customers; all other routes MUST NOT be accepted.
           </t>
           <t hangText="Customer:">
-            MAY propagate any route learned from a Customer, or locally originated, to a Provider.
-            All other routes MUST NOT be propagated.
+            MAY propagate any route learned from a Customer, or locally originated, to a Provider; all other routes MUST NOT be propagated.
+            MAY accept any available route received from a Provider.
           </t>
           <t hangText="Route Server (RS):">
             MAY propagate any available route to a Route Server Client (RS-Client).
+            MAY accept routes originated by RS-Client or its Customers.
           </t>
           <t hangText="RS-Client:">
-            MAY propagate any route learned from a Customer, or locally originated, to an RS.
-            All other routes MUST NOT be propagated.
+            MAY propagate any route learned from a Customer, or locally originated, to an RS; all other routes MUST NOT be propagated.
+            MAY accept any available route received from RS.
           </t>
           <t hangText="Peer:">
-            MAY propagate any route learned from a Customer, or locally originated, to a Peer.
-            All other routes MUST NOT be propagated.
+            MAY propagate any route learned from a Customer, or locally originated, to a Peer, all other routes MUST NOT be propagated.
+            MAY accept routes originated by Peer or its Customers; all other routes MUST NOT be accepted.
           </t>
           <t hangText="Complex:">
-            Both parties intentionally propagate prefixes received from Peers and/or transit Providers.
+            Both parties intentionally propagate and/or accept prefixes received from Peers and/or transit Providers.
           </t>
         </list>
       </t>
 
+      <t>
+        The first five above are referred to as normal peering relationships or Roles (in contrast to the Complex).
+      </t>
       <t>
         A BGP speaker may apply policy to reduce what is announced, and a recipient may apply policy to reduce the set of routes they accept.
         Violation of the above rules may result in route leaks.
@@ -374,7 +379,7 @@
 
     <section anchor="considerations" title="Additional Considerations">
       <t>
-        Roles MUST NOT be configured on a eBGP session with Complex peering relationship.
+        Roles MUST NOT be configured on an eBGP session with a Complex peering relationship.
         If multiple eBGP sessions can segregate the Complex peering relationship into eBGP sessions with normal peering relationships, BGP Roles SHOULD be used on each of the resulting eBGP sessions.
       </t>
 
