@@ -171,33 +171,34 @@
         The following is a list of BGP Roles for eBGP peering and the corresponding rules for route propagation:
         <list style="hanging">
           <t hangText="Provider:">
-            MAY propagate any available route to a Customer.
-            MAY accept routes originated by Customer or its Customers; all other routes MUST NOT be accepted.
+            May propagate any available route to a Customer.
+            May accept routes originated by Customer or its Customers; all other routes from Customer must not be accepted.
           </t>
           <t hangText="Customer:">
-            MAY propagate any route learned from a Customer, or locally originated, to a Provider; all other routes MUST NOT be propagated.
-            MAY accept any available route received from a Provider.
+            May propagate any route learned from a Customer, or locally originated, to a Provider; all other routes must not be propagated.
+            May accept any available route received from a Provider.
           </t>
           <t hangText="Route Server (RS):">
-            MAY propagate any available route to a Route Server Client (RS-Client).
-            MAY accept routes originated by RS-Client or its Customers.
+            May propagate any available route to a Route Server Client (RS-Client).
+            May accept routes originated by RS-Client or its Customers; all other routes from RS-Client must not be accepted.
           </t>
           <t hangText="RS-Client:">
-            MAY propagate any route learned from a Customer, or locally originated, to an RS; all other routes MUST NOT be propagated.
-            MAY accept any available route received from RS.
+            May propagate any route learned from a Customer, or locally originated, to an RS; all other routes must not be propagated.
+            May accept any available route received from RS.
           </t>
           <t hangText="Peer:">
-            MAY propagate any route learned from a Customer, or locally originated, to a Peer, all other routes MUST NOT be propagated.
-            MAY accept routes originated by Peer or its Customers; all other routes MUST NOT be accepted.
+            May propagate any route learned from a Customer, or locally originated, to a Peer, all other routes must not be propagated.
+            May accept routes originated by Peer or its Customers; all other routes from Peer must not be accepted.
           </t>
-          <t hangText="Complex:">
-            Both parties intentionally propagate and/or accept prefixes received from Peers and/or transit Providers.
+          <t hangText="Sibling:">
+            May propagate any available route to a Sibling.
+            May accept any available route received from a Sibling.
           </t>
-        </list>
+</list>
       </t>
 
       <t>
-        The first five above are referred to as normal peering relationships or Roles (in contrast to the Complex).
+        If the local AS has one of the above Roles (in the order shown), then the corresponding peering relationship with the remote AS is Provider-to-Customer, Customer-to-Provider, RS-to-RS-Client, RS-Client-to-RS, Peer-to-Peer, or Sibling-to-Sibling, respectively.
       </t>
       <t>
         A BGP speaker may apply policy to reduce what is announced, and a recipient may apply policy to reduce the set of routes they accept.
@@ -213,7 +214,7 @@
       <t>
         The BGP Role characterizes the relationship between the eBGP speakers forming a session.
         One of the Roles described below SHOULD be configured at the local AS for each eBGP session (see definitions in <xref target="terminology"/>) based on the local AS's knowledge of its Role.
-        The only exception is when the eBGP connection is Complex (see <xref target="considerations"/>).
+        The only exception is when the eBGP connection is Sibling (see <xref target="considerations"/>).
         BGP Roles are mutually confirmed using the BGP Role Capability (described in <xref target="capability"/>) on each eBGP session.
       </t>
       <t>
@@ -265,7 +266,7 @@
         <t>
           The mere receipt of BGP Role Capability does not automatically guarantee the Role agreement between two eBGP neighbors.
           If the BGP Role Capability is advertised, and one is also received from the peer, the roles MUST correspond to the relationships in Table 2.
-          If the roles do not correspond, the BGP speaker MUST reject the connection using the Role Mismatch Notification (code 2, subcode 8).
+          If the roles do not correspond, the BGP speaker MUST reject the connection using the Role Mismatch Notification (code 2, subcode TBD).
         </t>
         <texttable anchor="allowed" title="Allowed Pairs of Role Capabilities" suppress-title="false">
           <ttcol align="left">Local AS Role</ttcol>
@@ -291,11 +292,11 @@
         </t>
         <t>
           An operator may choose to apply a "strict mode" in which the receipt of a BGP Role Capability from the remote AS is required.
-          When operating in the "strict mode", if the BGP Role Capability is sent, but one is not received, then the connection is rejected using the Role Mismatch Notification (code 2, subcode 8). See comments in <xref target="Security"/>.
+          When operating in the "strict mode", if the BGP Role Capability is sent, but one is not received, then the connection is rejected using the Role Mismatch Notification (code 2, subcode TBD). See comments in <xref target="Security"/>.
         </t>
         <t>
           If an eBGP speaker receives multiple but identical BGP Role Capabilities with the same value in each, then the speaker must consider it to be a single BGP Role Capability and proceed <xref target="RFC5492"/>.
-          If multiple BGP Role Capabilities are received and not all of them have the same value, then the BGP speaker MUST reject the connection using the Role Mismatch Notification (code 2, subcode 8).
+          If multiple BGP Role Capabilities are received and not all of them have the same value, then the BGP speaker MUST reject the connection using the Role Mismatch Notification (code 2, subcode TBD).
         </t>
         <t>
           The BGP Role value for the local AS is used in the route leak prevention and detection procedures described in <xref target="prevention_attribute"/>.
@@ -379,8 +380,8 @@
 
     <section anchor="considerations" title="Additional Considerations">
       <t>
-        Roles MUST NOT be configured on an eBGP session with a Complex peering relationship.
-        If multiple eBGP sessions can segregate the Complex peering relationship into eBGP sessions with normal peering relationships, BGP Roles SHOULD be used on each of the resulting eBGP sessions.
+        Roles MUST NOT be configured on an eBGP session with a Sibling peering relationship.
+        If multiple eBGP sessions can segregate the Sibling peering relationship into eBGP sessions with normal peering relationships, BGP Roles SHOULD be used on each of the resulting eBGP sessions.
       </t>
 
       <t>
@@ -434,7 +435,7 @@
 
       <t>
         IANA has registered a new OPEN Message Error subcode named the "Role Mismatch" (see <xref target="correctness"/>) in the OPEN Message Error subcodes registry.
-        IANA has assigned the value 8 [to be removed upon publication: https://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-6].
+        IANA has assigned the value TBD [to be removed upon publication: https://www.iana.org/assignments/bgp-parameters/bgp-parameters.xhtml#bgp-parameters-6].
         This document is the reference for the new subcode.
       </t>
 
