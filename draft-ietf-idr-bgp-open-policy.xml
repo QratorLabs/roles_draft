@@ -374,7 +374,7 @@
     <section anchor="considerations" title="Additional Considerations">
       <t>
         A Complex peering relationship occurs when the local AS has more than one Role with the remote AS.
-        An example is when the peering relationship is Provider-to-Customer for some prefixes while it is Customer-to-Provider for other prefixes <xref target="Gao"/>.
+        An example is when the peering relationship is Provider-to-Customer for some prefixes while it is Peer-to-Peer for other prefixes <xref target="Gao"/>.
         Roles MUST NOT be configured on an eBGP session with a Complex peering relationship.
         If multiple eBGP sessions can segregate the Complex peering relationship into eBGP sessions with normal peering relationships, BGP Roles SHOULD be used on each of the resulting eBGP sessions.
       </t>
