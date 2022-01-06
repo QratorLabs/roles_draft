@@ -172,33 +172,26 @@
         <list style="hanging">
           <t hangText="Provider:">
             May propagate any available route to a Customer.
-            May accept routes originated by Customer or its Customers; all other routes from Customer must not be accepted.
           </t>
           <t hangText="Customer:">
             May propagate any route learned from a Customer, or locally originated, to a Provider; all other routes must not be propagated.
-            May accept any available route received from a Provider.
           </t>
           <t hangText="Route Server (RS):">
             May propagate any available route to a Route Server Client (RS-Client).
-            May accept routes originated by RS-Client or its Customers; all other routes from RS-Client must not be accepted.
           </t>
           <t hangText="RS-Client:">
             May propagate any route learned from a Customer, or locally originated, to an RS; all other routes must not be propagated.
-            May accept any available route received from RS.
           </t>
           <t hangText="Peer:">
-            May propagate any route learned from a Customer, or locally originated, to a Peer, all other routes must not be propagated.
-            May accept routes originated by Peer or its Customers; all other routes from Peer must not be accepted.
+            May propagate any route learned from a Customer, or locally originated, to a Peer; all other routes must not be propagated.
           </t>
-          <t hangText="Sibling:">
-            May propagate any available route to a Sibling.
-            May accept any available route received from a Sibling.
-          </t>
-</list>
-      </t>
 
+        </list>
+      </t>
       <t>
-        If the local AS has one of the above Roles (in the order shown), then the corresponding peering relationship with the remote AS is Provider-to-Customer, Customer-to-Provider, RS-to-RS-Client, RS-Client-to-RS, Peer-to-Peer, or Sibling-to-Sibling, respectively.
+        If the local AS has one of the above Roles (in the order shown), then the corresponding peering relationship with the remote AS is Provider-to-Customer, Customer-to-Provider, RS-to-RS-Client, RS-Client-to-RS, or Peer-to-Peer (i.e., lateral peers), respectively.
+        These are called normal peering relationships.
+        A peering relationship is called Complex if both parties intentionally advertise prefixes received from each other to their Peers and/or Providers.
       </t>
       <t>
         A BGP speaker may apply policy to reduce what is announced, and a recipient may apply policy to reduce the set of routes they accept.
@@ -214,7 +207,7 @@
       <t>
         The BGP Role characterizes the relationship between the eBGP speakers forming a session.
         One of the Roles described below SHOULD be configured at the local AS for each eBGP session (see definitions in <xref target="terminology"/>) based on the local AS's knowledge of its Role.
-        The only exception is when the eBGP connection is Sibling (see <xref target="considerations"/>).
+        The only exception is when the eBGP connection is Complex (see <xref target="considerations"/>).
         BGP Roles are mutually confirmed using the BGP Role Capability (described in <xref target="capability"/>) on each eBGP session.
       </t>
       <t>
@@ -380,8 +373,10 @@
 
     <section anchor="considerations" title="Additional Considerations">
       <t>
-        Roles MUST NOT be configured on an eBGP session with a Sibling peering relationship.
-        If multiple eBGP sessions can segregate the Sibling peering relationship into eBGP sessions with normal peering relationships, BGP Roles SHOULD be used on each of the resulting eBGP sessions.
+        A Complex peering relationship occurs when the local AS has more than one Role with the remote AS.
+        An example is when the peering relationship is Provider-to-Customer for some prefixes while it is Customer-to-Provider for other prefixes <xref target="Gao"/>.
+        Roles MUST NOT be configured on an eBGP session with a Complex peering relationship.
+        If multiple eBGP sessions can segregate the Complex peering relationship into eBGP sessions with normal peering relationships, BGP Roles SHOULD be used on each of the resulting eBGP sessions.
       </t>
 
       <t>
