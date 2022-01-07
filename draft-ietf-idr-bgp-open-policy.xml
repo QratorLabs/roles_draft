@@ -171,27 +171,32 @@
         The following is a list of BGP Roles for eBGP peering and the corresponding rules for route propagation:
         <list style="hanging">
           <t hangText="Provider:">
-            May propagate any available route to a Customer.
+            MAY propagate any available route to a Customer.
           </t>
           <t hangText="Customer:">
-            May propagate any route learned from a Customer, or locally originated, to a Provider; all other routes must not be propagated.
+            MAY propagate any route learned from a Customer, or locally originated, to a Provider.
+            All other routes MUST NOT be propagated.
           </t>
           <t hangText="Route Server (RS):">
-            May propagate any available route to a Route Server Client (RS-Client).
+            MAY propagate any available route to a Route Server Client (RS-Client).
           </t>
           <t hangText="RS-Client:">
-            May propagate any route learned from a Customer, or locally originated, to an RS; all other routes must not be propagated.
+            MAY propagate any route learned from a Customer, or locally originated, to an RS.
+            All other routes MUST NOT be propagated.
           </t>
           <t hangText="Peer:">
-            May propagate any route learned from a Customer, or locally originated, to a Peer; all other routes must not be propagated.
+            MAY propagate any route learned from a Customer, or locally originated, to a Peer.
+            All other routes MUST NOT be propagated.
           </t>
-
-        </list>
+</list>
       </t>
       <t>
         If the local AS has one of the above Roles (in the order shown), then the corresponding peering relationship with the remote AS is Provider-to-Customer, Customer-to-Provider, RS-to-RS-Client, RS-Client-to-RS, or Peer-to-Peer (i.e., lateral peers), respectively.
         These are called normal peering relationships.
-        A peering relationship is called Complex if both parties intentionally advertise prefixes received from each other to their Peers and/or Providers.
+      </t>
+      <t>
+        If AS has more than one peering role with the remote AS such peering relation is called Complex.
+        An example is when the peering relationship is Provider-to-Customer for some prefixes while it is Peer-to-Peer for other prefixes <xref target="Gao"/>.
       </t>
       <t>
         A BGP speaker may apply policy to reduce what is announced, and a recipient may apply policy to reduce the set of routes they accept.
@@ -292,7 +297,7 @@
           If multiple BGP Role Capabilities are received and not all of them have the same value, then the BGP speaker MUST reject the connection using the Role Mismatch Notification (code 2, subcode TBD).
         </t>
         <t>
-          The BGP Role value for the local AS is used in the route leak prevention and detection procedures described in <xref target="prevention_attribute"/>.
+          The BGP Role value for the local AS (in conjunction with the OTC Attribute in the received UPDATE message) is used in the route leak prevention and detection procedures described in <xref target="prevention_attribute"/>.
         </t>
       </section>
     </section>
@@ -310,7 +315,7 @@
             If a route with the OTC Attribute is received from a Customer or RS-Client, then it is a route leak and MUST be considered ineligible (see <xref target="terminology"/>).
           </t>
           <t>
-            If a route with the OTC Attribute is received from a Peer and at least one of the OTC Attributes has a value that is not equal to the remote (i.e., Peer's) AS number, then it is a route leak and MUST be considered ineligible.
+            If a route with the OTC Attribute is received from a Peer and the Attribute has a value that is not equal to the remote (i.e., Peer's) AS number, then it is a route leak and MUST be considered ineligible.
           </t>
           <t>
             If a route is received from a Provider, Peer, or RS, and the OTC Attribute is not present, then it MUST be added with a value equal to the AS number of the remote AS.
@@ -359,12 +364,6 @@
       <t>
         Once the OTC Attribute has been set, it MUST be preserved unchanged (this also applies to an AS Confederation).
       </t>
-
-      <t>
-        Correct implementation of the procedures specified in this document is not expected to result in the presence of multiple OTC Attributes in an UPDATE.
-        However, if an eBGP speaker receives multiple OTC Attributes with a route, then the only difference in the processing is in Step 2 of the ingress policy.
-      </t>
-
       <t>
         The described ingress and egress policies are applicable only for unicast IPv4 and IPv6 address families and MUST NOT be applied to other address families by default.
         The operator MUST NOT have the ability to modify the policies defined in this section.
@@ -373,8 +372,6 @@
 
     <section anchor="considerations" title="Additional Considerations">
       <t>
-        A Complex peering relationship occurs when the local AS has more than one Role with the remote AS.
-        An example is when the peering relationship is Provider-to-Customer for some prefixes while it is Peer-to-Peer for other prefixes <xref target="Gao"/>.
         Roles MUST NOT be configured on an eBGP session with a Complex peering relationship.
         If multiple eBGP sessions can segregate the Complex peering relationship into eBGP sessions with normal peering relationships, BGP Roles SHOULD be used on each of the resulting eBGP sessions.
       </t>
