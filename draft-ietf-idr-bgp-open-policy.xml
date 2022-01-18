@@ -8,6 +8,7 @@
 <!ENTITY RFC5065 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5065.xml">
 <!ENTITY RFC5492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5492.xml">
 <!ENTITY RFC7606 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7606.xml">
+<!ENTITY RFC7705 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7705.xml">
 <!ENTITY RFC7908 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7908.xml">
 <!ENTITY RFC7938 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7938.xml">
 <!ENTITY RFC8126 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8126.xml">
@@ -137,7 +138,11 @@
       </t>
 
       <t>
-        This document provides configuration automation using BGP Roles, which are negotiated using a BGP Role Capability in the OPEN message <xref target="RFC5492"/>.
+        This document specifies a means of replacing the operator driven configuration-based method of route leak prevention, described above, with a built-in method for route leak prevention and detection.
+      </t>
+
+      <t>
+        This method uses a new configuration parameter, BGP Role, which is negotiated using a BGP Role Capability in the OPEN message <xref target="RFC5492"/>.
         An eBGP speaker may require the use of this capability and confirmation of BGP Role with a neighbor for the BGP OPEN to succeed.
       </t>
 
@@ -146,12 +151,9 @@
         It prevents ASes from creating leaks and detects leaks created by the ASes in the middle of an AS path.
         The main focus/applicability is the Internet (IPv4 and IPv6 unicast route advertisements).
       </t>
+    </section>
 
     <section anchor="terminology" title="Terminology">
-      <t>
-        In the rest of this document, the term "Peer" is used to refer to a "lateral (i.e., non-transit) peer" for simplicity.
-        Also, the terms Provider and Customer are used to refer to a transit provider and a transit customer, respectively. Further, the terms RS and RS-Client are used to refer to a Route Server and its client, respectively.
-      </t>
       <t>
         The terms "local AS" and "remote AS" are used to refer to the two ends of an eBGP session.
         The "local AS" is the AS where the protocol action being described is to be performed, and "remote AS" is the AS at the other end of the eBGP session in consideration.
@@ -160,10 +162,6 @@
       <t>
         The use of the term "route is ineligible" in this document has the same meaning as in <xref target="RFC4271"/>, i.e., "route is ineligible to be installed in Loc-RIB and will be excluded from the next phase of route selection."
       </t>
-</section>
-
-     </section>
-
     <section anchor="defs" title="Peering Relationships">
       <t>
         The terms defined and used in this document (see below) do not necessarily represent business relationships based on payment agreements.
@@ -180,7 +178,7 @@
           <t hangText="Route Server (RS):">
             MAY propagate any available route to a Route Server Client (RS-Client).
           </t>
-          <t hangText="RS-Client:">
+          <t hangText="Route Server Client (RS-Client):">
             MAY propagate any route learned from a Customer, or locally originated, to an RS.
             All other routes MUST NOT be propagated.
           </t>
@@ -188,7 +186,7 @@
             MAY propagate any route learned from a Customer, or locally originated, to a Peer.
             All other routes MUST NOT be propagated.
           </t>
-</list>
+        </list>
       </t>
       <t>
         If the local AS has one of the above Roles (in the order shown), then the corresponding peering relationship with the remote AS is Provider-to-Customer, Customer-to-Provider, RS-to-RS-Client, RS-Client-to-RS, or Peer-to-Peer (i.e., lateral peers), respectively.
@@ -207,6 +205,8 @@
         As specified in <xref target="prevention_attribute"/>, the Only to Customer (OTC) Attribute is used to identify all the routes in the AS that have been received from a Peer, Provider, or RS.
       </t>
     </section>
+    </section>
+
 
     <section anchor="bgp_role" title="BGP Role">
       <t>
@@ -306,10 +306,10 @@
       <t>
         The Only to Customer (OTC) Attribute is an optional transitive path attribute of the UPDATE message with Attribute Type Code 35 and a length of 4 octets.
         The purpose of this attribute is to guarantee that once a route is sent to a Customer, Peer, or RS-Client, it will subsequently go only to Customers.
-        The attribute value is an AS number (ASN) determined by the policy described below.
+        The attribute value is an AS number (ASN) determined by the procedure described below.
       </t>
       <t>
-        The following ingress policy applies to the processing of the OTC Attribute:
+        The following procedure applies to the processing of the OTC Attribute on the route receipt:
         <list style="numbers">
           <t>
             If a route with the OTC Attribute is received from a Customer or RS-Client, then it is a route leak and MUST be considered ineligible (see <xref target="terminology"/>).
@@ -324,7 +324,7 @@
       </t>
 
       <t>
-        The following egress policy applies to the processing of  the OTC Attribute:
+        The following procedure applies to the processing of the OTC Attribute on the route advertisement:
         <list style="numbers">
           <t>
             If a route is to be advertised to a Customer, Peer, or RS-Client (when the sender is an RS), and the OTC Attribute is not present, then an OTC Attribute MUST be added with a value equal to the AS number of the local AS.
@@ -339,10 +339,11 @@
         The described policies provide both leak prevention for the local AS and leak detection and mitigation multiple hops away.
         In the case of prevention at the local AS, the presence of an OTC Attribute indicates to the egress router that the route was learned from a Peer, Provider, or RS, and it can be advertised only to the customers.
         The same OTC Attribute which is set locally also provides a way to detect route leaks by an AS multiple hops away if a route is received from a Customer, Peer, or RS-Client.
+        For example, if an AS sets the OTC Attribute on a route sent to a Peer and and the route is is subsequently received by a compliant AS from a Customer, then the receiving AS detects (based on the presence of the OTC Attribute) that the route is a leak.
       </t>
 
       <t>
-        The OTC Attribute may be set by the egress policy of the remote AS or by the ingress policy of the local AS.
+        The OTC Attribute might be set by the egress of the remote AS or by the ingress of the local AS: if the remote AS is noncompliant with this specification, then the local AS will have to set the OTC Attribute if it is absent.
         In both scenarios, the OTC value will be the same.
         This makes the scheme more robust and benefits early adopters.
       </t>
@@ -384,6 +385,12 @@
       <t>
         The incorrect setting of BGP Roles and/or OTC Attributes may affect prefix propagation.
         Further, this document does not specify any special handling of incorrect AS numbers in the OTC Attribute.
+      </t>
+
+      <t>
+        In AS migration scenarios <xref target="RFC7705"/>, a given router may represent itself as any one of several different ASes.
+        This should not be a problem since the egress procedures in <xref target="prevention_attribute"/> specify that the OTC Attribute is to be attached as part of route transmission.
+        Therefore, a router is expected to set the OTC value equal to the ASN it is currently representing itself as.
       </t>
     </section>
 
@@ -488,6 +495,7 @@
       &RFC8205;
       &RFC4272;
       &RFC7938;
+      &RFC7705;
 
       <reference anchor="Gao" target="https://ieeexplore.ieee.org/document/974523">
         <front>
