@@ -25,7 +25,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-19" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-20" ipr="trust200902">
   <front>
     <title abbrev="Route Leak Prevention">Route Leak Prevention and Detection using Roles in UPDATE and OPEN Messages</title>
     <author fullname="Alexander Azimov" initials="A." surname="Azimov">
@@ -263,8 +263,8 @@
 
         <t>
           The mere receipt of BGP Role Capability does not automatically guarantee the Role agreement between two eBGP neighbors.
-          If the BGP Role Capability is advertised, and one is also received from the peer, the roles MUST correspond to the relationships in Table 2.
-          If the roles do not correspond, the BGP speaker MUST reject the connection using the Role Mismatch Notification (code 2, subcode TBD).
+          If the BGP Role Capability is advertised, and one is also received from the peer, the Roles MUST correspond to the relationships in Table 2.
+          If the Roles do not correspond, the BGP speaker MUST reject the connection using the Role Mismatch Notification (code 2, subcode TBD).
         </t>
         <texttable anchor="allowed" title="Allowed Pairs of Role Capabilities" suppress-title="false">
           <ttcol align="left">Local AS Role</ttcol>
@@ -306,10 +306,10 @@
       <t>
         The Only to Customer (OTC) Attribute is an optional transitive path attribute of the UPDATE message with Attribute Type Code 35 and a length of 4 octets.
         The purpose of this attribute is to guarantee that once a route is sent to a Customer, Peer, or RS-Client, it will subsequently go only to Customers.
-        The attribute value is an AS number (ASN) determined by the procedure described below.
+        The attribute value is an AS number (ASN) determined by the procedures described below.
       </t>
       <t>
-        The following procedure applies to the processing of the OTC Attribute on the route receipt:
+        The following ingress procedure applies to the processing of the OTC Attribute on route receipt:
         <list style="numbers">
           <t>
             If a route with the OTC Attribute is received from a Customer or RS-Client, then it is a route leak and MUST be considered ineligible (see <xref target="terminology"/>).
@@ -324,7 +324,7 @@
       </t>
 
       <t>
-        The following procedure applies to the processing of the OTC Attribute on the route advertisement:
+        The following egress procedure applies to the processing of the OTC Attribute on route advertisement:
         <list style="numbers">
           <t>
             If a route is to be advertised to a Customer, Peer, or RS-Client (when the sender is an RS), and the OTC Attribute is not present, then an OTC Attribute MUST be added with a value equal to the AS number of the local AS.
@@ -336,14 +336,14 @@
       </t>
 
       <t>
-        The described policies provide both leak prevention for the local AS and leak detection and mitigation multiple hops away.
+        The above-described procedures provide both leak prevention for the local AS and leak detection and mitigation multiple hops away.
         In the case of prevention at the local AS, the presence of an OTC Attribute indicates to the egress router that the route was learned from a Peer, Provider, or RS, and it can be advertised only to the customers.
         The same OTC Attribute which is set locally also provides a way to detect route leaks by an AS multiple hops away if a route is received from a Customer, Peer, or RS-Client.
-        For example, if an AS sets the OTC Attribute on a route sent to a Peer and and the route is is subsequently received by a compliant AS from a Customer, then the receiving AS detects (based on the presence of the OTC Attribute) that the route is a leak.
+        For example, if an AS sets the OTC Attribute on a route sent to a Peer and the route is subsequently received by a compliant AS from a Customer, then the receiving AS detects (based on the presence of the OTC Attribute) that the route is a leak.
       </t>
 
       <t>
-        The OTC Attribute might be set by the egress of the remote AS or by the ingress of the local AS: if the remote AS is noncompliant with this specification, then the local AS will have to set the OTC Attribute if it is absent.
+        The OTC Attribute might be set at the egress of the remote AS or at the ingress of the local AS, i.e., if the remote AS is noncompliant with this specification, then the local AS will have to set the OTC Attribute if it is absent.
         In both scenarios, the OTC value will be the same.
         This makes the scheme more robust and benefits early adopters.
       </t>
@@ -366,8 +366,8 @@
         Once the OTC Attribute has been set, it MUST be preserved unchanged (this also applies to an AS Confederation).
       </t>
       <t>
-        The described ingress and egress policies are applicable only for unicast IPv4 and IPv6 address families and MUST NOT be applied to other address families by default.
-        The operator MUST NOT have the ability to modify the policies defined in this section.
+        The described ingress and egress procedures are applicable only for unicast IPv4 and IPv6 address families and MUST NOT be applied to other address families by default.
+        The operator MUST NOT have the ability to modify the procedures defined in this section.
       </t>
     </section>
 
@@ -453,8 +453,8 @@
       <t>
         This document proposes a mechanism using BGP Role for the prevention and detection of route leaks that are the result of BGP policy misconfiguration.
         A misconfiguration of the BGP Role may affect prefix propagation.
-        For example, if a downstream (i.e., towards a Customer) peering link were misconfigured with a Provider or Peer role, this will limit the number of prefixes that can be advertised in this direction.
-        On the other hand, if an upstream provider were misconfigured (by a local AS) with the Customer role, this may result in propagating routes that are received from other Providers or Peers.
+        For example, if a downstream (i.e., towards a Customer) peering link were misconfigured with a Provider or Peer Role, this will limit the number of prefixes that can be advertised in this direction.
+        On the other hand, if an upstream provider were misconfigured (by a local AS) with the Customer Role, this may result in propagating routes that are received from other Providers or Peers.
         But the BGP Role negotiation and the resulting confirmation of Roles make such misconfigurations unlikely.
       </t>
 
