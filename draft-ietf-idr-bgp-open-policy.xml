@@ -138,7 +138,7 @@
       </t>
 
       <t>
-        This document specifies a means of replacing the operator driven configuration-based method of route leak prevention, described above, with a built-in method for route leak prevention and detection.
+        This document specifies a means of replacing the operator-driven configuration-based method of route leak prevention, described above, with a built-in method for route leak prevention and detection.
       </t>
 
       <t>
@@ -253,6 +253,7 @@
         <t>
           If BGP Role is locally configured, the eBGP speaker MUST advertise BGP Role Capability in the BGP OPEN message.
           An eBGP speaker MUST NOT advertise multiple versions of the BGP Role Capability.
+          The error handling if receipt receives multiple BGP Role Capabilities is described in <xref target="correctness"/>.
         </t>
 
       </section>
@@ -343,7 +344,7 @@
       </t>
 
       <t>
-        The OTC Attribute might be set at the egress of the remote AS or at the ingress of the local AS, i.e., if the remote AS is noncompliant with this specification, then the local AS will have to set the OTC Attribute if it is absent.
+        The OTC Attribute might be set at the egress of the remote AS or at the ingress of the local AS, i.e., if the remote AS is non-compliant with this specification, then the local AS will have to set the OTC Attribute if it is absent.
         In both scenarios, the OTC value will be the same.
         This makes the scheme more robust and benefits early adopters.
       </t>
@@ -474,7 +475,7 @@
         Adding an OTC Attribute when the route is advertised from Customer to Provider will limit the propagation of the route.
         Such a route may be considered as ineligible by the immediate Provider or its Peers or upper layer Providers.
         This kind of OTC Attribute addition is unlikely to happen on the Provider side because it will limit the traffic volume towards its Customer.
-        On the Customer side, adding an OTC Attribute for traffic engineering purposes is also discouraged because it will limit route propagation in an unpredictable way.
+        On the Customer side, adding an OTC Attribute for traffic engineering purposes is also discouraged because it will unpredictably limit route propagation.
       </t>
     </section>
   </middle>
