@@ -25,7 +25,7 @@
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
 
-<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-20" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-idr-bgp-open-policy-21" ipr="trust200902">
   <front>
     <title abbrev="Route Leak Prevention">Route Leak Prevention and Detection using Roles in UPDATE and OPEN Messages</title>
     <author fullname="Alexander Azimov" initials="A." surname="Azimov">
@@ -107,8 +107,8 @@
       <t>
         Route leaks are the propagation of BGP prefixes that violate assumptions of BGP topology relationships, e.g., announcing a route learned from one transit provider to another transit provider or a lateral (i.e., non-transit) peer or announcing a route learned from one lateral peer to another lateral peer or a transit provider.
         These are usually the result of misconfigured or absent BGP route filtering or lack of coordination between autonomous systems (ASes).
-        Existing approaches to leak prevention rely on marking routes by operator configuration, with no check that the configuration corresponds to that of the eBGP neighbor, or enforcement that the two eBGP speakers agree on the relationship.
-        This document enhances the BGP OPEN message to establish an agreement of the relationship on each eBGP session between autonomous systems in order to enforce appropriate configuration on both sides.
+        Existing approaches to leak prevention rely on marking routes by operator configuration, with no check that the configuration corresponds to that of the eBGP neighbor, or enforcement that the two eBGP speakers agree on the peering relationship.
+        This document enhances the BGP OPEN message to establish an agreement of the peering relationship on each eBGP session between autonomous systems in order to enforce appropriate configuration on both sides.
         Propagated routes are then marked according to the agreed relationship, allowing both prevention and detection of route leaks.
       </t>
     </abstract>
@@ -138,7 +138,7 @@
       </t>
 
       <t>
-        This document specifies a means of replacing the operator-driven configuration-based method of route leak prevention, described above, with a built-in method for route leak prevention and detection.
+        This document specifies a means of replacing the operator-driven configuration-based method of route leak prevention, described above, with an in-band method for route leak prevention and detection.
       </t>
 
       <t>
@@ -166,6 +166,9 @@
       <t>
         The terms defined and used in this document (see below) do not necessarily represent business relationships based on payment agreements.
         These terms are used to represent restrictions on BGP route propagation, sometimes known as the Gao-Rexford model <xref target="Gao"/>.
+        The terms Provider, Customer, and Peer used here are synonymous to the terms "transit provider", "customer", and "lateral (i.e., non-transit) peer", respectively, used in <xref target="RFC7908"/>.
+      </t>
+      <t>
         The following is a list of BGP Roles for eBGP peering and the corresponding rules for route propagation:
         <list style="hanging">
           <t hangText="Provider:">
@@ -198,7 +201,9 @@
       </t>
       <t>
         A BGP speaker may apply policy to reduce what is announced, and a recipient may apply policy to reduce the set of routes they accept.
-        Violation of the above rules may result in route leaks.
+      </t>
+      <t>
+        Violation of the route propagation rules listed above may result in route leaks <xref target="RFC7908"/>.
         Automatic enforcement of these rules should significantly reduce route leaks that may otherwise occur due to manual configuration mistakes.
       </t>
       <t>
@@ -253,7 +258,7 @@
         <t>
           If BGP Role is locally configured, the eBGP speaker MUST advertise BGP Role Capability in the BGP OPEN message.
           An eBGP speaker MUST NOT advertise multiple versions of the BGP Role Capability.
-          The error handling if receipt receives multiple BGP Role Capabilities is described in <xref target="correctness"/>.
+          The error handling when multiple BGP Role Capabilities are received is described in <xref target="correctness"/>.
         </t>
 
       </section>
@@ -350,7 +355,7 @@
       </t>
 
       <t>
-        If an eBGP speaker receives an UPDATE with an OTC Attribute with a length different from 4 octets, then the UPDATE SHALL be considered malformed.
+        If an UPDATE is received with an OTC Attribute with a length different from 4 octets, then the UPDATE SHALL be considered malformed.
         If malformed, the UPDATE message SHALL be handled using the approach of "treat-as-withdraw" <xref target="RFC7606"/>.
       </t>
 
@@ -380,7 +385,7 @@
 
       <t>
         An operator may want to achieve an equivalent outcome by configuring policies on a per-prefix basis to follow the definitions of peering relations as described in <xref target="defs"/>.
-        However, in this case, there are no built-in measures to check the correctness of the per-prefix peering configuration.
+        However, in this case, there are no in-band measures to check the correctness of the per-prefix peering configuration.
       </t>
 
       <t>
@@ -465,7 +470,7 @@
       </t>
 
       <t>
-        Removing the OTC Attribute or changing its value can limit the opportunity of route leak detection.
+        Removing the OTC Attribute or changing its value can limit the opportunity for route leak detection.
         Such activity can be done on purpose as part of an on-path attack.
         For example, an AS can remove the OTC Attribute on a received route and then leak the route to its transit provider.
         This kind of threat is not new in BGP and it may affect any Attribute (Note: BGPsec <xref target="RFC8205"/> offers protection only for the AS_PATH Attribute).
@@ -475,7 +480,7 @@
         Adding an OTC Attribute when the route is advertised from Customer to Provider will limit the propagation of the route.
         Such a route may be considered as ineligible by the immediate Provider or its Peers or upper layer Providers.
         This kind of OTC Attribute addition is unlikely to happen on the Provider side because it will limit the traffic volume towards its Customer.
-        On the Customer side, adding an OTC Attribute for traffic engineering purposes is also discouraged because it will unpredictably limit route propagation.
+        On the Customer side, adding an OTC Attribute for traffic engineering purposes is also discouraged because it will limit route propagation in an unpredictable way.
       </t>
     </section>
   </middle>
